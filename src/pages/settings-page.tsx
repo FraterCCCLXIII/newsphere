@@ -11,8 +11,15 @@ import type { CatalogSource } from "@/types/catalog";
 import type { AppOutletContext } from "@/types/app-outlet";
 
 export function SettingsPage() {
-  const { columns, addColumn, removeColumn, reorderColumns } =
-    useOutletContext<AppOutletContext>();
+  const {
+    settingsColumns,
+    allColumns,
+    isAggregateView,
+    pages,
+    addColumn,
+    removeColumn,
+    reorderColumns,
+  } = useOutletContext<AppOutletContext>();
 
   const [title, setTitle] = useState("");
   const [feedUrl, setFeedUrl] = useState("");
@@ -48,13 +55,25 @@ export function SettingsPage() {
 
         <section className="space-y-3">
           <h3 className="text-sm font-medium">Your grid columns</h3>
-          <p className="text-sm text-muted-foreground">
-            Drag the handle to reorder. Remove columns you do not need. On the
-            home grid, up to three sources appear per row; additional sources
-            continue on the next row.
-          </p>
+          {isAggregateView ? (
+            <p className="text-sm text-muted-foreground">
+              You are viewing <span className="font-medium text-foreground">All</span>{" "}
+              on the home grid. The list below edits{" "}
+              <span className="font-medium text-foreground">
+                {pages[0]?.name ?? "News"}
+              </span>{" "}
+              (first page in the header menu). Switch pages there to manage another
+              page&apos;s sources.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Drag the handle to reorder. Remove columns you do not need. On the
+              home grid, up to three sources appear per row; additional sources
+              continue on the next row.
+            </p>
+          )}
           <SortableColumnList
-            columns={columns}
+            columns={settingsColumns}
             onReorder={(next) => void reorderColumns(next)}
             onRemove={(id) => void removeColumn(id)}
           />
@@ -70,7 +89,7 @@ export function SettingsPage() {
             </p>
           </div>
           <SourceCatalog
-            columns={columns}
+            columns={allColumns}
             onAddFromCatalog={handleCatalogAdd}
           />
         </section>

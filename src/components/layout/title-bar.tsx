@@ -4,13 +4,17 @@ import {
   Grid3x3,
   Menu,
   MoreVertical,
+  Plus,
   Rows3,
   RefreshCw,
   Search,
   Settings,
 } from "lucide-react";
+import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 
+import { AddSourceModal } from "@/components/layout/add-source-modal";
+import { PageSwitcher } from "@/components/layout/page-switcher";
 import { WindowControls } from "@/components/layout/window-controls";
 import { TextScaleSlider } from "@/components/layout/text-scale-slider";
 import { ThemeAppearanceSwitch } from "@/components/layout/theme-appearance-switch";
@@ -28,12 +32,21 @@ import { Input } from "@/components/ui/input";
 import { isTauriRuntime } from "@/lib/tauri-env";
 import { controlsOnLeft } from "@/lib/platform";
 import { cn } from "@/lib/utils";
+import type { CatalogSource } from "@/types/catalog";
+import type { GridColumn, GridPage } from "@/types/grid";
 
 type TitleBarProps = {
   onRefresh: () => void;
   refreshing: boolean;
   searchValue: string;
   onSearchChange: (value: string) => void;
+  pages: GridPage[];
+  activePageId: string;
+  onSelectPage: (pageId: string) => void;
+  onAddPage: (name: string) => Promise<void>;
+  catalogColumns: GridColumn[];
+  onAddCatalogSource: (source: CatalogSource) => Promise<void>;
+  onAddCustomColumn: (title: string, feedUrl?: string) => Promise<void>;
 };
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -103,7 +116,15 @@ export function TitleBar({
   refreshing,
   searchValue,
   onSearchChange,
+  pages,
+  activePageId,
+  onSelectPage,
+  onAddPage,
+  catalogColumns,
+  onAddCatalogSource,
+  onAddCustomColumn,
 }: TitleBarProps) {
+  const [addSourceOpen, setAddSourceOpen] = useState(false);
   const showControls = isTauriRuntime();
   const mac = controlsOnLeft();
   const location = useLocation();
@@ -150,6 +171,18 @@ export function TitleBar({
         <Bookmark className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">Bookmarks</span>
       </NavLink>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="app-no-drag size-9 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+        title="Add source from catalog"
+        aria-label="Add source from catalog"
+        onClick={() => setAddSourceOpen(true)}
+      >
+        <Plus className="size-4 shrink-0" aria-hidden />
+        <span className="sr-only">Add source</span>
+      </Button>
       <Button
         type="button"
         variant="ghost"
@@ -274,9 +307,27 @@ export function TitleBar({
             >
               Newsphere
             </Link>
+            <PageSwitcher
+              pages={pages}
+              activePageId={activePageId}
+              onSelectPage={onSelectPage}
+              onAddPage={onAddPage}
+            />
           </div>
 
           <div className="flex min-w-0 shrink-0 items-center justify-end gap-0.5 md:order-3">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="app-no-drag size-9 text-muted-foreground hover:bg-accent hover:text-accent-foreground lg:hidden"
+              title="Add source from catalog"
+              aria-label="Add source from catalog"
+              onClick={() => setAddSourceOpen(true)}
+            >
+              <Plus className="size-4 shrink-0" aria-hidden />
+              <span className="sr-only">Add source</span>
+            </Button>
             {mobileMenu}
             {desktopNav}
             {showControls && !mac ? <WindowControls /> : null}
@@ -301,6 +352,20 @@ export function TitleBar({
           </div>
         </div>
       </div>
+
+      <AddSourceModal
+        open={addSourceOpen}
+        onOpenChange={setAddSourceOpen}
+        catalogColumns={catalogColumns}
+        onAddSource={async (source) => {
+          await onAddCatalogSource(source);
+          setAddSourceOpen(false);
+        }}
+        onAddCustomColumn={async (title, feedUrl) => {
+          await onAddCustomColumn(title, feedUrl);
+          setAddSourceOpen(false);
+        }}
+      />
     </header>
   );
 }

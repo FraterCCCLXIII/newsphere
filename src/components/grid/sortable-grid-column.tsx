@@ -66,7 +66,7 @@ export function SortableGridColumn({
   loading,
   error,
 }: SortableGridColumnProps) {
-  const { removeColumn } = useOutletContext<AppOutletContext>();
+  const { removeColumn, isAggregateView } = useOutletContext<AppOutletContext>();
   const [menuOpen, setMenuOpen] = useState(false);
   const prevIsDragging = useRef(false);
   const suppressMenuOpenAfterDragRef = useRef(false);
@@ -83,7 +83,7 @@ export function SortableGridColumn({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: column.id });
+  } = useSortable({ id: column.id, disabled: isAggregateView });
 
   isDraggingRef.current = isDragging;
 
@@ -180,7 +180,11 @@ export function SortableGridColumn({
           )}
           aria-label="Column options"
           aria-haspopup="menu"
-          title="Drag to reorder, or quick-click for menu"
+          title={
+            isAggregateView
+              ? "Quick-click for menu (reorder on a single page from the header)"
+              : "Drag to reorder, or quick-click for menu"
+          }
           {...attributes}
           onPointerDown={(e) => {
             sortableListeners.onPointerDown?.(e);

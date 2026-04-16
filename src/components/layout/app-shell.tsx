@@ -36,6 +36,19 @@ export function AppShell({ grid, bookmarks }: AppShellProps) {
         refreshing={grid.refreshing || feed.feedsRefreshing}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
+        pages={grid.pages}
+        activePageId={grid.activePageId}
+        onSelectPage={(pageId) => {
+          void grid.setActivePage(pageId);
+        }}
+        onAddPage={grid.addPage}
+        catalogColumns={grid.allColumns}
+        onAddCatalogSource={async (source) => {
+          await grid.addColumn(source.name, source.url);
+        }}
+        onAddCustomColumn={async (title, feedUrl) => {
+          await grid.addColumn(title, feedUrl);
+        }}
       />
       <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <Outlet context={outletContext} />
