@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { useBookmarks } from "@/hooks/use-bookmarks";
@@ -22,18 +22,16 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<AppShell grid={grid} bookmarks={bookmarks} />}>
-          <Route index element={<HomePage />} />
-          <Route path="feed" element={<FeedStreamPage />} />
-          <Route path="bookmarks" element={<BookmarksPage />} />
-          <Route path="reader" element={<ReaderPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route element={<AppShell grid={grid} bookmarks={bookmarks} />}>
+        <Route index element={<HomePage />} />
+        <Route path="feed" element={<FeedStreamPage />} />
+        <Route path="bookmarks" element={<BookmarksPage />} />
+        <Route path="reader" element={<ReaderPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

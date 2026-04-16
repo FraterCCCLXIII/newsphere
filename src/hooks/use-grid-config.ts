@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { isTauriRuntime } from "@/lib/tauri-env";
-import type {
-  GridColumn,
-  GridConfig,
-  GridController,
-  GridPage,
-  LegacyGridConfig,
+import {
+  isFeedColumn,
+  type GridColumn,
+  type GridConfig,
+  type GridController,
+  type GridPage,
+  type LegacyGridConfig,
 } from "@/types/grid";
 import {
   AGGREGATE_PAGE_ID,
@@ -158,11 +159,11 @@ export function useGridConfig(): GridController {
   }, [pages, activePageId]);
 
   const columns = useMemo(() => {
-    if (activePageId === AGGREGATE_PAGE_ID && pages.length > 1) {
-      return pages.flatMap((p) => p.columns);
-    }
-    const p = pages.find((x) => x.id === activePageId);
-    return p?.columns ?? [];
+    const raw =
+      activePageId === AGGREGATE_PAGE_ID && pages.length > 1
+        ? pages.flatMap((p) => p.columns)
+        : (pages.find((x) => x.id === activePageId)?.columns ?? []);
+    return raw.filter(isFeedColumn);
   }, [pages, activePageId]);
 
   const settingsColumns = useMemo(() => {
@@ -174,9 +175,17 @@ export function useGridConfig(): GridController {
   }, [pages, activePageId]);
 
   const allColumns = useMemo(
-    () => pages.flatMap((p) => p.columns),
+    () => pages.flatMap((p) => p.columns).filter(isFeedColumn),
     [pages],
   );
+
+  const gridLayoutColumns = useMemo(() => {
+    if (activePageId === AGGREGATE_PAGE_ID && pages.length > 1) {
+      return pages.flatMap((p) => p.columns);
+    }
+    const p = pages.find((x) => x.id === activePageId);
+    return p?.columns ?? [];
+  }, [pages, activePageId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -256,9 +265,108 @@ export function useGridConfig(): GridController {
       const col: GridColumn = {
         id: crypto.randomUUID(),
         title: title.trim() || "Untitled",
+        kind: "feed",
         feedUrl: feedUrl?.trim() || undefined,
       };
       await updatePageColumns(pid, [...prev, col]);
+    },
+    [updatePageColumns],
+  );
+
+  const addSectionHeader = useCallback(
+    async (title: string) => {
+      const pid = mutationTargetPageIdRef.current;
+      const page = pagesRef.current.find((p) => p.id === pid);
+      const prev = page?.columns ?? [];
+      const col: GridColumn = {
+        id: crypto.randomUUID(),
+        title: title.trim() || "Section",
+        kind: "header",
+      };
+      await updatePageColumns(pid, [...prev, col]);
+    },
+    [updatePageColumns],
+  );
+
+  const insertColumnAfter = useCallback(
+    async (
+      afterColumnId: string | null,
+      kind: "feed" | "header",
+      title: string,
+      feedUrl?: string,
+    ) => {
+      const newCol: GridColumn =
+        kind === "header"
+          ? {
+              id: crypto.randomUUID(),
+              title: title.trim() || "Section",
+              kind: "header",
+            }
+          : {
+              id: crypto.randomUUID(),
+              title: title.trim() || "Untitled",
+              kind: "feed",
+              feedUrl: feedUrl?.trim() || undefined,
+            };
+
+      const findPlacement = (
+        columnId: string,
+      ): { pageId: string; index: number } | null => {
+        for (const p of pagesRef.current) {
+          const i = p.columns.findIndex((c) => c.id === columnId);
+          if (i !== -1) return { pageId: p.id, index: i };
+        }
+        return null;
+      };
+
+      const pagesSnapshot = pagesRef.current;
+
+      if (afterColumnId === null) {
+        const flat = pagesSnapshot.flatMap((p) => p.columns);
+        if (flat.length === 0) {
+          const pid = mutationTargetPageIdRef.current;
+          await updatePageColumns(pid, [newCol]);
+          return;
+        }
+        const firstId = flat[0]!.id;
+        const place = findPlacement(firstId);
+        if (!place) return;
+        const page = pagesSnapshot.find((p) => p.id === place.pageId)!;
+        const next = [
+          ...page.columns.slice(0, place.index),
+          newCol,
+          ...page.columns.slice(place.index),
+        ];
+        await updatePageColumns(place.pageId, next);
+        return;
+      }
+
+      const place = findPlacement(afterColumnId);
+      if (!place) return;
+      const page = pagesSnapshot.find((p) => p.id === place.pageId)!;
+      const insertIdx = place.index + 1;
+      const next = [
+        ...page.columns.slice(0, insertIdx),
+        newCol,
+        ...page.columns.slice(insertIdx),
+      ];
+      await updatePageColumns(place.pageId, next);
+    },
+    [updatePageColumns],
+  );
+
+  const updateColumnTitle = useCallback(
+    async (columnId: string, title: string) => {
+      const trimmed = title.trim();
+      if (!trimmed) return;
+      const owner = pagesRef.current.find((p) =>
+        p.columns.some((c) => c.id === columnId),
+      );
+      if (!owner) return;
+      const nextCols = owner.columns.map((c) =>
+        c.id === columnId ? { ...c, title: trimmed } : c,
+      );
+      await updatePageColumns(owner.id, nextCols);
     },
     [updatePageColumns],
   );
@@ -285,6 +393,32 @@ export function useGridConfig(): GridController {
     [updatePageColumns],
   );
 
+  const reorderPages = useCallback(
+    async (ordered: GridPage[]) => {
+      await persistConfig({
+        pages: ordered,
+        activePageId: activePageIdRef.current,
+      });
+    },
+    [persistConfig],
+  );
+
+  const renamePage = useCallback(
+    async (pageId: string, name: string) => {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      if (!pagesRef.current.some((p) => p.id === pageId)) return;
+      const nextPages = pagesRef.current.map((p) =>
+        p.id === pageId ? { ...p, name: trimmed } : p,
+      );
+      await persistConfig({
+        pages: nextPages,
+        activePageId: activePageIdRef.current,
+      });
+    },
+    [persistConfig],
+  );
+
   const refresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -299,6 +433,7 @@ export function useGridConfig(): GridController {
     columns,
     settingsColumns,
     allColumns,
+    gridLayoutColumns,
     isAggregateView,
     pages,
     activePageId,
@@ -308,7 +443,12 @@ export function useGridConfig(): GridController {
     setActivePage,
     addPage,
     addColumn,
+    addSectionHeader,
+    insertColumnAfter,
+    updateColumnTitle,
     removeColumn,
     reorderColumns,
+    reorderPages,
+    renamePage,
   };
 }

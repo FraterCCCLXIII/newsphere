@@ -3,6 +3,8 @@ import type { FeedItem } from "@/types/feed";
 import type { GridController } from "@/types/grid";
 
 export type AppOutletContext = GridController & {
+  /** Opens the catalog / custom feed modal; new feed is inserted after this column, or before the first when `null` (empty grid). */
+  openAddFeedModal: (afterColumnId: string | null) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   feedItemsByColumnId: Record<string, FeedItem[]>;

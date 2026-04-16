@@ -12,10 +12,8 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 
-import { AddSourceModal } from "@/components/layout/add-source-modal";
 import { useHistoryNavigation } from "@/hooks/use-history-navigation";
 import { PageSwitcher } from "@/components/layout/page-switcher";
 import { WindowControls } from "@/components/layout/window-controls";
@@ -35,8 +33,7 @@ import { Input } from "@/components/ui/input";
 import { isTauriRuntime } from "@/lib/tauri-env";
 import { controlsOnLeft } from "@/lib/platform";
 import { cn } from "@/lib/utils";
-import type { CatalogSource } from "@/types/catalog";
-import type { GridColumn, GridPage } from "@/types/grid";
+import type { GridPage } from "@/types/grid";
 
 type TitleBarProps = {
   onRefresh: () => void;
@@ -47,10 +44,7 @@ type TitleBarProps = {
   activePageId: string;
   onSelectPage: (pageId: string) => void;
   onAddPage: (name: string) => Promise<void>;
-  catalogColumns: GridColumn[];
-  onAddCatalogSource: (source: CatalogSource) => Promise<void>;
-  onAddCustomColumn: (title: string, feedUrl?: string) => Promise<void>;
-  onRemoveByFeedUrl: (feedUrl: string) => Promise<void>;
+  onAddSourceClick: () => void;
 };
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -124,12 +118,8 @@ export function TitleBar({
   activePageId,
   onSelectPage,
   onAddPage,
-  catalogColumns,
-  onAddCatalogSource,
-  onAddCustomColumn,
-  onRemoveByFeedUrl,
+  onAddSourceClick,
 }: TitleBarProps) {
-  const [addSourceOpen, setAddSourceOpen] = useState(false);
   const showControls = isTauriRuntime();
   const mac = controlsOnLeft();
   const location = useLocation();
@@ -185,7 +175,7 @@ export function TitleBar({
         className="app-no-drag size-9 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
         title="Add source from catalog"
         aria-label="Add source from catalog"
-        onClick={() => setAddSourceOpen(true)}
+        onClick={onAddSourceClick}
       >
         <Plus className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">Add source</span>
@@ -330,7 +320,7 @@ export function TitleBar({
               className="app-no-drag size-9 text-muted-foreground hover:bg-accent hover:text-accent-foreground lg:hidden"
               title="Add source from catalog"
               aria-label="Add source from catalog"
-              onClick={() => setAddSourceOpen(true)}
+              onClick={onAddSourceClick}
             >
               <Plus className="size-4 shrink-0" aria-hidden />
               <span className="sr-only">Add source</span>
@@ -396,14 +386,6 @@ export function TitleBar({
         </div>
       </div>
 
-      <AddSourceModal
-        open={addSourceOpen}
-        onOpenChange={setAddSourceOpen}
-        catalogColumns={catalogColumns}
-        onAddSource={onAddCatalogSource}
-        onAddCustomColumn={onAddCustomColumn}
-        onRemoveByFeedUrl={onRemoveByFeedUrl}
-      />
     </header>
   );
 }

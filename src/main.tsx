@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
+import { BrowserRouter } from "react-router-dom";
+
 import App from "./App";
 import { TextScaleProvider } from "@/components/text-scale-provider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -19,7 +21,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ThemeProvider>
       <TextScaleProvider>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </TextScaleProvider>
     </ThemeProvider>
   </React.StrictMode>,
