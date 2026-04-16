@@ -13,6 +13,7 @@ import {
   AGGREGATE_PAGE_ID,
   DEFAULT_FIRST_PAGE_ID,
 } from "@/types/grid";
+import bundledDefaultGrid from "@/data/default-grid-config.json";
 
 const STORE_FILE = "grid-config.json";
 const STORE_KEY = "grid_config";
@@ -53,6 +54,11 @@ function normalizeActivePageId(
   return activePageId;
 }
 
+/** Fresh installs / no saved layout: pages, section headers, and feeds from `src/data/default-grid-config.json`. */
+function getBundledDefaultGridConfig(): GridConfig {
+  return JSON.parse(JSON.stringify(bundledDefaultGrid)) as GridConfig;
+}
+
 function migrateGridConfig(raw: unknown): GridConfig {
   if (raw && typeof raw === "object" && raw !== null) {
     const o = raw as Record<string, unknown>;
@@ -79,10 +85,7 @@ function migrateGridConfig(raw: unknown): GridConfig {
       };
     }
   }
-  return {
-    pages: [{ id: DEFAULT_FIRST_PAGE_ID, name: "News", columns: [] }],
-    activePageId: DEFAULT_FIRST_PAGE_ID,
-  };
+  return getBundledDefaultGridConfig();
 }
 
 async function loadConfig(): Promise<GridConfig> {

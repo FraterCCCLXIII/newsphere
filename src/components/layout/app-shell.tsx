@@ -5,6 +5,7 @@ import { AddSourceModal } from "@/components/layout/add-source-modal";
 import { TitleBar } from "@/components/layout/title-bar";
 import { useFeedItems } from "@/hooks/use-feed-items";
 import type { BookmarksController } from "@/hooks/use-bookmarks";
+import type { ReadHistoryController } from "@/hooks/use-read-history";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { CatalogSource } from "@/types/catalog";
 import type { GridController } from "@/types/grid";
@@ -12,9 +13,10 @@ import type { GridController } from "@/types/grid";
 type AppShellProps = {
   grid: GridController;
   bookmarks: BookmarksController;
+  readHistory: ReadHistoryController;
 };
 
-export function AppShell({ grid, bookmarks }: AppShellProps) {
+export function AppShell({ grid, bookmarks, readHistory }: AppShellProps) {
   const feed = useFeedItems(grid.columns);
   const [searchQuery, setSearchQuery] = useState("");
   const [addSourceOpen, setAddSourceOpen] = useState(false);
@@ -76,6 +78,9 @@ export function AppShell({ grid, bookmarks }: AppShellProps) {
     bookmarks: bookmarks.bookmarks,
     toggleBookmark: bookmarks.toggleBookmark,
     removeBookmark: bookmarks.removeBookmark,
+    readHistory: readHistory.readHistory,
+    recordArticleView: readHistory.recordArticleView,
+    removeReadHistoryEntry: readHistory.removeReadHistoryEntry,
   };
 
   return (

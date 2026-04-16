@@ -3,7 +3,9 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/layout/app-shell";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useGridConfig } from "@/hooks/use-grid-config";
+import { useReadHistory } from "@/hooks/use-read-history";
 import { BookmarksPage } from "@/pages/bookmarks-page";
+import { HistoryPage } from "@/pages/history-page";
 import { FeedStreamPage } from "@/pages/feed-stream-page";
 import { HomePage } from "@/pages/home-page";
 import { ReaderPage } from "@/pages/reader-page";
@@ -12,8 +14,9 @@ import { SettingsPage } from "@/pages/settings-page";
 function App() {
   const grid = useGridConfig();
   const bookmarks = useBookmarks();
+  const readHistory = useReadHistory();
 
-  if (!grid.ready || !bookmarks.ready) {
+  if (!grid.ready || !bookmarks.ready || !readHistory.ready) {
     return (
       <div className="flex min-h-screen items-center justify-center text-muted-foreground">
         Loading…
@@ -23,10 +26,13 @@ function App() {
 
   return (
     <Routes>
-      <Route element={<AppShell grid={grid} bookmarks={bookmarks} />}>
+      <Route
+        element={<AppShell grid={grid} bookmarks={bookmarks} readHistory={readHistory} />}
+      >
         <Route index element={<HomePage />} />
         <Route path="feed" element={<FeedStreamPage />} />
         <Route path="bookmarks" element={<BookmarksPage />} />
+        <Route path="history" element={<HistoryPage />} />
         <Route path="reader" element={<ReaderPage />} />
         <Route path="settings" element={<SettingsPage />} />
       </Route>

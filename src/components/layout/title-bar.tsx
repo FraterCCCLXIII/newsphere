@@ -1,6 +1,7 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   Bookmark,
+  History,
   ChevronLeft,
   ChevronRight,
   Grid3x3,
@@ -168,6 +169,15 @@ export function TitleBar({
         <Bookmark className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">Bookmarks</span>
       </NavLink>
+      <NavLink
+        to="/history"
+        className={navClass}
+        title="Reading history"
+        aria-label="Reading history"
+      >
+        <History className="size-4 shrink-0" aria-hidden />
+        <span className="sr-only">History</span>
+      </NavLink>
       <Button
         type="button"
         variant="ghost"
@@ -258,6 +268,12 @@ export function TitleBar({
           <NavLink to="/bookmarks" className={mobileNavLinkClass}>
             <Bookmark className="size-4 shrink-0 text-muted-foreground" />
             Bookmarks
+          </NavLink>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <NavLink to="/history" className={mobileNavLinkClass}>
+            <History className="size-4 shrink-0 text-muted-foreground" />
+            History
           </NavLink>
         </DropdownMenuItem>
         <DropdownMenuItem

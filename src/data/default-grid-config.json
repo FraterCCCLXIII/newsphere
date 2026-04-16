@@ -1,0 +1,91 @@
+{
+  "pages": [
+    {
+      "id": "page-news",
+      "name": "News",
+      "columns": [
+        {
+          "id": "e10c9799-b135-4c01-b25d-bae520f6de42",
+          "title": "Headlines",
+          "kind": "header"
+        },
+        {
+          "id": "379c4c84-59a6-4163-9fe8-11f4a2568690",
+          "title": "BBC — Top stories",
+          "kind": "feed",
+          "feedUrl": "https://feeds.bbci.co.uk/news/rss.xml"
+        },
+        {
+          "id": "c7360603-e56b-4634-b868-f267b142047d",
+          "title": "The Guardian — World",
+          "kind": "feed",
+          "feedUrl": "https://www.theguardian.com/world/rss"
+        },
+        {
+          "id": "202af096-f6c0-4040-81cb-f1de5a862479",
+          "title": "NPR News",
+          "kind": "feed",
+          "feedUrl": "https://feeds.npr.org/1001/rss.xml"
+        },
+        {
+          "id": "daa49d6d-c435-4c88-8684-8fe8829e7174",
+          "title": "More world",
+          "kind": "header"
+        },
+        {
+          "id": "bae3f145-588d-4c24-b16d-21b60d8899a3",
+          "title": "Al Jazeera English",
+          "kind": "feed",
+          "feedUrl": "https://www.aljazeera.com/xml/rss/all.xml"
+        }
+      ]
+    },
+    {
+      "id": "page-tech",
+      "name": "Tech",
+      "columns": [
+        {
+          "id": "9c137e44-6968-45ec-8e1b-e04f4a4055c1",
+          "title": "Aggregators",
+          "kind": "header"
+        },
+        {
+          "id": "cc766776-4cbe-4612-9041-230e05ea04f8",
+          "title": "Hacker News",
+          "kind": "feed",
+          "feedUrl": "https://hnrss.org/frontpage"
+        },
+        {
+          "id": "81354c0e-395f-4d75-babe-d87e869f4d2e",
+          "title": "Lobsters",
+          "kind": "feed",
+          "feedUrl": "https://lobste.rs/rss"
+        },
+        {
+          "id": "9b1039b0-7ca1-464d-b279-2abe0c2a543d",
+          "title": "Tech news",
+          "kind": "header"
+        },
+        {
+          "id": "d064c4bb-e11f-4aa1-aba1-6a355cbcb90f",
+          "title": "Ars Technica",
+          "kind": "feed",
+          "feedUrl": "https://feeds.arstechnica.com/arstechnica/index"
+        },
+        {
+          "id": "be4225c2-0f48-4edf-8476-99f962f3cf90",
+          "title": "The Verge",
+          "kind": "feed",
+          "feedUrl": "https://www.theverge.com/rss/index.xml"
+        },
+        {
+          "id": "3d2e7478-42cd-4f07-808a-3a2c536c76c0",
+          "title": "Wired",
+          "kind": "feed",
+          "feedUrl": "https://www.wired.com/feed/rss"
+        }
+      ]
+    }
+  ],
+  "activePageId": "page-news"
+}

@@ -1,4 +1,5 @@
 import type { BookmarkEntry } from "@/types/bookmark";
+import type { ReadHistoryEntry } from "@/types/read-history";
 
 /** Case-insensitive match on title, link, and optional snippet; empty query matches everything. */
 export function matchesArticleSearch(
@@ -23,5 +24,18 @@ export function matchesBookmarkSearch(
   if (b.title.toLowerCase().includes(q)) return true;
   if (b.link.toLowerCase().includes(q)) return true;
   if (b.sourceFeedTitle?.toLowerCase().includes(q)) return true;
+  return false;
+}
+
+/** Same fields as bookmark search for read history rows. */
+export function matchesReadHistorySearch(
+  query: string,
+  h: ReadHistoryEntry,
+): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  if (h.title.toLowerCase().includes(q)) return true;
+  if (h.link.toLowerCase().includes(q)) return true;
+  if (h.sourceFeedTitle?.toLowerCase().includes(q)) return true;
   return false;
 }

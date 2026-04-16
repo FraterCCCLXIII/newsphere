@@ -1,4 +1,5 @@
 import type { BookmarkEntry } from "@/types/bookmark";
+import type { ReadHistoryEntry } from "@/types/read-history";
 import type { FeedItem } from "@/types/feed";
 import type { GridController } from "@/types/grid";
 
@@ -21,4 +22,13 @@ export type AppOutletContext = GridController & {
     sourceColumnId?: string;
   }) => Promise<void>;
   removeBookmark: (id: string) => Promise<void>;
+  readHistory: ReadHistoryEntry[];
+  recordArticleView: (entry: {
+    title: string;
+    link: string;
+    published?: string;
+    sourceFeedTitle?: string;
+    sourceColumnId?: string;
+  }) => Promise<void>;
+  removeReadHistoryEntry: (id: string) => Promise<void>;
 };

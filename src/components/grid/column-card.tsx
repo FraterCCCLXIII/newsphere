@@ -18,9 +18,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { FeedArticleHoverCard } from "@/components/feed/feed-article-hover-card";
+import { FeedItemHoverPreviewPanel } from "@/components/feed/feed-item-hover-preview-panel";
 import { ShareModal } from "@/components/share/share-modal";
 import { COLUMN_RSS_PLACEHOLDER } from "@/lib/feed-messages";
-import { formatPublishedDateTime } from "@/lib/feed-time";
+import { getFeedPreviewParts } from "@/lib/feed-preview";
+import { formatPublishedDateTime, formatRelativePublished } from "@/lib/feed-time";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { buildReaderUrl } from "@/lib/reader-url";
 import { isTauriRuntime } from "@/lib/tauri-env";
@@ -77,6 +80,31 @@ export function FeedEntryRow({
   const publishedLabel = formatPublishedDateTime(item.published);
   const rowBorder = !isLast ? "border-b border-border" : "";
 
+  const preview = useMemo(() => getFeedPreviewParts(item), [item]);
+  const showPreview = Boolean(preview.excerpt || preview.imageUrl);
+  const relativeLabel = formatRelativePublished(item.published);
+
+  const linkClassName =
+    "flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left";
+
+  const linkInner = (
+    <span className="min-w-0 flex-1">
+      <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
+        {item.title}
+      </span>
+      {publishedLabel ? (
+        <span className="mt-0.5 block text-xs tabular-nums text-muted-foreground">
+          {publishedLabel}
+        </span>
+      ) : null}
+      {showSourceLine ? (
+        <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+          {columnTitle}
+        </span>
+      ) : null}
+    </span>
+  );
+
   if (!item.link) {
     return (
       <li>
@@ -116,26 +144,34 @@ export function FeedEntryRow({
         )}
       >
         <div className="flex min-w-0 flex-1 items-stretch">
-          <Link
-            to={buildReaderUrl(item.link!, columnId)}
-            className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left"
-          >
-            <span className="min-w-0 flex-1">
-              <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
-                {item.title}
-              </span>
-              {publishedLabel ? (
-                <span className="mt-0.5 block text-xs tabular-nums text-muted-foreground">
-                  {publishedLabel}
-                </span>
-              ) : null}
-              {showSourceLine ? (
-                <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-                  {columnTitle}
-                </span>
-              ) : null}
-            </span>
-          </Link>
+          {showPreview ? (
+            <FeedArticleHoverCard
+              openDelay={200}
+              closeDelay={80}
+              panelClassName="border-border"
+              trigger={
+                <Link
+                  to={buildReaderUrl(item.link!, columnId)}
+                  className={linkClassName}
+                >
+                  {linkInner}
+                </Link>
+              }
+            >
+              <FeedItemHoverPreviewPanel
+                excerpt={preview.excerpt}
+                imageUrl={preview.imageUrl}
+                relativeLabel={relativeLabel}
+              />
+            </FeedArticleHoverCard>
+          ) : (
+            <Link
+              to={buildReaderUrl(item.link!, columnId)}
+              className={linkClassName}
+            >
+              {linkInner}
+            </Link>
+          )}
           <a
             href={item.link}
             target="_blank"

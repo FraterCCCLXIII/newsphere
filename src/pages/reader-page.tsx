@@ -7,7 +7,7 @@ import {
   Share2,
   X,
 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useNavigate,
   useOutletContext,
@@ -37,8 +37,13 @@ function findItemIndex(items: FeedItem[], link: string): number {
 export function ReaderPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { feedItemsByColumnId, columns, bookmarks, toggleBookmark } =
-    useOutletContext<AppOutletContext>();
+  const {
+    feedItemsByColumnId,
+    columns,
+    bookmarks,
+    toggleBookmark,
+    recordArticleView,
+  } = useOutletContext<AppOutletContext>();
 
   const linkParam = searchParams.get("l");
   const columnId = searchParams.get("c") ?? undefined;
@@ -142,6 +147,24 @@ export function ReaderPage() {
     currentItem?.published,
     columnTitle,
     columnId,
+  ]);
+
+  useEffect(() => {
+    if (!linkParam) return;
+    void recordArticleView({
+      title: displayTitle,
+      link: linkParam,
+      published: currentItem?.published,
+      sourceFeedTitle: columnTitle ?? undefined,
+      sourceColumnId: columnId,
+    });
+  }, [
+    linkParam,
+    columnId,
+    displayTitle,
+    currentItem?.published,
+    columnTitle,
+    recordArticleView,
   ]);
 
   if (!linkParam) {

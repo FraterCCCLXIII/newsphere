@@ -76,11 +76,20 @@ export function GridInsertPlusMenu({
       close();
     };
 
+    const onScroll = (e: Event) => {
+      const t = e.target;
+      if (!(t instanceof Node)) return;
+      if (menuRef.current?.contains(t)) return;
+      close();
+    };
+
     document.addEventListener("keydown", onKeyDown);
     document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("scroll", onScroll, true);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("scroll", onScroll, true);
     };
   }, [open, close]);
 
@@ -95,6 +104,8 @@ export function GridInsertPlusMenu({
       triggerRef as MutableRefObject<HTMLElement | null>,
       triggerRefFromProps,
     ),
+    "aria-expanded": open,
+    "data-state": open ? "open" : "closed",
     onClick: (e: ReactMouseEvent<HTMLElement>) => {
       e.preventDefault();
       setOpen((prev) => {
@@ -111,7 +122,7 @@ export function GridInsertPlusMenu({
       <div
         ref={menuRef}
         role="menu"
-        className="fixed z-[100] min-w-[13rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+        className="fixed z-[100] min-w-[13rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in duration-200 ease-out"
         style={{
           left: coords.x,
           top: coords.y + 4,

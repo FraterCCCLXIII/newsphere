@@ -79,9 +79,11 @@ function InsertionZone({
           <button
             type="button"
             className={cn(
-              "flex size-full min-h-[2.5rem] min-w-[2.5rem] items-center justify-center rounded-sm border border-transparent bg-transparent p-0 outline-none transition-opacity duration-150 ease-out",
+              "flex size-full min-h-[2.5rem] min-w-[2.5rem] items-center justify-center rounded-sm border border-transparent bg-transparent p-0 outline-none ring-offset-background transition-[opacity,colors] duration-150 ease-out",
               "opacity-0 delay-0 group-hover:opacity-100 group-hover:delay-300 group-focus-within:opacity-100 group-focus-within:delay-300",
               menuOpen && "opacity-100 delay-0",
+              "text-muted-foreground hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              menuOpen && "text-accent-foreground",
             )}
             aria-label="Insert section header or feed"
             aria-haspopup="menu"
@@ -90,7 +92,7 @@ function InsertionZone({
               <span className="flex w-full items-center gap-2 px-1">
                 <span className="h-px min-w-0 flex-1 bg-border" aria-hidden />
                 <Plus
-                  className="size-3 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground/85"
+                  className="size-3 shrink-0 transition-colors group-hover:text-foreground/85"
                   strokeWidth={2.25}
                   aria-hidden
                 />
@@ -100,7 +102,7 @@ function InsertionZone({
               <span className="flex h-full min-h-[4rem] w-full flex-col items-center justify-center gap-0.5 py-1">
                 <span className="w-px min-h-0 flex-1 bg-border" aria-hidden />
                 <Plus
-                  className="size-3 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground/85"
+                  className="size-3 shrink-0 transition-colors group-hover:text-foreground/85"
                   strokeWidth={2.25}
                   aria-hidden
                 />

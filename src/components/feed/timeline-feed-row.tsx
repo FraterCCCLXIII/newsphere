@@ -2,33 +2,17 @@ import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { Bookmark, ExternalLink, Share2 } from "lucide-react";
 
+import { FeedArticleHoverCard } from "@/components/feed/feed-article-hover-card";
+import { FeedItemHoverPreviewPanel } from "@/components/feed/feed-item-hover-preview-panel";
 import { FeedFavicon } from "@/components/grid/feed-favicon";
 import { ShareModal } from "@/components/share/share-modal";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
-import { formatPublishedDateTime } from "@/lib/feed-time";
-import { htmlToPlainText } from "@/lib/html-plain-text";
+import { getFeedPreviewParts } from "@/lib/feed-preview";
+import { formatPublishedDateTime, formatRelativePublished } from "@/lib/feed-time";
 import { buildReaderUrl } from "@/lib/reader-url";
 import { cn } from "@/lib/utils";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
-
-/** Avoid repeating the headline when the feed puts the same text in description. */
-function excerptAfterTitle(plain: string, title: string): string | null {
-  const p = plain.trim();
-  const t = title.trim();
-  if (!p) return null;
-  const pi = p.toLowerCase();
-  const ti = t.toLowerCase();
-  if (pi === ti) return null;
-  if (pi.startsWith(ti)) {
-    const rest = p
-      .slice(t.length)
-      .replace(/^[\s:–—\-—.…]+/u, "")
-      .trim();
-    return rest || null;
-  }
-  return p;
-}
 
 type TimelineFeedRowProps = {
   item: FeedItem;
@@ -57,11 +41,9 @@ export function TimelineFeedRow({
   const publishedLabel = formatPublishedDateTime(item.published);
   const rowBorder = !isLast ? "border-b border-border" : "";
 
-  const excerpt = useMemo(() => {
-    if (!item.snippet?.trim()) return null;
-    const plain = htmlToPlainText(item.snippet);
-    return excerptAfterTitle(plain, item.title);
-  }, [item.snippet, item.title]);
+  const preview = useMemo(() => getFeedPreviewParts(item), [item]);
+  const showPreview = Boolean(preview.excerpt || preview.imageUrl);
+  const relativeLabel = formatRelativePublished(item.published);
 
   if (!item.link) {
     return (
@@ -72,9 +54,9 @@ export function TimelineFeedRow({
             <p className="text-sm font-medium leading-snug text-foreground">
               {item.title}
             </p>
-            {excerpt ? (
+            {preview.excerpt ? (
               <p className="mt-1 line-clamp-4 text-sm leading-relaxed text-muted-foreground">
-                {excerpt}
+                {preview.excerpt}
               </p>
             ) : null}
             <p className="mt-1 text-xs text-muted-foreground">{columnTitle}</p>
@@ -106,19 +88,48 @@ export function TimelineFeedRow({
               </span>
             ) : null}
           </div>
-          <Link
-            to={readerUrl}
-            className="group/art mt-1 block min-w-0 text-left"
-          >
-            <span className="line-clamp-3 text-[0.9375rem] font-medium leading-snug text-foreground">
-              {item.title}
-            </span>
-            {excerpt ? (
-              <p className="mt-1 line-clamp-4 text-sm font-normal leading-relaxed text-muted-foreground">
-                {excerpt}
-              </p>
-            ) : null}
-          </Link>
+          {showPreview ? (
+            <FeedArticleHoverCard
+              openDelay={200}
+              closeDelay={80}
+              panelClassName="border-border"
+              trigger={
+                <Link
+                  to={readerUrl}
+                  className="group/art mt-1 block min-w-0 text-left"
+                >
+                  <span className="line-clamp-3 text-[0.9375rem] font-medium leading-snug text-foreground">
+                    {item.title}
+                  </span>
+                  {preview.excerpt ? (
+                    <p className="mt-1 line-clamp-4 text-sm font-normal leading-relaxed text-muted-foreground">
+                      {preview.excerpt}
+                    </p>
+                  ) : null}
+                </Link>
+              }
+            >
+              <FeedItemHoverPreviewPanel
+                excerpt={preview.excerpt}
+                imageUrl={preview.imageUrl}
+                relativeLabel={relativeLabel}
+              />
+            </FeedArticleHoverCard>
+          ) : (
+            <Link
+              to={readerUrl}
+              className="group/art mt-1 block min-w-0 text-left"
+            >
+              <span className="line-clamp-3 text-[0.9375rem] font-medium leading-snug text-foreground">
+                {item.title}
+              </span>
+              {preview.excerpt ? (
+                <p className="mt-1 line-clamp-4 text-sm font-normal leading-relaxed text-muted-foreground">
+                  {preview.excerpt}
+                </p>
+              ) : null}
+            </Link>
+          )}
           <div className="mt-2 flex items-center gap-0.5 text-muted-foreground">
             <a
               href={item.link}

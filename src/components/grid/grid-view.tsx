@@ -100,8 +100,8 @@ function GridAddDividerRow({
             type="button"
             className={cn(
               "inline-flex min-h-7 min-w-7 shrink-0 items-center justify-center rounded-sm border border-transparent bg-transparent p-0 outline-none ring-offset-background transition-colors",
-              "text-muted-foreground hover:text-foreground/85 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              menuOpen && "text-foreground/90",
+              "text-muted-foreground hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              menuOpen && "text-accent-foreground",
             )}
             aria-label="Add section header or feed"
             aria-haspopup="menu"

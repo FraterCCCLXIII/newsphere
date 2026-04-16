@@ -1,3 +1,4 @@
+use feed_rs::model;
 use feed_rs::parser;
 use serde::Serialize;
 
@@ -9,6 +10,8 @@ pub struct FeedItemDto {
     pub published: Option<String>,
     /// Short excerpt from summary or full content (HTML allowed; client strips for display).
     pub snippet: Option<String>,
+    /// Representative image URL from Media RSS / thumbnails when present.
+    pub image_url: Option<String>,
 }
 
 /// Summary / description / content body for timeline previews (bounded length).
@@ -34,6 +37,36 @@ fn truncate_snippet(s: String, max_chars: usize) -> String {
         return s;
     }
     s.chars().take(max_chars).collect::<String>() + "…"
+}
+
+fn is_probably_image_url(url: &str) -> bool {
+    let base = url.split('?').next().unwrap_or(url).to_lowercase();
+    base.ends_with(".jpg")
+        || base.ends_with(".jpeg")
+        || base.ends_with(".png")
+        || base.ends_with(".webp")
+        || base.ends_with(".gif")
+        || base.ends_with(".avif")
+}
+
+fn pick_image_url(entry: &model::Entry) -> Option<String> {
+    for m in &entry.media {
+        for th in &m.thumbnails {
+            let u = th.image.uri.trim();
+            if !u.is_empty() {
+                return Some(u.to_string());
+            }
+        }
+        for c in &m.content {
+            if let Some(url) = &c.url {
+                let mime = c.content_type.as_ref().map(|t| t.as_str()).unwrap_or("");
+                if mime.starts_with("image/") || is_probably_image_url(url.as_str()) {
+                    return Some(url.to_string());
+                }
+            }
+        }
+    }
+    None
 }
 
 fn pick_link(links: &[feed_rs::model::Link]) -> String {
@@ -75,6 +108,7 @@ pub async fn fetch_feed(url: String) -> Result<Vec<FeedItemDto>, String> {
         .take(40)
         .map(|entry| {
             let snippet = pick_snippet(&entry);
+            let image_url = pick_image_url(&entry);
             let title = entry
                 .title
                 .map(|t| t.content)
@@ -90,6 +124,7 @@ pub async fn fetch_feed(url: String) -> Result<Vec<FeedItemDto>, String> {
                 link,
                 published,
                 snippet,
+                image_url,
             }
         })
         .collect();
