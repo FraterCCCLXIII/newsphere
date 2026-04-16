@@ -550,5 +550,671 @@
     "name": "Hackaday",
     "url": "https://hackaday.com/blog/feed/",
     "category": "Tech"
+  },
+  {
+    "id": "integral-life",
+    "name": "Integral Life",
+    "url": "https://integrallife.com/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "daily-evolver",
+    "name": "The Daily Evolver",
+    "url": "https://dailyevolver.com/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "integral-leadership-review",
+    "name": "Integral Leadership Review",
+    "url": "https://integralleadershipreview.com/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "metaintegral",
+    "name": "MetaIntegral",
+    "url": "https://metaintegral.com/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "integral-european-conference",
+    "name": "Integral European Conference Blog",
+    "url": "https://integraleuropeanconference.com/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "ciis-transformative-learning",
+    "name": "Center for Transformative Learning (CIIS)",
+    "url": "https://www.ciis.edu/rss.xml",
+    "category": "Integral"
+  },
+  {
+    "id": "integral-life-journal",
+    "name": "Journal of Integral Theory and Practice (via Integral Life)",
+    "url": "https://integrallife.com/category/journal/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "integral-review-journal",
+    "name": "Integral Review Journal",
+    "url": "http://integral-review.org/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "evolving-ground",
+    "name": "Evolving Ground",
+    "url": "https://evolvingground.org/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "beams-and-struts",
+    "name": "Beams and Struts",
+    "url": "https://beamsandstruts.com/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "rebel-wisdom",
+    "name": "Rebel Wisdom",
+    "url": "https://rebelwisdom.co.uk/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "the-stoa",
+    "name": "The Stoa",
+    "url": "https://thestoa.substack.com/feed",
+    "category": "Integral"
+  },
+  {
+    "id": "perspectiva",
+    "name": "Perspectiva",
+    "url": "https://systems-souls-society.com/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "parallax-layman-pascal",
+    "name": "Parallax (Layman Pascal)",
+    "url": "https://laymanpascal.substack.com/feed",
+    "category": "Integral"
+  },
+  {
+    "id": "emerge-podcast",
+    "name": "Emerge Podcast",
+    "url": "https://emergepodcast.net/feed/podcast/",
+    "category": "Integral"
+  },
+  {
+    "id": "future-thinkers",
+    "name": "Future Thinkers",
+    "url": "https://futurethinkers.org/feed/podcast/",
+    "category": "Integral"
+  },
+  {
+    "id": "psychology-today-developmental",
+    "name": "Developmental Psychology (Psychology Today tag feed)",
+    "url": "https://www.psychologytoday.com/us/basics/developmental-psychology/rss",
+    "category": "Integral"
+  },
+  {
+    "id": "spiral-dynamics-integral",
+    "name": "Spiral Dynamics Integral (community blogs)",
+    "url": "https://spiraldynamicsintegral.nl/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "neurohacker-collective",
+    "name": "Neurohacker Collective Blog",
+    "url": "https://neurohacker.com/feed",
+    "category": "Integral"
+  },
+  {
+    "id": "numinus",
+    "name": "Numinus (psychedelics + consciousness)",
+    "url": "https://numinus.com/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "andrew-cohen-what-is-enlightenment",
+    "name": "What Is Enlightenment (archived Andrew Cohen material)",
+    "url": "https://andrewscohen.org/feed/",
+    "category": "Integral"
+  },
+  {
+    "id": "santa-fe-institute",
+    "name": "Santa Fe Institute",
+    "url": "https://www.santafe.edu/news-center/news/rss.xml",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "brookings-future-development",
+    "name": "Brookings Institution (Future Development)",
+    "url": "https://www.brookings.edu/topic/future-development/feed/",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "edge-org",
+    "name": "Edge.org",
+    "url": "https://www.edge.org/feed",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "aeon",
+    "name": "Aeon",
+    "url": "https://aeon.co/feed.rss",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "psyche",
+    "name": "Psyche",
+    "url": "https://psyche.co/feed",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "nautilus",
+    "name": "Nautilus",
+    "url": "https://nautil.us/feed/",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "quanta-magazine",
+    "name": "Quanta Magazine",
+    "url": "https://www.quantamagazine.org/feed/",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "lesswrong",
+    "name": "LessWrong",
+    "url": "https://www.lesswrong.com/feed.xml",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "astral-codex-ten",
+    "name": "Slate Star Codex",
+    "url": "https://astralcodexten.substack.com/feed",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "overcoming-bias",
+    "name": "Overcoming Bias",
+    "url": "https://www.overcomingbias.com/feed",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "metamoderna",
+    "name": "Metamoderna",
+    "url": "https://metamoderna.org/feed/",
+    "category": "Metamodern"
+  },
+  {
+    "id": "emerge-substack",
+    "name": "Emerge",
+    "url": "https://emerge.substack.com/feed",
+    "category": "Metamodern"
+  },
+  {
+    "id": "consilience-project",
+    "name": "The Consilience Project",
+    "url": "https://consilienceproject.org/feed/",
+    "category": "Metamodern"
+  },
+  {
+    "id": "civilization-research-institute",
+    "name": "Civilization Research Institute",
+    "url": "https://civilizationemerging.com/feed/",
+    "category": "Metamodern"
+  },
+  {
+    "id": "game-b-medium",
+    "name": "Game B (various blogs)",
+    "url": "https://medium.com/feed/tag/game-b",
+    "category": "Metamodern"
+  },
+  {
+    "id": "science-and-nonduality",
+    "name": "Science and Nonduality",
+    "url": "https://scienceandnonduality.com/blog/feed/",
+    "category": "Consciousness"
+  },
+  {
+    "id": "ions-noetic",
+    "name": "IONS",
+    "url": "https://noetic.org/feed/",
+    "category": "Consciousness"
+  },
+  {
+    "id": "essentia-foundation",
+    "name": "Essentia Foundation",
+    "url": "https://www.essentiafoundation.org/feed/",
+    "category": "Consciousness"
+  },
+  {
+    "id": "nonduality-com",
+    "name": "Nonduality",
+    "url": "https://nonduality.com/feed/",
+    "category": "Consciousness"
+  },
+  {
+    "id": "batgap",
+    "name": "BatGap",
+    "url": "https://batgap.com/feed/podcast/",
+    "category": "Consciousness"
+  },
+  {
+    "id": "sep-plato",
+    "name": "Stanford Encyclopedia of Philosophy",
+    "url": "https://plato.stanford.edu/rss.xml",
+    "category": "Academic"
+  },
+  {
+    "id": "philpapers",
+    "name": "PhilPapers",
+    "url": "https://philpapers.org/rss",
+    "category": "Academic"
+  },
+  {
+    "id": "frontiers",
+    "name": "Frontiers",
+    "url": "https://www.frontiersin.org/rss",
+    "category": "Academic"
+  },
+  {
+    "id": "plos",
+    "name": "PLOS",
+    "url": "https://plos.org/feed/",
+    "category": "Academic"
+  },
+  {
+    "id": "behavioral-scientist",
+    "name": "Behavioral Scientist",
+    "url": "https://behavioralscientist.org/feed/",
+    "category": "Academic"
+  },
+  {
+    "id": "systems-innovation",
+    "name": "Systems Innovation",
+    "url": "https://systemsinnovation.io/feed/",
+    "category": "Systems"
+  },
+  {
+    "id": "resilience-org",
+    "name": "Resilience.org",
+    "url": "https://www.resilience.org/feed/",
+    "category": "Systems"
+  },
+  {
+    "id": "medium-systems-thinking",
+    "name": "Medium Systems Thinking",
+    "url": "https://medium.com/feed/tag/systems-thinking",
+    "category": "Systems"
+  },
+  {
+    "id": "complexity-explorer",
+    "name": "Complexity Explorer",
+    "url": "https://complexityexplorer.org/feed",
+    "category": "Systems"
+  },
+  {
+    "id": "ribbonfarm",
+    "name": "Ribbonfarm",
+    "url": "https://www.ribbonfarm.com/feed/",
+    "category": "Culture"
+  },
+  {
+    "id": "wait-but-why",
+    "name": "Wait But Why",
+    "url": "https://waitbutwhy.com/feed",
+    "category": "Culture"
+  },
+  {
+    "id": "meaningness-chapman",
+    "name": "David Chapman",
+    "url": "https://meaningness.com/rss.xml",
+    "category": "Culture"
+  },
+  {
+    "id": "zvi-mowshowitz",
+    "name": "Zvi Mowshowitz",
+    "url": "https://thezvi.substack.com/feed",
+    "category": "Culture"
+  },
+  {
+    "id": "paul-vanderklay",
+    "name": "Paul VanderKlay",
+    "url": "https://paulvanderklay.me/feed/",
+    "category": "Culture"
+  },
+  {
+    "id": "journal-consciousness-studies",
+    "name": "Journal of Consciousness Studies",
+    "url": "https://www.ingentaconnect.com/rss/content/imp/jcs",
+    "category": "Academic"
+  },
+  {
+    "id": "mind-and-life-institute",
+    "name": "Mind & Life Institute",
+    "url": "https://www.mindandlife.org/feed/",
+    "category": "Academic"
+  },
+  {
+    "id": "mindrxiv-contemplative",
+    "name": "Contemplative Science (MindRxiv)",
+    "url": "https://mindrxiv.org/rss/",
+    "category": "Academic"
+  },
+  {
+    "id": "journal-integral-theory-practice-tag",
+    "name": "Journal of Integral Theory & Practice (alt feed)",
+    "url": "https://integrallife.com/tag/journal/feed/",
+    "category": "Academic"
+  },
+  {
+    "id": "cosmos-and-history-journal",
+    "name": "Cosmos and History Journal",
+    "url": "http://cosmosandhistory.org/index.php/journal/gateway/plugin/WebFeedGatewayPlugin/rss2",
+    "category": "Academic"
+  },
+  {
+    "id": "ij-transpersonal-studies",
+    "name": "International Journal of Transpersonal Studies",
+    "url": "https://digitalcommons.ciis.edu/ijts.rss",
+    "category": "Academic"
+  },
+  {
+    "id": "aras-archetypal-symbolism",
+    "name": "Archive for Research in Archetypal Symbolism",
+    "url": "https://aras.org/feed/",
+    "category": "Academic"
+  },
+  {
+    "id": "lectica",
+    "name": "Lectica (Theo Dawson)",
+    "url": "https://lectica.org/feed/",
+    "category": "Development"
+  },
+  {
+    "id": "stages-international",
+    "name": "STAGES International (Terri O’Fallon)",
+    "url": "https://stagesinternational.com/feed/",
+    "category": "Development"
+  },
+  {
+    "id": "global-leadership-foundation",
+    "name": "Global Leadership Foundation",
+    "url": "https://globalleadershipfoundation.com/feed/",
+    "category": "Development"
+  },
+  {
+    "id": "medium-adult-development",
+    "name": "Adult Development (Medium tag)",
+    "url": "https://medium.com/feed/tag/adult-development",
+    "category": "Development"
+  },
+  {
+    "id": "medium-vertical-development",
+    "name": "Vertical Development (Medium tag)",
+    "url": "https://medium.com/feed/tag/vertical-development",
+    "category": "Development"
+  },
+  {
+    "id": "nordic-bildung",
+    "name": "Nordic Bildung",
+    "url": "https://nordicbildung.org/feed/",
+    "category": "Metamodern"
+  },
+  {
+    "id": "ecodharma",
+    "name": "Ecodharma Centre",
+    "url": "https://ecodharma.com/feed/",
+    "category": "Metamodern"
+  },
+  {
+    "id": "dark-mountain-project",
+    "name": "The Dark Mountain Project",
+    "url": "https://dark-mountain.net/feed/",
+    "category": "Metamodern"
+  },
+  {
+    "id": "postrationality-substack",
+    "name": "Postrationality",
+    "url": "https://postrat.substack.com/feed",
+    "category": "Metamodern"
+  },
+  {
+    "id": "plum-village",
+    "name": "Plum Village",
+    "url": "https://plumvillage.org/feed/",
+    "category": "Spirituality"
+  },
+  {
+    "id": "insight-meditation-society",
+    "name": "Insight Meditation Society",
+    "url": "https://www.dharma.org/feed/",
+    "category": "Spirituality"
+  },
+  {
+    "id": "dharma-seed",
+    "name": "Dharma Seed",
+    "url": "https://dharmaseed.org/feed/talks/",
+    "category": "Spirituality"
+  },
+  {
+    "id": "sravasti-abbey",
+    "name": "Sravasti Abbey",
+    "url": "https://sravastiabbey.org/feed/",
+    "category": "Spirituality"
+  },
+  {
+    "id": "integral-zen",
+    "name": "Integral Zen",
+    "url": "https://integralzen.org/feed/",
+    "category": "Spirituality"
+  },
+  {
+    "id": "new-atlantis",
+    "name": "New Atlantis",
+    "url": "https://www.thenewatlantis.com/feed",
+    "category": "Philosophy"
+  },
+  {
+    "id": "3quarks-daily",
+    "name": "3 Quarks Daily",
+    "url": "https://3quarksdaily.com/feed",
+    "category": "Philosophy"
+  },
+  {
+    "id": "the-point-magazine",
+    "name": "The Point Magazine",
+    "url": "https://thepointmag.com/feed/",
+    "category": "Philosophy"
+  },
+  {
+    "id": "larb",
+    "name": "LARB",
+    "url": "https://lareviewofbooks.org/feed/",
+    "category": "Philosophy"
+  },
+  {
+    "id": "public-books",
+    "name": "Public Books",
+    "url": "https://www.publicbooks.org/feed/",
+    "category": "Philosophy"
+  },
+  {
+    "id": "marginal-revolution",
+    "name": "Marginal Revolution",
+    "url": "https://marginalrevolution.com/feed",
+    "category": "Progress"
+  },
+  {
+    "id": "works-in-progress",
+    "name": "Works in Progress",
+    "url": "https://worksinprogress.co/feed",
+    "category": "Progress"
+  },
+  {
+    "id": "noema-magazine",
+    "name": "Noema Magazine",
+    "url": "https://www.noemamag.com/feed/",
+    "category": "Progress"
+  },
+  {
+    "id": "stripe-press-blog",
+    "name": "Stripe Press",
+    "url": "https://stripe.com/blog/feed",
+    "category": "Progress"
+  },
+  {
+    "id": "farnam-street",
+    "name": "Farnam Street",
+    "url": "https://fs.blog/feed/",
+    "category": "Progress"
+  },
+  {
+    "id": "metamodern-spirit",
+    "name": "Metamodern Spirit",
+    "url": "https://metamodernspirit.substack.com/feed",
+    "category": "Metamodern"
+  },
+  {
+    "id": "the-side-view",
+    "name": "The Side View",
+    "url": "https://thesideview.substack.com/feed",
+    "category": "Metamodern"
+  },
+  {
+    "id": "long-now-foundation",
+    "name": "The Long Now Foundation",
+    "url": "https://longnow.org/ideas/feed/",
+    "category": "Sensemaking"
+  },
+  {
+    "id": "center-healthy-minds",
+    "name": "Center for Healthy Minds",
+    "url": "https://centerhealthyminds.org/news/feed",
+    "category": "Consciousness"
+  },
+  {
+    "id": "contemplative-neuroscience-lab",
+    "name": "Contemplative Neuroscience Lab",
+    "url": "https://contemplativeneurosciences.com/feed",
+    "category": "Consciousness"
+  },
+  {
+    "id": "mind-science-institute",
+    "name": "Mind Science Institute",
+    "url": "https://mindscience.org/feed",
+    "category": "Consciousness"
+  },
+  {
+    "id": "qualia-research-institute",
+    "name": "Qualia Research Institute",
+    "url": "https://qri.org/blog/rss.xml",
+    "category": "Consciousness"
+  },
+  {
+    "id": "osf-preprints",
+    "name": "Open Science Framework (preprints)",
+    "url": "https://osf.io/preprints/rss",
+    "category": "Consciousness"
+  },
+  {
+    "id": "auroville",
+    "name": "Auroville",
+    "url": "https://auroville.org/feed/",
+    "category": "Spirituality"
+  },
+  {
+    "id": "mothers-service-society",
+    "name": "Mother’s Service Society",
+    "url": "https://motherservice.org/feed",
+    "category": "Spirituality"
+  },
+  {
+    "id": "sri-aurobindo-society",
+    "name": "Sri Aurobindo Society",
+    "url": "https://aurobindosociety.org/feed/",
+    "category": "Spirituality"
+  },
+  {
+    "id": "integral-yoga-magazine",
+    "name": "Integral Yoga Magazine",
+    "url": "https://integralyogamagazine.org/feed/",
+    "category": "Spirituality"
+  },
+  {
+    "id": "esalen-institute",
+    "name": "Esalen Institute",
+    "url": "https://www.esalen.org/feed",
+    "category": "Spirituality"
+  },
+  {
+    "id": "global-challenges-foundation",
+    "name": "Global Challenges Foundation",
+    "url": "https://globalchallenges.org/feed",
+    "category": "Systems"
+  },
+  {
+    "id": "stockholm-resilience-centre",
+    "name": "Stockholm Resilience Centre",
+    "url": "https://www.stockholmresilience.org/rss.xml",
+    "category": "Systems"
+  },
+  {
+    "id": "iiasa",
+    "name": "IIASA",
+    "url": "https://iiasa.ac.at/rss",
+    "category": "Systems"
+  },
+  {
+    "id": "earth4all",
+    "name": "Earth4All",
+    "url": "https://earth4all.life/feed/",
+    "category": "Systems"
+  },
+  {
+    "id": "philosophy-for-life",
+    "name": "Philosophy for Life",
+    "url": "https://philosophyforlife.org/feed/",
+    "category": "Philosophy"
+  },
+  {
+    "id": "daily-nous",
+    "name": "Daily Nous",
+    "url": "https://dailynous.com/feed/",
+    "category": "Philosophy"
+  },
+  {
+    "id": "brains-blog",
+    "name": "The Brains Blog",
+    "url": "https://philosophyofbrains.com/feed",
+    "category": "Philosophy"
+  },
+  {
+    "id": "imperial-college-news",
+    "name": "Imperial College London (news)",
+    "url": "https://www.imperial.ac.uk/news/rss",
+    "category": "Philosophy"
+  },
+  {
+    "id": "maps-org",
+    "name": "MAPS",
+    "url": "https://maps.org/feed/",
+    "category": "Consciousness"
+  },
+  {
+    "id": "psychedelic-alpha",
+    "name": "Psychedelic Alpha",
+    "url": "https://psychedelicalpha.com/feed",
+    "category": "Consciousness"
+  },
+  {
+    "id": "beckley-foundation",
+    "name": "Beckley Foundation",
+    "url": "https://www.beckleyfoundation.org/feed",
+    "category": "Consciousness"
+  },
+  {
+    "id": "psypost",
+    "name": "PsyPost",
+    "url": "https://www.psypost.org/feed/",
+    "category": "Consciousness"
   }
 ]

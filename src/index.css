@@ -86,6 +86,16 @@
 @layer base {
   html {
     font-size: calc(100% * var(--text-scale, 1));
+    /* Avoid horizontal scroll: 100vw is wider than the layout when a vertical scrollbar is present */
+    overflow-x: hidden;
+  }
+
+  /* Embedded app (Tauri): never scroll the document — only inner panes scroll (fixes extra
+     viewport scrollbar + transparent edge on rounded macOS windows). */
+  html.tauri-app {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   * {
@@ -120,15 +130,18 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    overflow-x: hidden;
+  }
+
+  html.tauri-app body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 }
 
-/* Frameless Tauri window: fill the webview so the custom title bar stays visible */
-html.tauri-app,
-html.tauri-app body {
-  height: 100%;
-  margin: 0;
-}
+/* Frameless Tauri window: webview fills above */
 
 /* Frameless Tauri: macOS uses transparent window + private API; clip UI to rounded rect */
 html.tauri-app.tauri-macos body {
@@ -136,8 +149,9 @@ html.tauri-app.tauri-macos body {
 }
 
 html.tauri-app.tauri-macos #root {
-  height: 100vh;
-  max-height: 100vh;
+  /* Fill webview height chain (not 100vh — avoids stray document scroll vs. client area). */
+  height: 100%;
+  max-height: 100%;
   border-radius: var(--radius-xl);
   overflow: hidden;
   background: var(--background);
@@ -147,7 +161,9 @@ html.tauri-app.tauri-macos #root {
 }
 
 html.tauri-app:not(.tauri-macos) #root {
-  min-height: 100vh;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
 }
 
 html:not(.tauri-app) #root {
@@ -155,11 +171,16 @@ html:not(.tauri-app) #root {
   min-height: 100vh;
   min-height: 100dvh;
   flex-direction: column;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 html.tauri-app #root {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* Feed grid: 1 col → 2 cols → 3 cols per row at lg; extra sources wrap to the next row */

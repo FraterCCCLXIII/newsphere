@@ -1,4 +1,12 @@
-import { ChevronDown, Link2, Plus, Search } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Link2,
+  Minus,
+  Plus,
+  Search,
+  X,
+} from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -26,12 +34,17 @@ import { cn } from "@/lib/utils";
 import type { CatalogSource } from "@/types/catalog";
 import type { GridColumn } from "@/types/grid";
 
+function normFeedUrl(u: string): string {
+  return u.trim().replace(/\/$/, "");
+}
+
 type AddSourceModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   catalogColumns: GridColumn[];
   onAddSource: (source: CatalogSource) => Promise<void>;
   onAddCustomColumn: (title: string, feedUrl?: string) => Promise<void>;
+  onRemoveByFeedUrl: (feedUrl: string) => Promise<void>;
 };
 
 export function AddSourceModal({
@@ -40,6 +53,7 @@ export function AddSourceModal({
   catalogColumns,
   onAddSource,
   onAddCustomColumn,
+  onRemoveByFeedUrl,
 }: AddSourceModalProps) {
   const [query, setQuery] = useState("");
   const [topic, setTopic] = useState("All");
@@ -47,10 +61,12 @@ export function AddSourceModal({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [customOpen, setCustomOpen] = useState(false);
   const [customTitle, setCustomTitle] = useState("");
   const [customFeedUrl, setCustomFeedUrl] = useState("");
   const [customSubmitting, setCustomSubmitting] = useState(false);
+  const [removingCustomUrl, setRemovingCustomUrl] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const customTitleRef = useRef<HTMLInputElement>(null);
 
@@ -127,23 +143,50 @@ export function AddSourceModal({
   }, [filteredSorted]);
 
   const existingUrls = useMemo(
-    () => new Set(catalogColumns.map((c) => c.feedUrl).filter(Boolean)),
+    () =>
+      new Set(
+        catalogColumns
+          .map((c) => c.feedUrl)
+          .filter((u): u is string => Boolean(u?.trim()))
+          .map((u) => normFeedUrl(u)),
+      ),
     [catalogColumns],
   );
 
-  const handlePick = async (source: CatalogSource) => {
-    if (existingUrls.has(source.url)) return;
-    setAddingId(source.id);
-    try {
-      await onAddSource(source);
-    } finally {
-      setAddingId(null);
+  const handleCatalogToggle = async (source: CatalogSource) => {
+    const key = normFeedUrl(source.url);
+    const isAdded = existingUrls.has(key);
+    if (isAdded) {
+      setRemovingId(source.id);
+      try {
+        await onRemoveByFeedUrl(source.url);
+      } finally {
+        setRemovingId(null);
+      }
+    } else {
+      setAddingId(source.id);
+      try {
+        await onAddSource(source);
+      } finally {
+        setAddingId(null);
+      }
     }
   };
 
   const customUrlTrimmed = customFeedUrl.trim();
   const customUrlAlreadyAdded =
-    customUrlTrimmed.length > 0 && existingUrls.has(customUrlTrimmed);
+    customUrlTrimmed.length > 0 &&
+    existingUrls.has(normFeedUrl(customUrlTrimmed));
+
+  const handleRemoveCustomByUrl = async () => {
+    if (!customUrlTrimmed || !customUrlAlreadyAdded) return;
+    setRemovingCustomUrl(true);
+    try {
+      await onRemoveByFeedUrl(customUrlTrimmed);
+    } finally {
+      setRemovingCustomUrl(false);
+    }
+  };
 
   const handleCustomSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -155,6 +198,8 @@ export function AddSourceModal({
         customTitle.trim(),
         customUrlTrimmed ? customUrlTrimmed : undefined,
       );
+      setCustomTitle("");
+      setCustomFeedUrl("");
     } finally {
       setCustomSubmitting(false);
     }
@@ -164,14 +209,16 @@ export function AddSourceModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "app-no-drag flex h-[min(92vh,640px)] w-[calc(100vw-1.5rem)] max-w-lg flex-col gap-0 overflow-hidden p-0 sm:w-full",
+          "app-no-drag flex h-[min(92vh,640px)] w-full max-w-[min(32rem,calc(100%-1.5rem))] flex-col gap-0 overflow-hidden p-0",
         )}
       >
         <DialogHeader className="shrink-0 space-y-1 border-b px-6 py-4 pr-14 text-left">
           <DialogTitle>Add source</DialogTitle>
           <DialogDescription>
-            Browse the catalog below. New sources are added to your current
-            page. Use &quot;Add a custom feed&quot; when your feed is not listed.
+            Add or remove sources on your current page; close when you are done.
+            Click <span className="font-medium text-foreground">Added</span> to
+            remove a catalog feed. Use &quot;Add a custom feed&quot; for URLs not
+            listed.
           </DialogDescription>
         </DialogHeader>
 
@@ -261,8 +308,12 @@ export function AddSourceModal({
                       </div>
                       <ul>
                         {items.map((source) => {
-                          const added = existingUrls.has(source.url);
-                          const busy = addingId === source.id;
+                          const added = existingUrls.has(
+                            normFeedUrl(source.url),
+                          );
+                          const busyAdd = addingId === source.id;
+                          const busyRemove = removingId === source.id;
+                          const busy = busyAdd || busyRemove;
                           return (
                             <li
                               key={source.id}
@@ -281,12 +332,49 @@ export function AddSourceModal({
                                   type="button"
                                   size="sm"
                                   variant={added ? "secondary" : "default"}
-                                  disabled={added || busy}
-                                  className="app-no-drag shrink-0 gap-1"
-                                  onClick={() => void handlePick(source)}
+                                  disabled={busy}
+                                  className={cn(
+                                    "app-no-drag shrink-0 gap-1",
+                                    added && !busy && "group",
+                                  )}
+                                  onClick={() => void handleCatalogToggle(source)}
+                                  title={
+                                    added
+                                      ? "Click to remove this feed from the grid"
+                                      : "Add this feed to the grid"
+                                  }
                                 >
-                                  <Plus className="size-3.5" aria-hidden />
-                                  {busy ? "Adding…" : added ? "Added" : "Add"}
+                                  {busyAdd ? (
+                                    <>
+                                      <Plus className="size-3.5 shrink-0" aria-hidden />
+                                      Adding…
+                                    </>
+                                  ) : busyRemove ? (
+                                    <>
+                                      <Minus className="size-3.5 shrink-0" aria-hidden />
+                                      Removing…
+                                    </>
+                                  ) : added ? (
+                                    <span className="inline-flex items-center gap-0.5">
+                                      <Check
+                                        className="size-3.5 shrink-0 text-primary group-hover:hidden"
+                                        aria-hidden
+                                      />
+                                      <X
+                                        className="size-3.5 hidden shrink-0 text-destructive group-hover:inline"
+                                        aria-hidden
+                                      />
+                                      <span className="group-hover:hidden">Added</span>
+                                      <span className="hidden text-destructive group-hover:inline">
+                                        Remove
+                                      </span>
+                                    </span>
+                                  ) : (
+                                    <>
+                                      <Plus className="size-3.5 shrink-0" aria-hidden />
+                                      Add
+                                    </>
+                                  )}
                                 </Button>
                               </div>
                             </li>
@@ -374,9 +462,22 @@ export function AddSourceModal({
                   </div>
                 </div>
                 {customUrlAlreadyAdded ? (
-                  <p className="text-xs text-destructive">
-                    This feed URL is already on your grid.
-                  </p>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-xs text-muted-foreground">
+                      This feed URL is already on your grid.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="app-no-drag shrink-0 gap-1"
+                      disabled={removingCustomUrl}
+                      onClick={() => void handleRemoveCustomByUrl()}
+                    >
+                      <Minus className="size-3.5" aria-hidden />
+                      {removingCustomUrl ? "Removing…" : "Remove"}
+                    </Button>
+                  </div>
                 ) : null}
                 <Button
                   type="submit"
@@ -384,6 +485,7 @@ export function AddSourceModal({
                   className="app-no-drag w-full sm:w-auto"
                   disabled={
                     customSubmitting ||
+                    removingCustomUrl ||
                     !customTitle.trim() ||
                     customUrlAlreadyAdded
                   }

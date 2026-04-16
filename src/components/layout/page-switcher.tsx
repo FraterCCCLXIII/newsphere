@@ -70,7 +70,7 @@ export function PageSwitcher({
             variant="ghost"
             size="sm"
             className={cn(
-              "app-no-drag h-8 max-w-[min(12rem,calc(100vw-10rem))] shrink gap-1 px-2 text-sm font-medium text-muted-foreground hover:bg-accent/80 hover:text-accent-foreground",
+              "app-no-drag h-8 max-w-[min(12rem,calc(100%-10rem))] shrink gap-1 px-2 text-sm font-medium text-muted-foreground hover:bg-accent/80 hover:text-accent-foreground",
             )}
             aria-label={`Current page: ${activeLabel}. Open page menu`}
             aria-haspopup="menu"

@@ -1,6 +1,8 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   Bookmark,
+  ChevronLeft,
+  ChevronRight,
   Grid3x3,
   Menu,
   MoreVertical,
@@ -14,6 +16,7 @@ import { useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 
 import { AddSourceModal } from "@/components/layout/add-source-modal";
+import { useHistoryNavigation } from "@/hooks/use-history-navigation";
 import { PageSwitcher } from "@/components/layout/page-switcher";
 import { WindowControls } from "@/components/layout/window-controls";
 import { TextScaleSlider } from "@/components/layout/text-scale-slider";
@@ -47,6 +50,7 @@ type TitleBarProps = {
   catalogColumns: GridColumn[];
   onAddCatalogSource: (source: CatalogSource) => Promise<void>;
   onAddCustomColumn: (title: string, feedUrl?: string) => Promise<void>;
+  onRemoveByFeedUrl: (feedUrl: string) => Promise<void>;
 };
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -123,6 +127,7 @@ export function TitleBar({
   catalogColumns,
   onAddCatalogSource,
   onAddCustomColumn,
+  onRemoveByFeedUrl,
 }: TitleBarProps) {
   const [addSourceOpen, setAddSourceOpen] = useState(false);
   const showControls = isTauriRuntime();
@@ -131,6 +136,8 @@ export function TitleBar({
   const settingsActive = location.pathname === "/settings";
   const { theme, setTheme } = useTheme();
   const { textScale, setTextScale } = useTextScale();
+  const { goBack, goForward, canGoBack, canGoForward } =
+    useHistoryNavigation();
 
   const extras = (
     <SettingsThemeExtras
@@ -334,8 +341,44 @@ export function TitleBar({
           </div>
         </div>
 
-        <div className="flex min-w-0 w-full md:order-2 md:flex-1 md:justify-center">
-          <div className="relative w-full max-w-full md:max-w-[min(28rem,calc(100vw-14rem))] lg:max-w-xl">
+        <div className="flex min-w-0 w-full items-center gap-0.5 md:order-2 md:flex-1 md:justify-center">
+          <div className="flex shrink-0 items-center gap-0">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "app-no-drag size-9 text-muted-foreground hover:bg-accent/80 hover:text-accent-foreground",
+                !canGoBack && "pointer-events-none opacity-40",
+              )}
+              disabled={!canGoBack}
+              title="Back"
+              aria-label="Go back"
+              onClick={() => {
+                void goBack();
+              }}
+            >
+              <ChevronLeft className="size-4 shrink-0" aria-hidden />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "app-no-drag size-9 text-muted-foreground hover:bg-accent/80 hover:text-accent-foreground",
+                !canGoForward && "pointer-events-none opacity-40",
+              )}
+              disabled={!canGoForward}
+              title="Forward"
+              aria-label="Go forward"
+              onClick={() => {
+                void goForward();
+              }}
+            >
+              <ChevronRight className="size-4 shrink-0" aria-hidden />
+            </Button>
+          </div>
+          <div className="relative min-w-0 w-full max-w-full md:max-w-[min(28rem,calc(100%-14rem))] lg:max-w-xl">
             <Search
               className="pointer-events-none absolute left-2.5 top-1/2 z-[1] size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
@@ -357,14 +400,9 @@ export function TitleBar({
         open={addSourceOpen}
         onOpenChange={setAddSourceOpen}
         catalogColumns={catalogColumns}
-        onAddSource={async (source) => {
-          await onAddCatalogSource(source);
-          setAddSourceOpen(false);
-        }}
-        onAddCustomColumn={async (title, feedUrl) => {
-          await onAddCustomColumn(title, feedUrl);
-          setAddSourceOpen(false);
-        }}
+        onAddSource={onAddCatalogSource}
+        onAddCustomColumn={onAddCustomColumn}
+        onRemoveByFeedUrl={onRemoveByFeedUrl}
       />
     </header>
   );

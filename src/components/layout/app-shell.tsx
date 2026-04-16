@@ -27,7 +27,7 @@ export function AppShell({ grid, bookmarks }: AppShellProps) {
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
       <TitleBar
         onRefresh={() => {
           void grid.refresh();
@@ -48,6 +48,14 @@ export function AppShell({ grid, bookmarks }: AppShellProps) {
         }}
         onAddCustomColumn={async (title, feedUrl) => {
           await grid.addColumn(title, feedUrl);
+        }}
+        onRemoveByFeedUrl={async (feedUrl) => {
+          const norm = (u: string) => u.trim().replace(/\/$/, "");
+          const target = norm(feedUrl);
+          const col = grid.allColumns.find(
+            (c) => c.feedUrl && norm(c.feedUrl) === target,
+          );
+          if (col) await grid.removeColumn(col.id);
         }}
       />
       <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
