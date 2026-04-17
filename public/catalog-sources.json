@@ -342,6 +342,30 @@
     "category": "Sports"
   },
   {
+    "id": "yahoo-sports",
+    "name": "Yahoo Sports",
+    "url": "https://sports.yahoo.com/rss/",
+    "category": "Sports"
+  },
+  {
+    "id": "cbssports-headlines",
+    "name": "CBS Sports — Headlines",
+    "url": "https://www.cbssports.com/rss/headlines/",
+    "category": "Sports"
+  },
+  {
+    "id": "reddit-nfl",
+    "name": "Reddit — r/NFL",
+    "url": "https://www.reddit.com/r/nfl/.rss",
+    "category": "Sports"
+  },
+  {
+    "id": "reddit-nba",
+    "name": "Reddit — r/NBA",
+    "url": "https://www.reddit.com/r/nba/.rss",
+    "category": "Sports"
+  },
+  {
     "id": "hackernews-show",
     "name": "Hacker News — Show",
     "url": "https://hnrss.org/show",

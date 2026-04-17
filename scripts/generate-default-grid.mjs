@@ -28,6 +28,7 @@ const recipe = {
         { catalogId: "npr-news", columnId: "202af096-f6c0-4040-81cb-f1de5a862479" },
         { catalogId: "ap-top", columnId: "6e30ecb4-6aa3-4c14-a668-7754533714cc" },
         { catalogId: "pbs-newshour", columnId: "27e6471a-a198-4833-bc69-8333e76326fd" },
+        { catalogId: "reddit-news", columnId: "e891ec2e-e70c-4b39-b74a-c41b3e922d9b" },
         {
           id: "431831b0-1705-48f1-a1ba-1bfab233ca22",
           title: "Politics & policy",
@@ -75,6 +76,8 @@ const recipe = {
         { catalogId: "lobsters", columnId: "81354c0e-395f-4d75-babe-d87e869f4d2e" },
         { catalogId: "devto", columnId: "8322c1a7-f8a4-47ca-a1ea-fd117d813916" },
         { catalogId: "github-trending", columnId: "56d80ad4-e5d2-4749-b1e9-dcb39581ef9d" },
+        { catalogId: "reddit-programming", columnId: "c096fc93-a93d-46b7-a2fb-fb9a471c557e" },
+        { catalogId: "producthunt", columnId: "b236ee04-85cb-4ffc-b8d7-73a5a4c109df" },
         {
           id: "9b1039b0-7ca1-464d-b279-2abe0c2a543d",
           title: "Tech news",
@@ -96,6 +99,7 @@ const recipe = {
         { catalogId: "wired-ai", columnId: "60e40bd7-f1a0-4daa-bd89-4b743eb48dbe" },
         { catalogId: "simon-willison", columnId: "fbe91efd-715c-4c78-908d-f30caf441e8c" },
         { catalogId: "openai-blog", columnId: "06bbe81d-6020-4c57-9775-416f00e9afb6" },
+        { catalogId: "venturebeat", columnId: "601abdd8-489d-4050-8e3f-809faf3d747e" },
         {
           id: "03cc2e0f-54d8-4c37-b5d2-8ecdc768f096",
           title: "Dev & design",
@@ -105,6 +109,8 @@ const recipe = {
         { catalogId: "xkcd", columnId: "b506a6b7-3eb1-4d87-881d-f0cf11025f70" },
         { catalogId: "smashing", columnId: "673b98bc-6bd9-4490-b879-44df5fced773" },
         { catalogId: "css-tricks", columnId: "e524d0fd-72d5-4a51-a450-ff5a5405bda8" },
+        { catalogId: "web-dev", columnId: "37421daa-9544-45e2-823f-ccf7cc0138e7" },
+        { catalogId: "opensource-com", columnId: "ca1d2349-4626-4213-9340-750ebae2fa67" },
         {
           id: "511a96e8-06c3-4b95-8412-2b8b5cef6c2a",
           title: "Security & industry",
@@ -136,6 +142,8 @@ const recipe = {
         { catalogId: "wsj-world", columnId: "34a66236-87ae-41a6-ba5b-44cd3e8b5c47" },
         { catalogId: "marketwatch", columnId: "a0d3914d-0109-4113-bc56-40237bd71410" },
         { catalogId: "economist", columnId: "7a81fd04-fcc5-43f7-b3da-0b35c72c12a4" },
+        { catalogId: "stratechery", columnId: "6d9b6fe1-f12e-4e3a-9a89-532d51291ec1" },
+        { catalogId: "cnet", columnId: "c2094485-b856-4fbd-9973-890cef7824e1" },
         {
           id: "f7365583-bc50-456f-9672-459c17033a5a",
           title: "Global & analysis",
@@ -203,6 +211,7 @@ const recipe = {
         },
         { catalogId: "wired-design", columnId: "dd679586-55d5-4ca7-8015-fa6e91dad613" },
         { catalogId: "ribbonfarm", columnId: "3a6f39b8-9ac0-4292-bf4b-6df524762535" },
+        { catalogId: "zvi-mowshowitz", columnId: "033d4842-7b67-4812-9fe3-594edba5d5e3" },
         {
           id: "60d20bbf-46a9-40d6-9005-15d92b21152a",
           title: "Essays & reviews",
@@ -219,19 +228,28 @@ const recipe = {
       columns: [
         {
           id: "05943908-609d-4027-a45c-9a052aeb6b69",
-          title: "Leagues & desks",
+          title: "Wire & majors",
           kind: "header",
         },
         { catalogId: "espn-top", columnId: "ee16739e-68b2-44b4-83d3-6f6a03703d58" },
         { catalogId: "bbc-sport", columnId: "843446df-f96b-4e6c-9ee7-80e7ab823722" },
         { catalogId: "guardian-sport", columnId: "62537d81-12ce-4136-bb56-a6add5fae81b" },
-        { catalogId: "nyt-sports", columnId: "fe4d0a4b-97ad-4eb0-81e9-52ee786b6a33" },
         {
           id: "9c1d9e2d-c232-49dc-b381-2c038b9d0ff0",
+          title: "National & digital",
+          kind: "header",
+        },
+        { catalogId: "nyt-sports", columnId: "fe4d0a4b-97ad-4eb0-81e9-52ee786b6a33" },
+        { catalogId: "yahoo-sports", columnId: "5110203b-ae05-46ff-ba9f-595ae1d97397" },
+        { catalogId: "cbssports-headlines", columnId: "6263e75d-ead6-4f20-9bab-f275e5fe9c13" },
+        {
+          id: "c20fd707-9bb8-4e0d-b132-c0278fdd6fcb",
           title: "Community",
           kind: "header",
         },
         { catalogId: "reddit-sports", columnId: "560b4564-fc37-4dd3-84f3-e5433a5fe1ee" },
+        { catalogId: "reddit-nfl", columnId: "3ac4b5b1-a10d-4dac-9280-a2331ba5c8b0" },
+        { catalogId: "reddit-nba", columnId: "90166762-c69b-4827-a1ac-b0d227bb57b5" },
       ],
     },
     {
@@ -247,6 +265,8 @@ const recipe = {
         { catalogId: "edge-org", columnId: "cf1814b2-6331-4be2-95f4-77cd23796b0a" },
         { catalogId: "noema-magazine", columnId: "3656a78c-198a-4b39-94aa-9d7f0e790895" },
         { catalogId: "metamoderna", columnId: "0c08e453-20ec-4299-aa77-af6dbbc2b2af" },
+        { catalogId: "psyche", columnId: "484ead80-d544-4299-8fad-51d8e986f177" },
+        { catalogId: "nautilus", columnId: "ededf7c3-8b2a-4d82-831b-81f6892699fb" },
         {
           id: "a15dfa88-dabe-42aa-99a6-721b8e77feb9",
           title: "Philosophy & mind",
@@ -254,6 +274,7 @@ const recipe = {
         },
         { catalogId: "daily-nous", columnId: "a6717739-2dd2-4e56-87a3-53e60517384e" },
         { catalogId: "psypost", columnId: "5f2234ad-a18d-4aea-aeb8-cedb3a892a72" },
+        { catalogId: "brains-blog", columnId: "cdc27e11-69d8-4197-a729-d633bee29f9e" },
       ],
     },
     {
@@ -267,6 +288,7 @@ const recipe = {
         },
         { catalogId: "sep-plato", columnId: "a008b643-15db-42f1-8451-1ea739c0a71e" },
         { catalogId: "philpapers", columnId: "f37489b8-a1b2-4e06-8cb0-40e76277721d" },
+        { catalogId: "journal-consciousness-studies", columnId: "bb8e4660-bda4-4cd6-b668-cd7d568c697f" },
         {
           id: "a1d04dc0-2de0-40f2-bf04-55eab5215424",
           title: "Profession & blogs",
@@ -291,7 +313,6 @@ const recipe = {
         { catalogId: "3quarks-daily", columnId: "98844057-d12e-4d00-85a4-5ea9b4a64427" },
         { catalogId: "larb", columnId: "bda72a9a-c484-40ec-ba88-1df16b53db23" },
         { catalogId: "meaningness-chapman", columnId: "61d86b88-f157-4855-b1b9-a3bb8696c621" },
-        { catalogId: "paul-vanderklay", columnId: "5d11058f-19cd-4f7d-956b-8f9c2c141a27" },
       ],
     },
     {
@@ -308,6 +329,7 @@ const recipe = {
         { catalogId: "dharma-seed", columnId: "26643394-06e5-41f1-a12d-41bff2de6070" },
         { catalogId: "sravasti-abbey", columnId: "9108792f-b34b-4efc-9305-d6ef504d4436" },
         { catalogId: "integral-zen", columnId: "16d12db2-ed5e-4265-a2aa-48e753d397a5" },
+        { catalogId: "mind-and-life-institute", columnId: "4f0652e0-1f6d-4e18-8995-15b985eff170" },
         {
           id: "6561b816-8496-44b0-8e8c-4a4c9d51abf1",
           title: "Integral & dialogue",
@@ -318,6 +340,7 @@ const recipe = {
         { catalogId: "the-stoa", columnId: "02fcc771-b41f-4dd8-a820-92fea9b33975" },
         { catalogId: "perspectiva", columnId: "8b836ec0-9165-4ddd-b1c2-e8467373b85c" },
         { catalogId: "daily-evolver", columnId: "730e07f7-b799-42bb-8457-39b15b10906d" },
+        { catalogId: "emerge-podcast", columnId: "3a03fd31-705b-4656-9f62-71deda469562" },
         {
           id: "22f0d0de-cfd2-4fe0-8d7f-e9346fc0175c",
           title: "Yoga & contemplative paths",
@@ -327,6 +350,8 @@ const recipe = {
         { catalogId: "sri-aurobindo-society", columnId: "b58bdfbb-a18b-40fe-9d67-6c68ce20fd3d" },
         { catalogId: "integral-yoga-magazine", columnId: "2391f2cf-c8da-41ad-8b57-d02a33635f98" },
         { catalogId: "mothers-service-society", columnId: "e05e6880-2de5-428c-a8b6-bd9d793cbc8e" },
+        { catalogId: "evolving-ground", columnId: "f23ffd20-4e99-4cb6-b475-58b66ceffc0d" },
+        { catalogId: "beams-and-struts", columnId: "3a83bc45-3d1f-4448-8be1-6d6fd81a569b" },
         {
           id: "e6796c07-73d5-4daf-8fe2-f95fa46a0c17",
           title: "Consciousness & retreat",
@@ -337,11 +362,37 @@ const recipe = {
         { catalogId: "batgap", columnId: "9f12d0bd-df08-4b1c-924b-0bd2d97fa314" },
         { catalogId: "nonduality-com", columnId: "1f2e90b3-8350-484b-9186-c043100d6e0e" },
         { catalogId: "esalen-institute", columnId: "a9da18e0-3ad1-47e5-9bf2-d9af38ae0576" },
+        { catalogId: "essentia-foundation", columnId: "218c8111-de93-4671-bb60-ae9b260ad814" },
       ],
     },
   ],
   activePageId: "page-news",
 };
+
+/** Each section (feeds after a header until the next header or page end) must list a multiple of 3 feeds. */
+function assertSectionFeedsDivisibleByThree() {
+  for (const page of recipe.pages) {
+    let n = 0;
+    const flush = (where) => {
+      if (n % 3 !== 0) {
+        throw new Error(
+          `Default grid "${page.name}" (${page.id}): section ending at ${where} has ${n} feeds (must be divisible by 3).`,
+        );
+      }
+      n = 0;
+    };
+    for (const col of page.columns) {
+      if ("catalogId" in col) {
+        n += 1;
+      } else if (col.kind === "header") {
+        flush(`header "${col.title}"`);
+      }
+    }
+    flush("end of page");
+  }
+}
+
+assertSectionFeedsDivisibleByThree();
 
 function loadCatalog() {
   const raw = fs.readFileSync(catalogPath, "utf8");

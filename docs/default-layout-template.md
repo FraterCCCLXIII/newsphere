@@ -180,6 +180,7 @@ When there are **two or more** pages, the UI can show a combined **All** view (`
 - [ ] Catalog: every `id` unique; URLs are feeds (RSS/Atom), not homepages.
 - [ ] Grid: every `pages[].id` unique; every `columns[].id` unique globally.
 - [ ] Grid: every feed column has `feedUrl`; headers have `kind: "header"` and no `feedUrl`.
+- [ ] Grid: within each page, **every section** (feeds listed under one header until the next header) has a **feed count divisible by 3** (enforced by `assertSectionFeedsDivisibleByThree()` in `scripts/generate-default-grid.mjs`).
 - [ ] `activePageId` matches one of `pages[].id`.
 - [ ] First page id stays **`page-news`** if you want parity with `DEFAULT_FIRST_PAGE_ID` in `src/types/grid.ts`.
 
