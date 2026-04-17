@@ -89,7 +89,7 @@ pub async fn fetch_feed(url: String) -> Result<Vec<FeedItemDto>, String> {
 
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(30))
-        .user_agent("Newsphere/0.1 (+https://github.com/tauri-apps/tauri)")
+        .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15 Newsphere/0.1")
         .redirect(reqwest::redirect::Policy::limited(5))
         .build()
         .map_err(|e| e.to_string())?;

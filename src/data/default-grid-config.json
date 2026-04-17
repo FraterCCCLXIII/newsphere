@@ -31,7 +31,7 @@
           "id": "6e30ecb4-6aa3-4c14-a668-7754533714cc",
           "title": "AP News — Top",
           "kind": "feed",
-          "feedUrl": "https://feeds.apnews.com/apf-topnews"
+          "feedUrl": "https://apnews.com/hub/apf-topnews?output=rss"
         },
         {
           "id": "27e6471a-a198-4833-bc69-8333e76326fd",
@@ -69,9 +69,9 @@
         },
         {
           "id": "fa0d114a-fd10-4867-bb28-0e42ff2121d6",
-          "title": "Reuters — World",
+          "title": "UPI — Top news",
           "kind": "feed",
-          "feedUrl": "https://feeds.reuters.com/reuters/topNews"
+          "feedUrl": "https://rss.upi.com/news/top_news.rss"
         },
         {
           "id": "bae3f145-588d-4c24-b16d-21b60d8899a3",
@@ -118,7 +118,7 @@
           "id": "56d80ad4-e5d2-4749-b1e9-dcb39581ef9d",
           "title": "GitHub Trending (daily)",
           "kind": "feed",
-          "feedUrl": "https://mshibanami.github.io/GitHubTrendingRSS/daily.xml"
+          "feedUrl": "https://mshibanami.github.io/GitHubTrendingRSS/daily/all.xml"
         },
         {
           "id": "9b1039b0-7ca1-464d-b279-2abe0c2a543d",
@@ -223,7 +223,7 @@
           "id": "7a81fd04-fcc5-43f7-b3da-0b35c72c12a4",
           "title": "The Economist",
           "kind": "feed",
-          "feedUrl": "https://www.economist.com/rss.xml"
+          "feedUrl": "https://www.economist.com/latest/rss.xml"
         },
         {
           "id": "f7365583-bc50-456f-9672-459c17033a5a",
@@ -267,9 +267,9 @@
         },
         {
           "id": "6d022615-cead-49f6-bc6c-00035f19100c",
-          "title": "Scientific American",
+          "title": "New Scientist",
           "kind": "feed",
-          "feedUrl": "https://www.scientificamerican.com/feed/rss/"
+          "feedUrl": "https://www.newscientist.com/feed/home"
         },
         {
           "id": "4ae833c6-99d1-4249-878d-907cd33429d7",
@@ -338,7 +338,7 @@
           "id": "dd679586-55d5-4ca7-8015-fa6e91dad613",
           "title": "Wired — Design",
           "kind": "feed",
-          "feedUrl": "https://www.wired.com/feed/tag/design/latest/rss"
+          "feedUrl": "https://www.wired.com/feed/category/design/latest/rss"
         },
         {
           "id": "3a6f39b8-9ac0-4292-bf4b-6df524762535",

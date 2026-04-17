@@ -20,7 +20,7 @@
   {
     "id": "github-trending",
     "name": "GitHub Trending (daily)",
-    "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily.xml",
+    "url": "https://mshibanami.github.io/GitHubTrendingRSS/daily/all.xml",
     "category": "Tech"
   },
   {
@@ -103,20 +103,20 @@
   },
   {
     "id": "reuters-top",
-    "name": "Reuters — World",
-    "url": "https://feeds.reuters.com/reuters/topNews",
+    "name": "UPI — Top news",
+    "url": "https://rss.upi.com/news/top_news.rss",
     "category": "News"
   },
   {
     "id": "reuters-tech",
-    "name": "Reuters — Technology",
-    "url": "https://feeds.reuters.com/reuters/technologyNews",
+    "name": "The Guardian — Technology",
+    "url": "https://www.theguardian.com/technology/rss",
     "category": "News"
   },
   {
     "id": "ap-top",
     "name": "AP News — Top",
-    "url": "https://feeds.apnews.com/apf-topnews",
+    "url": "https://apnews.com/hub/apf-topnews?output=rss",
     "category": "News"
   },
   {
@@ -152,7 +152,7 @@
   {
     "id": "economist",
     "name": "The Economist",
-    "url": "https://www.economist.com/rss.xml",
+    "url": "https://www.economist.com/latest/rss.xml",
     "category": "Business"
   },
   {
@@ -211,8 +211,8 @@
   },
   {
     "id": "sci-am",
-    "name": "Scientific American",
-    "url": "https://www.scientificamerican.com/feed/rss/",
+    "name": "New Scientist",
+    "url": "https://www.newscientist.com/feed/home",
     "category": "Science"
   },
   {
@@ -260,7 +260,7 @@
   {
     "id": "wired-design",
     "name": "Wired — Design",
-    "url": "https://www.wired.com/feed/tag/design/latest/rss",
+    "url": "https://www.wired.com/feed/category/design/latest/rss",
     "category": "Culture"
   },
   {
