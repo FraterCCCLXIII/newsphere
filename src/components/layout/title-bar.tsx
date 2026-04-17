@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   Bookmark,
@@ -13,7 +14,7 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import { useHistoryNavigation } from "@/hooks/use-history-navigation";
 import { AppMark } from "@/components/icons/app-mark";
@@ -78,6 +79,7 @@ type SettingsThemeExtrasProps = {
   setTheme: ReturnType<typeof useTheme>["setTheme"];
   textScale: number;
   setTextScale: (n: number) => void;
+  linkFromReader: (to: string) => (e: React.MouseEvent<HTMLAnchorElement>) => void;
 };
 
 function SettingsThemeExtras({
@@ -85,12 +87,14 @@ function SettingsThemeExtras({
   setTheme,
   textScale,
   setTextScale,
+  linkFromReader,
 }: SettingsThemeExtrasProps) {
   return (
     <>
       <DropdownMenuItem asChild>
         <Link
           to="/settings"
+          onClick={linkFromReader("/settings")}
           className="flex w-full cursor-pointer items-center gap-2"
         >
           <Settings
@@ -125,6 +129,7 @@ export function TitleBar({
   const showControls = isTauriRuntime();
   const mac = controlsOnLeft();
   const location = useLocation();
+  const navigate = useNavigate();
   const settingsActive =
     location.pathname === "/settings" ||
     location.pathname.startsWith("/settings/");
@@ -133,12 +138,22 @@ export function TitleBar({
   const { goBack, goForward, canGoBack, canGoForward } =
     useHistoryNavigation();
 
+  const linkFromReader = useCallback(
+    (to: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (location.pathname !== "/reader") return;
+      e.preventDefault();
+      navigate(to, { replace: true });
+    },
+    [location.pathname, navigate],
+  );
+
   const extras = (
     <SettingsThemeExtras
       theme={theme}
       setTheme={setTheme}
       textScale={textScale}
       setTextScale={setTextScale}
+      linkFromReader={linkFromReader}
     />
   );
 
@@ -150,6 +165,7 @@ export function TitleBar({
         className={navClass}
         title="Grid"
         aria-label="Grid"
+        onClick={linkFromReader("/")}
       >
         <Grid3x3 className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">Grid</span>
@@ -159,6 +175,7 @@ export function TitleBar({
         className={navClass}
         title="Latest feed"
         aria-label="Latest feed"
+        onClick={linkFromReader("/feed")}
       >
         <Rows3 className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">Latest feed</span>
@@ -168,6 +185,7 @@ export function TitleBar({
         className={navClass}
         title="Bookmarks"
         aria-label="Bookmarks"
+        onClick={linkFromReader("/bookmarks")}
       >
         <Bookmark className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">Bookmarks</span>
@@ -177,6 +195,7 @@ export function TitleBar({
         className={navClass}
         title="Reading history"
         aria-label="Reading history"
+        onClick={linkFromReader("/history")}
       >
         <History className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">History</span>
@@ -256,25 +275,42 @@ export function TitleBar({
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
         <DropdownMenuItem asChild>
-          <NavLink to="/" end className={mobileNavLinkClass}>
+          <NavLink
+            to="/"
+            end
+            className={mobileNavLinkClass}
+            onClick={linkFromReader("/")}
+          >
             <Grid3x3 className="size-4 shrink-0 text-muted-foreground" />
             Grid
           </NavLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <NavLink to="/feed" className={mobileNavLinkClass}>
+          <NavLink
+            to="/feed"
+            className={mobileNavLinkClass}
+            onClick={linkFromReader("/feed")}
+          >
             <Rows3 className="size-4 shrink-0 text-muted-foreground" />
             Latest feed
           </NavLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <NavLink to="/bookmarks" className={mobileNavLinkClass}>
+          <NavLink
+            to="/bookmarks"
+            className={mobileNavLinkClass}
+            onClick={linkFromReader("/bookmarks")}
+          >
             <Bookmark className="size-4 shrink-0 text-muted-foreground" />
             Bookmarks
           </NavLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <NavLink to="/history" className={mobileNavLinkClass}>
+          <NavLink
+            to="/history"
+            className={mobileNavLinkClass}
+            onClick={linkFromReader("/history")}
+          >
             <History className="size-4 shrink-0 text-muted-foreground" />
             History
           </NavLink>
@@ -317,7 +353,12 @@ export function TitleBar({
             {showControls && mac ? <WindowControls /> : null}
             <Link
               to="/"
-              className="app-no-drag flex shrink-0 items-center rounded-md p-0.5 outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              onClick={linkFromReader("/")}
+              className={cn(
+                "app-no-drag inline-flex size-8 shrink-0 items-center justify-center rounded-md outline-none",
+                "[-webkit-tap-highlight-color:transparent]",
+                "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+              )}
               aria-label="Newsphere — go to grid"
               title="Grid"
             >

@@ -14,9 +14,10 @@ export function GridFeedEntrySkeleton({
         !isLast && "border-b border-border",
       )}
     >
-      <div className="min-w-0 space-y-2">
-        <Skeleton className="h-4 w-[94%] max-w-full" />
-        <Skeleton className="h-3 w-[42%] max-w-[12rem]" />
+      {/* Same as title `line-clamp-2 text-sm font-medium leading-snug` + meta `mt-0.5 text-xs` */}
+      <div className="min-w-0 text-sm font-medium leading-snug">
+        <Skeleton className="h-[1.375em] w-[94%] max-w-full rounded-sm" />
+        <Skeleton className="mt-0.5 h-[1.375em] w-[42%] max-w-[12rem] rounded-sm" />
       </div>
     </li>
   );
@@ -35,10 +36,14 @@ export function TimelineFeedEntrySkeleton({
         !isLast && "border-b border-border",
       )}
     >
-      <div className="min-w-0 space-y-2">
-        <Skeleton className="h-4 w-[92%]" />
-        <Skeleton className="h-3 w-[58%]" />
-        <Skeleton className="h-3 w-[36%] max-w-[10rem]" />
+      <div className="min-w-0">
+        <div className="text-sm font-semibold leading-snug">
+          <Skeleton className="h-[1.375em] w-[92%] rounded-sm" />
+        </div>
+        <div className="mt-1 text-[0.9375rem] font-medium leading-snug">
+          <Skeleton className="h-[1.375em] w-[58%] rounded-sm" />
+          <Skeleton className="h-[1.375em] w-[36%] max-w-[10rem] rounded-sm" />
+        </div>
       </div>
     </li>
   );

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { AddSourceModal } from "@/components/layout/add-source-modal";
 import { TitleBar } from "@/components/layout/title-bar";
@@ -17,10 +17,34 @@ type AppShellProps = {
 };
 
 export function AppShell({ grid, bookmarks, readHistory }: AppShellProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const feed = useFeedItems(grid.columns);
   const [searchQuery, setSearchQuery] = useState("");
   const [addSourceOpen, setAddSourceOpen] = useState(false);
   const pendingInsertFeedAfterIdRef = useRef<string | null>(null);
+
+  const closeReaderForGridShell = useCallback(() => {
+    if (location.pathname === "/reader") {
+      navigate("/", { replace: true });
+    }
+  }, [location.pathname, navigate]);
+
+  const handleSelectPage = useCallback(
+    (pageId: string) => {
+      void grid.setActivePage(pageId);
+      closeReaderForGridShell();
+    },
+    [grid, closeReaderForGridShell],
+  );
+
+  const handleAddPage = useCallback(
+    async (name: string) => {
+      await grid.addPage(name);
+      closeReaderForGridShell();
+    },
+    [grid, closeReaderForGridShell],
+  );
 
   const openAddFeedModal = useCallback((afterColumnId: string | null) => {
     pendingInsertFeedAfterIdRef.current = afterColumnId;
@@ -105,10 +129,8 @@ export function AppShell({ grid, bookmarks, readHistory }: AppShellProps) {
         onSearchChange={setSearchQuery}
         pages={grid.pages}
         activePageId={grid.activePageId}
-        onSelectPage={(pageId) => {
-          void grid.setActivePage(pageId);
-        }}
-        onAddPage={grid.addPage}
+        onSelectPage={handleSelectPage}
+        onAddPage={handleAddPage}
         onAddSourceClick={openAddFeedModalAppend}
       />
       <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
