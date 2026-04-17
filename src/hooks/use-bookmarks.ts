@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { isTauriRuntime } from "@/lib/tauri-env";
@@ -184,13 +184,24 @@ export function useBookmarks(): BookmarksController {
     [addBookmark, removeBookmarkByLink],
   );
 
-  return {
-    bookmarks,
-    ready,
-    isBookmarked,
-    addBookmark,
-    removeBookmark,
-    removeBookmarkByLink,
-    toggleBookmark,
-  };
+  return useMemo(
+    () => ({
+      bookmarks,
+      ready,
+      isBookmarked,
+      addBookmark,
+      removeBookmark,
+      removeBookmarkByLink,
+      toggleBookmark,
+    }),
+    [
+      bookmarks,
+      ready,
+      isBookmarked,
+      addBookmark,
+      removeBookmark,
+      removeBookmarkByLink,
+      toggleBookmark,
+    ],
+  );
 }

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import { AddSourceModal } from "@/components/layout/add-source-modal";
@@ -69,19 +69,29 @@ export function AppShell({ grid, bookmarks, readHistory }: AppShellProps) {
     [grid],
   );
 
-  const outletContext: AppOutletContext = {
-    ...grid,
-    openAddFeedModal,
-    searchQuery,
-    setSearchQuery,
-    ...feed,
-    bookmarks: bookmarks.bookmarks,
-    toggleBookmark: bookmarks.toggleBookmark,
-    removeBookmark: bookmarks.removeBookmark,
-    readHistory: readHistory.readHistory,
-    recordArticleView: readHistory.recordArticleView,
-    removeReadHistoryEntry: readHistory.removeReadHistoryEntry,
-  };
+  const outletContext = useMemo<AppOutletContext>(
+    () => ({
+      ...grid,
+      openAddFeedModal,
+      searchQuery,
+      setSearchQuery,
+      ...feed,
+      bookmarks: bookmarks.bookmarks,
+      toggleBookmark: bookmarks.toggleBookmark,
+      removeBookmark: bookmarks.removeBookmark,
+      readHistory: readHistory.readHistory,
+      recordArticleView: readHistory.recordArticleView,
+      removeReadHistoryEntry: readHistory.removeReadHistoryEntry,
+    }),
+    [
+      grid,
+      openAddFeedModal,
+      searchQuery,
+      feed,
+      bookmarks,
+      readHistory,
+    ],
+  );
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">

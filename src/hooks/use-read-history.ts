@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { isTauriRuntime } from "@/lib/tauri-env";
@@ -139,10 +139,13 @@ export function useReadHistory(): ReadHistoryController {
     [persist],
   );
 
-  return {
-    readHistory,
-    ready,
-    recordArticleView,
-    removeReadHistoryEntry,
-  };
+  return useMemo(
+    () => ({
+      readHistory,
+      ready,
+      recordArticleView,
+      removeReadHistoryEntry,
+    }),
+    [readHistory, ready, recordArticleView, removeReadHistoryEntry],
+  );
 }

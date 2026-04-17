@@ -16,6 +16,7 @@ import {
 import { Link, NavLink, useLocation } from "react-router-dom";
 
 import { useHistoryNavigation } from "@/hooks/use-history-navigation";
+import { AppMark } from "@/components/icons/app-mark";
 import { PageSwitcher } from "@/components/layout/page-switcher";
 import { WindowControls } from "@/components/layout/window-controls";
 import { TextScaleSlider } from "@/components/layout/text-scale-slider";
@@ -312,15 +313,15 @@ export function TitleBar({
     >
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 px-2 py-2 md:h-full md:flex-row md:items-center md:gap-3 md:py-0 md:pl-2 md:pr-3">
         <div className="flex min-w-0 items-center justify-between gap-2 md:contents">
-          <div className="flex min-w-0 cursor-default items-center gap-2 md:order-1 md:shrink-0">
+          <div className="flex min-w-0 flex-1 cursor-default items-center gap-2 md:order-1 md:shrink-0 md:flex-none">
             {showControls && mac ? <WindowControls /> : null}
             <Link
               to="/"
-              className="app-no-drag min-w-0 select-none truncate text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-primary"
+              className="app-no-drag flex shrink-0 items-center rounded-md p-0.5 outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               aria-label="Newsphere — go to grid"
               title="Grid"
             >
-              Newsphere
+              <AppMark className="size-7 shrink-0" />
             </Link>
             <PageSwitcher
               pages={pages}

@@ -206,6 +206,19 @@ export function SettingsPagesNav({
           >
             App
           </NavLink>
+          <NavLink
+            to="/settings/about"
+            className={({ isActive }) =>
+              cn(
+                "app-no-drag flex w-full rounded-md px-2 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-secondary text-secondary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )
+            }
+          >
+            About
+          </NavLink>
         </nav>
 
         <ScrollArea className="min-h-0 flex-1">

@@ -167,7 +167,7 @@ export function BookmarksPage() {
 
   if (sorted.length === 0) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <div className="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-y-auto">
         <div className="mx-auto max-w-2xl px-4 py-12 text-center">
           <h2 className="text-lg font-semibold text-foreground">Bookmarks</h2>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -180,51 +180,53 @@ export function BookmarksPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col overflow-y-auto px-4 py-8 pb-16">
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold tracking-tight">Bookmarks</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {query.trim()
-            ? visible.length === sorted.length
-              ? `${sorted.length} saved ${sorted.length === 1 ? "link" : "links"}`
-              : `${visible.length} of ${sorted.length} ${sorted.length === 1 ? "link" : "links"}`
-            : `${sorted.length} saved ${sorted.length === 1 ? "link" : "links"}`}
-        </p>
-        <div className="relative mt-4 max-w-md">
-          <Search
-            className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden
-          />
-          <Input
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search bookmarks…"
-            className="h-9 pl-9"
-            aria-label="Search bookmarks"
-            autoComplete="off"
-          />
+    <div className="min-h-0 w-full min-w-0 flex-1 overflow-y-auto">
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 pb-16">
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold tracking-tight">Bookmarks</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {query.trim()
+              ? visible.length === sorted.length
+                ? `${sorted.length} saved ${sorted.length === 1 ? "link" : "links"}`
+                : `${visible.length} of ${sorted.length} ${sorted.length === 1 ? "link" : "links"}`
+              : `${sorted.length} saved ${sorted.length === 1 ? "link" : "links"}`}
+          </p>
+          <div className="relative mt-4 max-w-md">
+            <Search
+              className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search bookmarks…"
+              className="h-9 pl-9"
+              aria-label="Search bookmarks"
+              autoComplete="off"
+            />
+          </div>
         </div>
-      </div>
 
-      {visible.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No bookmarks match your search. Try different keywords or clear the
-          search field.
-        </p>
-      ) : (
-        <TooltipProvider delayDuration={300}>
-          <ul className="divide-y divide-border rounded-lg border border-border bg-card">
-            {visible.map((b) => (
-              <BookmarkRow
-                key={b.id}
-                b={b}
-                onRemove={() => void removeBookmark(b.id)}
-              />
-            ))}
-          </ul>
-        </TooltipProvider>
-      )}
+        {visible.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No bookmarks match your search. Try different keywords or clear the
+            search field.
+          </p>
+        ) : (
+          <TooltipProvider delayDuration={300}>
+            <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+              {visible.map((b) => (
+                <BookmarkRow
+                  key={b.id}
+                  b={b}
+                  onRemove={() => void removeBookmark(b.id)}
+                />
+              ))}
+            </ul>
+          </TooltipProvider>
+        )}
+      </div>
     </div>
   );
 }

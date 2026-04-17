@@ -113,9 +113,18 @@ export function useFeedItems(columns: GridColumn[]) {
   const key = columnFeedKey(columns);
 
   useEffect(() => {
-    setItemsByColumnId({});
-    setErrorByColumnId({});
-    setLoadingByColumnId({});
+    const cols = columnsRef.current;
+    const ids = new Set(cols.map((c) => c.id));
+    const prune = <T extends Record<string, unknown>>(prev: T) => {
+      const next = { ...prev };
+      for (const k of Object.keys(next)) {
+        if (!ids.has(k)) delete next[k];
+      }
+      return next;
+    };
+    setItemsByColumnId((prev) => prune(prev));
+    setErrorByColumnId((prev) => prune(prev));
+    setLoadingByColumnId((prev) => prune(prev));
     void refetchFeeds();
   }, [key, refetchFeeds]);
 
@@ -124,11 +133,14 @@ export function useFeedItems(columns: GridColumn[]) {
     [loadingByColumnId],
   );
 
-  return {
-    feedItemsByColumnId: itemsByColumnId,
-    feedLoadingByColumnId: loadingByColumnId,
-    feedErrorByColumnId: errorByColumnId,
-    refetchFeeds,
-    feedsRefreshing,
-  };
+  return useMemo(
+    () => ({
+      feedItemsByColumnId: itemsByColumnId,
+      feedLoadingByColumnId: loadingByColumnId,
+      feedErrorByColumnId: errorByColumnId,
+      refetchFeeds,
+      feedsRefreshing,
+    }),
+    [itemsByColumnId, loadingByColumnId, errorByColumnId, refetchFeeds],
+  );
 }

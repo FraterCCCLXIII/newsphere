@@ -1,14 +1,9 @@
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import {
-  Bookmark,
-  ExternalLink,
-  Grid3x3,
-  Loader2,
-  Share2,
-} from "lucide-react";
+import { Bookmark, ExternalLink, Grid3x3, Loader2, Share2 } from "lucide-react";
 
+import { GridFeedEntrySkeleton } from "@/components/feed/feed-skeleton";
 import { FeedFavicon } from "@/components/grid/feed-favicon";
 import { Button } from "@/components/ui/button";
 import {
@@ -300,7 +295,16 @@ export function ColumnCard({
             )}
           </CardTitle>
           {loading ? (
-            <Loader2 className="col-start-3 row-start-1 size-4 shrink-0 animate-spin text-muted-foreground" />
+            <div
+              className="col-start-3 row-start-1 flex items-center justify-end self-center"
+              role="status"
+              aria-label="Loading feed"
+            >
+              <Loader2
+                className="size-4 shrink-0 animate-spin text-muted-foreground"
+                aria-hidden
+              />
+            </div>
           ) : null}
           {dragHandle ? (
             <div
@@ -360,15 +364,18 @@ export function ColumnCard({
             </p>
           </div>
         ) : loading && items.length === 0 ? (
-          <div
-            className={cn(
-              "flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground",
-              growMain,
-            )}
+          <ul
+            className={cn("min-w-0", growMain)}
+            aria-busy="true"
+            aria-label="Loading feed"
           >
-            <Loader2 className="size-4 animate-spin" />
-            Loading feed…
-          </div>
+            {Array.from({ length: FEED_PREVIEW_COUNT }).map((_, i) => (
+              <GridFeedEntrySkeleton
+                key={i}
+                isLast={i === FEED_PREVIEW_COUNT - 1}
+              />
+            ))}
+          </ul>
         ) : items.length === 0 ? (
           <div
             className={cn(

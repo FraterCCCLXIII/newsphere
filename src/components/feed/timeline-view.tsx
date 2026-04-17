@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { useOutletContext } from "react-router-dom";
-import { Loader2 } from "lucide-react";
-
+import { TimelineFeedEntrySkeleton } from "@/components/feed/feed-skeleton";
 import { TimelineFeedRow } from "@/components/feed/timeline-feed-row";
 import { GRID_EMPTY_RSS_NOTE } from "@/lib/feed-messages";
 import { publishedSortKey } from "@/lib/feed-time";
@@ -142,10 +141,23 @@ export function TimelineView() {
 
   if (mergedRows.length === 0) {
     if (feedsRefreshing) {
+      const n = 8;
       return (
-        <div className="flex min-h-[35vh] flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="size-5 animate-spin" aria-hidden />
-          Loading feeds…
+        <div
+          className="mx-auto w-full max-w-xl min-w-0 px-2 py-4"
+          aria-busy="true"
+          aria-label="Loading feeds"
+        >
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <ul className="min-w-0">
+              {Array.from({ length: n }).map((_, i) => (
+                <TimelineFeedEntrySkeleton
+                  key={i}
+                  isLast={i === n - 1}
+                />
+              ))}
+            </ul>
+          </div>
         </div>
       );
     }

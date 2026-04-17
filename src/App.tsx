@@ -9,6 +9,7 @@ import { HistoryPage } from "@/pages/history-page";
 import { FeedStreamPage } from "@/pages/feed-stream-page";
 import { HomePage } from "@/pages/home-page";
 import { ReaderPage } from "@/pages/reader-page";
+import { SettingsAboutPage } from "@/pages/settings-about-page";
 import { SettingsAppPage } from "@/pages/settings-app-page";
 import { SettingsGridPage } from "@/pages/settings-grid-page";
 import { SettingsLayout } from "@/pages/settings-layout";
@@ -39,6 +40,7 @@ function App() {
         <Route path="settings" element={<SettingsLayout />}>
           <Route index element={<SettingsGridPage />} />
           <Route path="app" element={<SettingsAppPage />} />
+          <Route path="about" element={<SettingsAboutPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
