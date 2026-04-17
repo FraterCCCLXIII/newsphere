@@ -1,18 +1,58 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 import { useGridConfig } from "@/hooks/use-grid-config";
 import { useReadHistory } from "@/hooks/use-read-history";
-import { BookmarksPage } from "@/pages/bookmarks-page";
-import { HistoryPage } from "@/pages/history-page";
-import { FeedStreamPage } from "@/pages/feed-stream-page";
-import { HomePage } from "@/pages/home-page";
-import { ReaderPage } from "@/pages/reader-page";
-import { SettingsAboutPage } from "@/pages/settings-about-page";
-import { SettingsAppPage } from "@/pages/settings-app-page";
-import { SettingsGridPage } from "@/pages/settings-grid-page";
-import { SettingsLayout } from "@/pages/settings-layout";
+
+const HomePage = lazy(() =>
+  import("@/pages/home-page").then((m) => ({ default: m.HomePage })),
+);
+const FeedStreamPage = lazy(() =>
+  import("@/pages/feed-stream-page").then((m) => ({
+    default: m.FeedStreamPage,
+  })),
+);
+const BookmarksPage = lazy(() =>
+  import("@/pages/bookmarks-page").then((m) => ({
+    default: m.BookmarksPage,
+  })),
+);
+const HistoryPage = lazy(() =>
+  import("@/pages/history-page").then((m) => ({ default: m.HistoryPage })),
+);
+const ReaderPage = lazy(() =>
+  import("@/pages/reader-page").then((m) => ({ default: m.ReaderPage })),
+);
+const SettingsLayout = lazy(() =>
+  import("@/pages/settings-layout").then((m) => ({
+    default: m.SettingsLayout,
+  })),
+);
+const SettingsGridPage = lazy(() =>
+  import("@/pages/settings-grid-page").then((m) => ({
+    default: m.SettingsGridPage,
+  })),
+);
+const SettingsAppPage = lazy(() =>
+  import("@/pages/settings-app-page").then((m) => ({
+    default: m.SettingsAppPage,
+  })),
+);
+const SettingsAboutPage = lazy(() =>
+  import("@/pages/settings-about-page").then((m) => ({
+    default: m.SettingsAboutPage,
+  })),
+);
+
+function RouteFallback() {
+  return (
+    <div className="flex min-h-0 flex-1 items-center justify-center text-muted-foreground">
+      Loading…
+    </div>
+  );
+}
 
 function App() {
   const grid = useGridConfig();
@@ -28,23 +68,31 @@ function App() {
   }
 
   return (
-    <Routes>
-      <Route
-        element={<AppShell grid={grid} bookmarks={bookmarks} readHistory={readHistory} />}
-      >
-        <Route index element={<HomePage />} />
-        <Route path="feed" element={<FeedStreamPage />} />
-        <Route path="bookmarks" element={<BookmarksPage />} />
-        <Route path="history" element={<HistoryPage />} />
-        <Route path="reader" element={<ReaderPage />} />
-        <Route path="settings" element={<SettingsLayout />}>
-          <Route index element={<SettingsGridPage />} />
-          <Route path="app" element={<SettingsAppPage />} />
-          <Route path="about" element={<SettingsAboutPage />} />
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
+        <Route
+          element={
+            <AppShell
+              grid={grid}
+              bookmarks={bookmarks}
+              readHistory={readHistory}
+            />
+          }
+        >
+          <Route index element={<HomePage />} />
+          <Route path="feed" element={<FeedStreamPage />} />
+          <Route path="bookmarks" element={<BookmarksPage />} />
+          <Route path="history" element={<HistoryPage />} />
+          <Route path="reader" element={<ReaderPage />} />
+          <Route path="settings" element={<SettingsLayout />}>
+            <Route index element={<SettingsGridPage />} />
+            <Route path="app" element={<SettingsAppPage />} />
+            <Route path="about" element={<SettingsAboutPage />} />
+          </Route>
         </Route>
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 

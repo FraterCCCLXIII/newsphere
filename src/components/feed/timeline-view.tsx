@@ -1,5 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { useOutletContext } from "react-router-dom";
+
 import { TimelineFeedEntrySkeleton } from "@/components/feed/feed-skeleton";
 import { TimelineFeedRow } from "@/components/feed/timeline-feed-row";
 import { GRID_EMPTY_RSS_NOTE } from "@/lib/feed-messages";
@@ -22,6 +24,53 @@ function matchesStreamSearch(query: string, row: MergedRow): boolean {
   if (matchesArticleSearch(query, row.item)) return true;
   if (row.columnTitle.toLowerCase().includes(q)) return true;
   return false;
+}
+
+function VirtualizedTimelineList({ rows }: { rows: MergedRow[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 132,
+    overscan: 8,
+  });
+
+  return (
+    <div
+      ref={scrollRef}
+      className="mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-xl border border-border bg-card"
+      role="list"
+    >
+      <div
+        className="relative w-full"
+        style={{ height: virtualizer.getTotalSize() }}
+      >
+        {virtualizer.getVirtualItems().map((v) => {
+          const row = rows[v.index];
+          if (!row) return null;
+          const isLast = v.index === rows.length - 1;
+          return (
+            <div
+              key={`${row.columnId}-${row.item.link ?? row.item.title}-${v.index}`}
+              data-index={v.index}
+              ref={virtualizer.measureElement}
+              className="absolute left-0 top-0 w-full"
+              style={{ transform: `translateY(${v.start}px)` }}
+            >
+              <TimelineFeedRow
+                rowElement="div"
+                item={row.item}
+                columnTitle={row.columnTitle}
+                columnId={row.columnId}
+                feedUrl={row.feedUrl}
+                isLast={isLast}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export function TimelineView() {
@@ -49,11 +98,15 @@ export function TimelineView() {
       }
     }
     rows.sort((a, b) => {
-      const t = publishedSortKey(b.item.published) - publishedSortKey(a.item.published);
+      const t =
+        publishedSortKey(b.item.published) -
+        publishedSortKey(a.item.published);
       if (t !== 0) return t;
       return (
         a.columnId.localeCompare(b.columnId) ||
-        (a.item.link || a.item.title).localeCompare(b.item.link || b.item.title)
+        (a.item.link || a.item.title).localeCompare(
+          b.item.link || b.item.title,
+        )
       );
     });
     return rows;
@@ -71,7 +124,10 @@ export function TimelineView() {
 
   const hasAnyFeedUrl = columns.some((c) => c.feedUrl?.trim());
   const showDesktopHint =
-    !isTauriRuntime() && hasAnyFeedUrl && mergedRows.length === 0 && !feedsRefreshing;
+    !isTauriRuntime() &&
+    hasAnyFeedUrl &&
+    mergedRows.length === 0 &&
+    !feedsRefreshing;
 
   if (columns.length === 0) {
     return (
@@ -91,7 +147,9 @@ export function TimelineView() {
   if (showDesktopHint) {
     return (
       <div className="flex min-h-[35vh] flex-col items-center justify-center gap-2 px-6 text-center">
-        <p className="text-sm font-medium text-foreground">RSS in the desktop app</p>
+        <p className="text-sm font-medium text-foreground">
+          RSS in the desktop app
+        </p>
         <p className="max-w-sm text-sm text-muted-foreground">
           The unified feed loads when you run the Tauri build. In the browser,
           add columns in Settings to prepare your layout.
@@ -113,28 +171,16 @@ export function TimelineView() {
       );
     }
     return (
-      <div className="mx-auto w-full max-w-xl min-w-0 px-2 py-4">
-        <div className="mb-3 px-2">
+      <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col px-2 py-4">
+        <div className="mb-3 shrink-0 px-2">
           <p className="text-sm font-medium text-foreground">Search results</p>
           <p className="text-xs text-muted-foreground">
             {filteredRows.length}{" "}
-            {filteredRows.length === 1 ? "article" : "articles"} in latest order
+            {filteredRows.length === 1 ? "article" : "articles"} in latest
+            order
           </p>
         </div>
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <ul className="min-w-0">
-            {filteredRows.map((row, i) => (
-              <TimelineFeedRow
-                key={`${row.columnId}-${row.item.link ?? row.item.title}-${i}`}
-                item={row.item}
-                columnTitle={row.columnTitle}
-                columnId={row.columnId}
-                feedUrl={row.feedUrl}
-                isLast={i === filteredRows.length - 1}
-              />
-            ))}
-          </ul>
-        </div>
+        <VirtualizedTimelineList rows={filteredRows} />
       </div>
     );
   }
@@ -151,10 +197,7 @@ export function TimelineView() {
           <div className="overflow-hidden rounded-xl border border-border bg-card">
             <ul className="min-w-0">
               {Array.from({ length: n }).map((_, i) => (
-                <TimelineFeedEntrySkeleton
-                  key={i}
-                  isLast={i === n - 1}
-                />
+                <TimelineFeedEntrySkeleton key={i} isLast={i === n - 1} />
               ))}
             </ul>
           </div>
@@ -183,27 +226,14 @@ export function TimelineView() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-xl min-w-0 px-2 py-4">
-      <header className="sticky top-0 z-10 border-b border-border bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col px-2 py-4">
+      <header className="shrink-0 border-b border-border bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <h1 className="text-sm font-semibold text-foreground">Latest</h1>
         <p className="text-xs text-muted-foreground">
           All sources, newest first
         </p>
       </header>
-      <div className="mt-2 overflow-hidden rounded-xl border border-border bg-card">
-        <ul className="min-w-0">
-          {filteredRows.map((row, i) => (
-            <TimelineFeedRow
-              key={`${row.columnId}-${row.item.link ?? row.item.title}-${i}`}
-              item={row.item}
-              columnTitle={row.columnTitle}
-              columnId={row.columnId}
-              feedUrl={row.feedUrl}
-              isLast={i === filteredRows.length - 1}
-            />
-          ))}
-        </ul>
-      </div>
+      <VirtualizedTimelineList rows={filteredRows} />
     </div>
   );
 }

@@ -21,6 +21,8 @@ type TimelineFeedRowProps = {
   columnId: string;
   feedUrl?: string;
   isLast: boolean;
+  /** Use `div` when rows are inside a virtual list (no `ul`/`li` tree). */
+  rowElement?: "li" | "div";
 };
 
 export function TimelineFeedRow({
@@ -29,7 +31,10 @@ export function TimelineFeedRow({
   columnId,
   feedUrl,
   isLast,
+  rowElement = "li",
 }: TimelineFeedRowProps) {
+  const Row = rowElement === "div" ? "div" : "li";
+  const rowRole = rowElement === "div" ? { role: "listitem" as const } : {};
   const [shareOpen, setShareOpen] = useState(false);
   const { bookmarks, toggleBookmark } = useOutletContext<AppOutletContext>();
   const { showTimestampsInline, dateFormatStyle } = useDisplayPreferences();
@@ -53,7 +58,7 @@ export function TimelineFeedRow({
 
   if (!item.link) {
     return (
-      <li className={cn("px-4 py-3", rowBorder)}>
+      <Row className={cn("px-4 py-3", rowBorder)} {...rowRole}>
         <div className="flex gap-3">
           <FeedFavicon feedUrl={feedUrl} className="mt-0.5 size-9" />
           <div className="min-w-0 flex-1">
@@ -73,14 +78,17 @@ export function TimelineFeedRow({
             ) : null}
           </div>
         </div>
-      </li>
+      </Row>
     );
   }
 
   const readerUrl = buildReaderUrl(item.link, columnId);
 
   return (
-    <li className={cn("px-4 py-3 transition-colors hover:bg-accent/40", rowBorder)}>
+    <Row
+      className={cn("px-4 py-3 transition-colors hover:bg-accent/40", rowBorder)}
+      {...rowRole}
+    >
       <div className="flex gap-3">
         <FeedFavicon feedUrl={feedUrl} className="mt-1 size-9 shrink-0" />
         <div className="min-w-0 flex-1">
@@ -198,6 +206,6 @@ export function TimelineFeedRow({
         url={item.link}
         title={item.title}
       />
-    </li>
+    </Row>
   );
 }
