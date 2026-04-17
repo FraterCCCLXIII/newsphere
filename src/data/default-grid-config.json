@@ -641,6 +641,244 @@
           "feedUrl": "https://www.psypost.org/feed/"
         }
       ]
+    },
+    {
+      "id": "page-philosophy",
+      "name": "Philosophy",
+      "columns": [
+        {
+          "id": "77a004b5-e20a-45b1-9ff0-e8531701865f",
+          "title": "Reference",
+          "kind": "header"
+        },
+        {
+          "id": "a008b643-15db-42f1-8451-1ea739c0a71e",
+          "title": "Stanford Encyclopedia of Philosophy",
+          "kind": "feed",
+          "feedUrl": "https://plato.stanford.edu/rss.xml"
+        },
+        {
+          "id": "f37489b8-a1b2-4e06-8cb0-40e76277721d",
+          "title": "PhilPapers",
+          "kind": "feed",
+          "feedUrl": "https://philpapers.org/rss"
+        },
+        {
+          "id": "a1d04dc0-2de0-40f2-bf04-55eab5215424",
+          "title": "Profession & blogs",
+          "kind": "header"
+        },
+        {
+          "id": "0ec0f147-5edf-4382-86d9-2d0e0e5ec9e0",
+          "title": "Daily Nous",
+          "kind": "feed",
+          "feedUrl": "https://dailynous.com/feed/"
+        },
+        {
+          "id": "81f4f08a-8245-4d35-b396-7051d6cab764",
+          "title": "The Brains Blog",
+          "kind": "feed",
+          "feedUrl": "https://philosophyofbrains.com/feed"
+        },
+        {
+          "id": "1bb185a3-e5b8-4189-af52-fe61e1ba11fd",
+          "title": "Philosophy for Life",
+          "kind": "feed",
+          "feedUrl": "https://philosophyforlife.org/feed/"
+        },
+        {
+          "id": "c967eb9b-d19b-49b9-be27-4f1b513541c4",
+          "title": "Reviews & magazines",
+          "kind": "header"
+        },
+        {
+          "id": "9005213e-4a19-4c7a-8be0-9ff134622dbf",
+          "title": "New Atlantis",
+          "kind": "feed",
+          "feedUrl": "https://www.thenewatlantis.com/feed"
+        },
+        {
+          "id": "efb4e73a-5fa1-4f54-b163-d6aebe721619",
+          "title": "The Point Magazine",
+          "kind": "feed",
+          "feedUrl": "https://thepointmag.com/feed/"
+        },
+        {
+          "id": "b57e0697-7c2e-4258-b7e6-eecad90ed735",
+          "title": "Public Books",
+          "kind": "feed",
+          "feedUrl": "https://www.publicbooks.org/feed/"
+        },
+        {
+          "id": "29e9c6d4-5199-40d6-acd1-e464d706c1e2",
+          "title": "Essays & culture",
+          "kind": "header"
+        },
+        {
+          "id": "98844057-d12e-4d00-85a4-5ea9b4a64427",
+          "title": "3 Quarks Daily",
+          "kind": "feed",
+          "feedUrl": "https://3quarksdaily.com/feed"
+        },
+        {
+          "id": "bda72a9a-c484-40ec-ba88-1df16b53db23",
+          "title": "LARB",
+          "kind": "feed",
+          "feedUrl": "https://lareviewofbooks.org/feed/"
+        },
+        {
+          "id": "61d86b88-f157-4855-b1b9-a3bb8696c621",
+          "title": "David Chapman",
+          "kind": "feed",
+          "feedUrl": "https://meaningness.com/rss.xml"
+        },
+        {
+          "id": "5d11058f-19cd-4f7d-956b-8f9c2c141a27",
+          "title": "Paul VanderKlay",
+          "kind": "feed",
+          "feedUrl": "https://paulvanderklay.me/feed/"
+        }
+      ]
+    },
+    {
+      "id": "page-spirituality",
+      "name": "Spirituality",
+      "columns": [
+        {
+          "id": "7cf9c50f-a58c-4246-8e74-4272cb4b4c3d",
+          "title": "Meditation & Dharma",
+          "kind": "header"
+        },
+        {
+          "id": "998308a6-a439-4991-af3f-17b46d4574ae",
+          "title": "Plum Village",
+          "kind": "feed",
+          "feedUrl": "https://plumvillage.org/feed/"
+        },
+        {
+          "id": "69b590c6-384b-43d8-88d2-300fc397ae74",
+          "title": "Insight Meditation Society",
+          "kind": "feed",
+          "feedUrl": "https://www.dharma.org/feed/"
+        },
+        {
+          "id": "26643394-06e5-41f1-a12d-41bff2de6070",
+          "title": "Dharma Seed",
+          "kind": "feed",
+          "feedUrl": "https://dharmaseed.org/feed/talks/"
+        },
+        {
+          "id": "9108792f-b34b-4efc-9305-d6ef504d4436",
+          "title": "Sravasti Abbey",
+          "kind": "feed",
+          "feedUrl": "https://sravastiabbey.org/feed/"
+        },
+        {
+          "id": "16d12db2-ed5e-4265-a2aa-48e753d397a5",
+          "title": "Integral Zen",
+          "kind": "feed",
+          "feedUrl": "https://integralzen.org/feed/"
+        },
+        {
+          "id": "6561b816-8496-44b0-8e8c-4a4c9d51abf1",
+          "title": "Integral & dialogue",
+          "kind": "header"
+        },
+        {
+          "id": "cdaaf6f9-2340-4341-961e-d82357d6296e",
+          "title": "Integral Life",
+          "kind": "feed",
+          "feedUrl": "https://integrallife.com/feed/"
+        },
+        {
+          "id": "7aa7d4df-7ad3-4425-8a4f-d4ef46af25c3",
+          "title": "Rebel Wisdom",
+          "kind": "feed",
+          "feedUrl": "https://rebelwisdom.co.uk/feed/"
+        },
+        {
+          "id": "02fcc771-b41f-4dd8-a820-92fea9b33975",
+          "title": "The Stoa",
+          "kind": "feed",
+          "feedUrl": "https://thestoa.substack.com/feed"
+        },
+        {
+          "id": "8b836ec0-9165-4ddd-b1c2-e8467373b85c",
+          "title": "Perspectiva",
+          "kind": "feed",
+          "feedUrl": "https://systems-souls-society.com/feed/"
+        },
+        {
+          "id": "730e07f7-b799-42bb-8457-39b15b10906d",
+          "title": "The Daily Evolver",
+          "kind": "feed",
+          "feedUrl": "https://dailyevolver.com/feed/"
+        },
+        {
+          "id": "22f0d0de-cfd2-4fe0-8d7f-e9346fc0175c",
+          "title": "Yoga & contemplative paths",
+          "kind": "header"
+        },
+        {
+          "id": "bcc508a3-c4b2-40d9-a325-98199e33a34f",
+          "title": "Auroville",
+          "kind": "feed",
+          "feedUrl": "https://auroville.org/feed/"
+        },
+        {
+          "id": "b58bdfbb-a18b-40fe-9d67-6c68ce20fd3d",
+          "title": "Sri Aurobindo Society",
+          "kind": "feed",
+          "feedUrl": "https://aurobindosociety.org/feed/"
+        },
+        {
+          "id": "2391f2cf-c8da-41ad-8b57-d02a33635f98",
+          "title": "Integral Yoga Magazine",
+          "kind": "feed",
+          "feedUrl": "https://integralyogamagazine.org/feed/"
+        },
+        {
+          "id": "e05e6880-2de5-428c-a8b6-bd9d793cbc8e",
+          "title": "Mother’s Service Society",
+          "kind": "feed",
+          "feedUrl": "https://motherservice.org/feed"
+        },
+        {
+          "id": "e6796c07-73d5-4daf-8fe2-f95fa46a0c17",
+          "title": "Consciousness & retreat",
+          "kind": "header"
+        },
+        {
+          "id": "e96a3516-cec7-4a97-9623-86893d234e1a",
+          "title": "Science and Nonduality",
+          "kind": "feed",
+          "feedUrl": "https://scienceandnonduality.com/blog/feed/"
+        },
+        {
+          "id": "f0ede534-522e-4f94-ab7b-768e9c6981cc",
+          "title": "IONS",
+          "kind": "feed",
+          "feedUrl": "https://noetic.org/feed/"
+        },
+        {
+          "id": "9f12d0bd-df08-4b1c-924b-0bd2d97fa314",
+          "title": "BatGap",
+          "kind": "feed",
+          "feedUrl": "https://batgap.com/feed/podcast/"
+        },
+        {
+          "id": "1f2e90b3-8350-484b-9186-c043100d6e0e",
+          "title": "Nonduality",
+          "kind": "feed",
+          "feedUrl": "https://nonduality.com/feed/"
+        },
+        {
+          "id": "a9da18e0-3ad1-47e5-9bf2-d9af38ae0576",
+          "title": "Esalen Institute",
+          "kind": "feed",
+          "feedUrl": "https://www.esalen.org/feed"
+        }
+      ]
     }
   ],
   "activePageId": "page-news"

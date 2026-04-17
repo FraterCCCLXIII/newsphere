@@ -15,7 +15,7 @@ It matches the shapes used in `src/types/catalog.ts`, `src/types/grid.ts`, and `
 |----------|----------|--------------------|------|
 | Feed catalog | `public/catalog-sources.json` | **Yes** — Vite copies everything under `public/` into the build output root (e.g. `dist/catalog-sources.json`). | Loaded at runtime via `loadCatalogSources()` in `src/data/catalog-sources.ts`. |
 | User grid state | Tauri store `grid-config.json` key `grid_config`, or web `localStorage` | **No** — per device, not part of the static bundle. | Persisted after the user changes layout. |
-| Bundled default grid | `src/data/default-grid-config.json` | **Yes** — imported in the bundle | **First launch** (no saved grid): multiple pages (**News**, **Tech**, **Business**, **Science**, **Culture**, **Sports**, **Ideas**) with section headers and feeds. `migrateGridConfig()` in `use-grid-config.ts` falls back to this when `grid_config` / localStorage is missing. Regenerate from the catalog via `npm run generate:default-grid`. |
+| Bundled default grid | `src/data/default-grid-config.json` | **Yes** — imported in the bundle | **First launch** (no saved grid): multiple pages (**News**, **Tech**, **Business**, **Science**, **Culture**, **Sports**, **Ideas**, **Philosophy**, **Spirituality**) with section headers and feeds. `migrateGridConfig()` in `use-grid-config.ts` falls back to this when `grid_config` / localStorage is missing. Regenerate from the catalog via `npm run generate:default-grid`. |
 
 Edit **`src/data/default-grid-config.json`** to change the out-of-the-box layout. The **Grid layout JSON** section below documents the same shape for reference.
 
