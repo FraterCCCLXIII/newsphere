@@ -113,6 +113,9 @@ export function useFeedItems(columns: GridColumn[]) {
   const key = columnFeedKey(columns);
 
   useEffect(() => {
+    setItemsByColumnId({});
+    setErrorByColumnId({});
+    setLoadingByColumnId({});
     void refetchFeeds();
   }, [key, refetchFeeds]);
 

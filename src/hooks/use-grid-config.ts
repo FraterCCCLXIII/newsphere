@@ -143,13 +143,8 @@ export function useGridConfig(): GridController {
   const activePageIdRef = useRef(activePageId);
   const mutationTargetPageIdRef = useRef(DEFAULT_FIRST_PAGE_ID);
 
-  useEffect(() => {
-    activePageIdRef.current = activePageId;
-  }, [activePageId]);
-
-  useEffect(() => {
-    pagesRef.current = pages;
-  }, [pages]);
+  pagesRef.current = pages;
+  activePageIdRef.current = activePageId;
 
   const isAggregateView =
     activePageId === AGGREGATE_PAGE_ID && pages.length > 1;
@@ -424,6 +419,35 @@ export function useGridConfig(): GridController {
     [persistConfig],
   );
 
+  const removePage = useCallback(
+    async (pageId: string) => {
+      const snapshot = pagesRef.current;
+      if (snapshot.length <= 1) return;
+      const idx = snapshot.findIndex((p) => p.id === pageId);
+      if (idx === -1) return;
+
+      const nextPages = snapshot.filter((p) => p.id !== pageId);
+      let nextActive = activePageIdRef.current;
+
+      if (nextActive === AGGREGATE_PAGE_ID) {
+        if (nextPages.length <= 1) {
+          nextActive = nextPages[0]!.id;
+        }
+      } else if (nextActive === pageId) {
+        nextActive =
+          nextPages[Math.max(0, idx - 1)]?.id ?? nextPages[0]!.id;
+      }
+
+      nextActive = normalizeActivePageId(nextActive, nextPages);
+
+      await persistConfig({
+        pages: nextPages,
+        activePageId: nextActive,
+      });
+    },
+    [persistConfig],
+  );
+
   const updatePageLatestRow = useCallback(
     async (pageId: string, partial: Partial<LatestRowSettings>) => {
       if (!pagesRef.current.some((p) => p.id === pageId)) return;
@@ -454,6 +478,10 @@ export function useGridConfig(): GridController {
     }
   }, [persistConfig]);
 
+  const resetLayoutToDefaults = useCallback(async () => {
+    await persistConfig(getBundledDefaultGridConfig());
+  }, [persistConfig]);
+
   return {
     columns,
     settingsColumns,
@@ -465,6 +493,7 @@ export function useGridConfig(): GridController {
     ready,
     refreshing,
     refresh,
+    resetLayoutToDefaults,
     setActivePage,
     addPage,
     addColumn,
@@ -475,6 +504,7 @@ export function useGridConfig(): GridController {
     reorderColumns,
     reorderPages,
     renamePage,
+    removePage,
     updatePageLatestRow,
   };
 }

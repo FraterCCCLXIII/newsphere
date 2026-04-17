@@ -1,10 +1,18 @@
-import { Heading, Info, Pencil, Plus } from "lucide-react";
+import { Heading, Info, Pencil, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
 import { AddSourceModal } from "@/components/layout/add-source-modal";
 import { SortableColumnList } from "@/components/settings/sortable-column-list";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   HoverCard,
   HoverCardContent,
@@ -31,10 +39,18 @@ export function SettingsGridPage() {
     removeColumn,
     reorderColumns,
     requestRenamePage,
+    removePage,
+    refetchFeeds,
     updatePageLatestRow,
   } = useOutletContext<SettingsOutletContext>();
 
   const [catalogOpen, setCatalogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const settingsPageName = useMemo(() => {
     if (pages.length === 0) return "News";
@@ -212,9 +228,110 @@ export function SettingsGridPage() {
               onRemove={(id) => void removeColumn(id)}
               onUpdateTitle={(id, title) => void updateColumnTitle(id, title)}
             />
+
+            {effectivePage ? (
+              <div
+                className="border-t border-border pt-8"
+                aria-labelledby="settings-delete-page-heading"
+              >
+                <h3
+                  id="settings-delete-page-heading"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Delete this page
+                </h3>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Remove{" "}
+                  <span className="font-medium text-foreground">
+                    {effectivePage.name}
+                  </span>{" "}
+                  and all of its section headers and feeds from the app.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-4 gap-1.5 text-muted-foreground hover:border-destructive/60 hover:bg-destructive/10 hover:text-destructive"
+                  disabled={pages.length <= 1}
+                  title={
+                    pages.length <= 1
+                      ? "Add another page before you can delete this one."
+                      : undefined
+                  }
+                  onClick={() => {
+                    if (pages.length <= 1 || !effectivePage) return;
+                    setPendingDelete({
+                      id: effectivePage.id,
+                      name: effectivePage.name,
+                    });
+                    setDeleteDialogOpen(true);
+                  }}
+                >
+                  <Trash2 className="size-4" aria-hidden />
+                  Delete page
+                </Button>
+              </div>
+            ) : null}
           </div>
         </section>
       </div>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) setPendingDelete(null);
+        }}
+      >
+        <DialogContent className="app-no-drag sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete this page?</DialogTitle>
+            <DialogDescription>
+              {pendingDelete ? (
+                <>
+                  <span className="font-medium text-foreground">
+                    {pendingDelete.name}
+                  </span>{" "}
+                  and all of its section headers and feeds will be removed. This
+                  cannot be undone.
+                </>
+              ) : null}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={deleting || !pendingDelete}
+              onClick={() => {
+                if (!pendingDelete) return;
+                const { id } = pendingDelete;
+                setDeleting(true);
+                void (async () => {
+                  try {
+                    await removePage(id);
+                    await refetchFeeds();
+                    setDeleteDialogOpen(false);
+                    setPendingDelete(null);
+                  } finally {
+                    setDeleting(false);
+                  }
+                })();
+              }}
+            >
+              {deleting ? "Deleting…" : "Delete page"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AddSourceModal
         open={catalogOpen}

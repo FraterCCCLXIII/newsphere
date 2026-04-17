@@ -86,9 +86,13 @@ export type GridController = {
   /** Persist a new order for `pages` (same ids as current config). */
   reorderPages: (pages: GridPage[]) => Promise<void>;
   renamePage: (pageId: string, name: string) => Promise<void>;
+  /** Remove a page and its columns. No-op when it would leave zero pages. */
+  removePage: (pageId: string) => Promise<void>;
   /** Per-page: show three most recent articles above the grid (not part of column layout). */
   updatePageLatestRow: (
     pageId: string,
     partial: Partial<LatestRowSettings>,
   ) => Promise<void>;
+  /** Replace saved layout with the bundled default from `src/data/default-grid-config.json`. */
+  resetLayoutToDefaults: () => Promise<void>;
 };

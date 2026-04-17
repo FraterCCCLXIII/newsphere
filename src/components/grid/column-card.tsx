@@ -91,7 +91,7 @@ export function FeedEntryRow({
     showTimestampsInline && Boolean(publishedLabel);
 
   const linkClassName =
-    "flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left";
+    "block min-w-0 w-full px-2 py-2 text-left";
 
   const linkInner = (
     <span className="min-w-0 flex-1">
@@ -145,11 +145,11 @@ export function FeedEntryRow({
     <li>
       <div
         className={cn(
-          "group/row flex items-stretch transition-colors hover:bg-accent/80",
+          "group/row flex min-w-0 items-stretch gap-2 transition-colors hover:bg-accent/80",
           rowBorder,
         )}
       >
-        <div className="flex min-w-0 flex-1 items-stretch">
+        <div className="min-w-0 min-h-0 flex-1">
           {showPreview ? (
             <FeedArticleHoverCard
               openDelay={200}
@@ -178,22 +178,22 @@ export function FeedEntryRow({
               {linkInner}
             </Link>
           )}
+        </div>
+        <div className="flex shrink-0 items-center gap-0 self-stretch pr-2">
           <a
             href={item.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="app-no-drag flex shrink-0 items-center px-1.5 text-muted-foreground opacity-0 transition-[opacity,color] duration-150 ease-out hover:text-foreground group-hover/row:opacity-100"
+            className="app-no-drag inline-flex size-8 shrink-0 items-center justify-center text-muted-foreground opacity-0 transition-colors duration-150 ease-out hover:text-foreground group-hover/row:opacity-100"
             title="Open in browser"
             aria-label="Open in browser"
             onClick={(e) => e.stopPropagation()}
           >
             <ExternalLink className="size-4" aria-hidden />
           </a>
-        </div>
-        <div className="flex shrink-0 items-center">
           <button
             type="button"
-            className="app-no-drag flex items-center justify-center px-2 text-muted-foreground opacity-0 transition-[opacity,color,background-color] duration-150 ease-out hover:bg-accent hover:text-foreground group-hover/row:opacity-100"
+            className="app-no-drag inline-flex size-8 shrink-0 items-center justify-center text-muted-foreground opacity-0 transition-colors duration-150 ease-out hover:bg-accent hover:text-foreground group-hover/row:opacity-100"
             onClick={(e) => {
               e.preventDefault();
               setShareOpen(true);
@@ -206,7 +206,7 @@ export function FeedEntryRow({
           <button
             type="button"
             className={cn(
-              "app-no-drag flex shrink-0 items-center justify-center px-2 text-muted-foreground transition-[opacity,color,background-color] duration-150 ease-out hover:bg-accent hover:text-foreground",
+              "app-no-drag inline-flex size-8 shrink-0 items-center justify-center text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-foreground",
               bookmarked
                 ? "opacity-100"
                 : "opacity-0 group-hover/row:opacity-100",
