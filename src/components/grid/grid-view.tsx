@@ -40,7 +40,7 @@ import { publishedSortKey } from "@/lib/feed-time";
 import { mergeVisibleColumnOrder } from "@/lib/grid-reorder";
 import { gridSortCollisionDetection } from "@/lib/grid-sort-dnd";
 import { rectSortingNoScaleStrategy } from "@/lib/grid-sorting-strategy";
-import { isTauriRuntime } from "@/lib/tauri-env";
+import { shouldShowFeedColumn } from "@/lib/grid-feed-visibility";
 import { matchesArticleSearch } from "@/lib/search-utils";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
@@ -61,20 +61,13 @@ function gridFeedColumnCount(): 1 | 2 | 3 {
 const LATEST_ROWS_PER_COLUMN = 5;
 const LATEST_MAX_ITEMS = 15;
 
-/** Hide column cards that only show an empty feed; keep placeholders and in-flight/error columns. */
-function shouldShowColumnCard(
-  column: GridColumn,
-  items: FeedItem[],
-  loading: boolean,
-  error: string | undefined,
-): boolean {
-  const hasUrl = Boolean(column.feedUrl?.trim());
-  if (!hasUrl) return true;
-  if (loading) return true;
-  if (error) return true;
-  if (!isTauriRuntime() && hasUrl) return true;
-  return items.length > 0;
-}
+/**
+ * How many columns to mount on the first paint when entries change.
+ * 9 = three rows × three CSS grid columns — roughly one full viewport.
+ */
+const INITIAL_RENDER_COUNT = 9;
+/** Entries added per animation frame until all columns are mounted. */
+const BATCH_SIZE = 6;
 
 /** Match `.grid-feed` column track width when no feed card exists to measure (headers-only). */
 function estimateOneColumnTrackWidth(grid: HTMLElement): number {
@@ -149,7 +142,7 @@ export function GridView() {
     isAggregateView,
   } = useOutletContext<AppOutletContext>();
 
-  const { showGridInsertionLines } = useDisplayPreferences();
+  const { showGridInsertionLines, hideBrokenFeeds } = useDisplayPreferences();
 
   const activePage = useMemo(() => {
     if (isAggregateView) return null;
@@ -165,6 +158,21 @@ export function GridView() {
     const t = activePage?.latestRow?.title?.trim();
     return t || DEFAULT_LATEST_ROW_TITLE;
   }, [activePage?.latestRow?.title]);
+
+  const visibleColumns = useMemo(() => {
+    return columns.filter((col) => {
+      const items = feedItemsByColumnId[col.id] ?? [];
+      const loading = feedLoadingByColumnId[col.id] ?? false;
+      const error = feedErrorByColumnId[col.id];
+      return shouldShowFeedColumn(col, items, loading, error, hideBrokenFeeds);
+    });
+  }, [
+    columns,
+    feedItemsByColumnId,
+    feedLoadingByColumnId,
+    feedErrorByColumnId,
+    hideBrokenFeeds,
+  ]);
 
   const [latestLayoutColumnCount, setLatestLayoutColumnCount] = useState<
     1 | 2 | 3
@@ -192,7 +200,7 @@ export function GridView() {
   const latestFlatRows = useMemo((): LatestRow[] => {
     if (!showLatestRow) return [];
     const rows: LatestRow[] = [];
-    for (const col of columns) {
+    for (const col of visibleColumns) {
       if (!isFeedColumn(col)) continue;
       const items = feedItemsByColumnId[col.id] ?? [];
       for (const item of items) {
@@ -221,7 +229,7 @@ export function GridView() {
       if (out.length >= LATEST_MAX_ITEMS) break;
     }
     return out;
-  }, [columns, feedItemsByColumnId, showLatestRow]);
+  }, [visibleColumns, feedItemsByColumnId, showLatestRow]);
 
   /**
    * Always up to three cards × five rows (15 items) in wide mode; only CSS columns
@@ -266,7 +274,7 @@ export function GridView() {
       columnTitle: string;
       columnId: string;
     }[] = [];
-    for (const col of columns) {
+    for (const col of visibleColumns) {
       const items = feedItemsByColumnId[col.id] ?? [];
       for (const item of items) {
         if (matchesArticleSearch(query, item)) {
@@ -283,35 +291,27 @@ export function GridView() {
         publishedSortKey(b.item.published) - publishedSortKey(a.item.published),
     );
     return rows;
-  }, [columns, feedItemsByColumnId, isSearch, query]);
+  }, [visibleColumns, feedItemsByColumnId, isSearch, query]);
 
   const filteredByColumnId = useMemo(() => {
     const out: Record<string, FeedItem[]> = {};
-    for (const col of columns) {
+    for (const col of visibleColumns) {
       const items = feedItemsByColumnId[col.id] ?? [];
       out[col.id] = items.filter((item) =>
         matchesArticleSearch(searchQuery, item),
       );
     }
     return out;
-  }, [columns, feedItemsByColumnId, searchQuery]);
-
-  const visibleColumns = useMemo(() => {
-    return columns.filter((col) => {
-      const items = feedItemsByColumnId[col.id] ?? [];
-      const loading = feedLoadingByColumnId[col.id] ?? false;
-      const error = feedErrorByColumnId[col.id];
-      return shouldShowColumnCard(col, items, loading, error);
-    });
-  }, [columns, feedItemsByColumnId, feedLoadingByColumnId, feedErrorByColumnId]);
+  }, [visibleColumns, feedItemsByColumnId, searchQuery]);
 
   /** Layout order for the grid: section headers (full width) + visible feed columns in sequence. */
   const gridRenderEntries = useMemo(() => {
+    const visibleIds = new Set(visibleColumns.map((v) => v.id));
     const out: { kind: "header" | "feed"; column: GridColumn }[] = [];
     for (const col of gridLayoutColumns) {
       if (col.kind === "header") {
         out.push({ kind: "header", column: col });
-      } else if (visibleColumns.some((v) => v.id === col.id)) {
+      } else if (visibleIds.has(col.id)) {
         out.push({ kind: "feed", column: col });
       }
     }
@@ -424,6 +424,43 @@ export function GridView() {
     () => gridRenderEntries.map((e) => e.column.id),
     [gridRenderEntries],
   );
+
+  // ─── Progressive column mounting ────────────────────────────────────────────
+  // Mount the first INITIAL_RENDER_COUNT columns on the initial paint so the
+  // user sees content instantly, then add BATCH_SIZE more each animation frame.
+  // SortableContext still receives all IDs for correct DnD registration; only
+  // the actual DOM nodes are staggered.
+
+  const entriesSignature = useMemo(
+    () => gridRenderEntries.map((e) => e.column.id).join("\0"),
+    [gridRenderEntries],
+  );
+  const prevEntriesSignatureRef = useRef(entriesSignature);
+  const [renderBudget, setRenderBudget] = useState(INITIAL_RENDER_COUNT);
+
+  // React's "storing info from previous renders" pattern: reset budget
+  // synchronously during the render so the very first commit is already correct.
+  if (prevEntriesSignatureRef.current !== entriesSignature) {
+    prevEntriesSignatureRef.current = entriesSignature;
+    const reset = Math.min(INITIAL_RENDER_COUNT, gridRenderEntries.length);
+    if (renderBudget !== reset) {
+      setRenderBudget(reset);
+    }
+  }
+
+  useEffect(() => {
+    if (renderBudget >= gridRenderEntries.length) return;
+    const id = requestAnimationFrame(() => {
+      setRenderBudget((b) => Math.min(b + BATCH_SIZE, gridRenderEntries.length));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [renderBudget, gridRenderEntries.length]);
+
+  const entriesToRender = useMemo(
+    () => gridRenderEntries.slice(0, renderBudget),
+    [gridRenderEntries, renderBudget],
+  );
+  // ────────────────────────────────────────────────────────────────────────────
 
   if (
     columns.length === 0 &&
@@ -610,7 +647,7 @@ export function GridView() {
                   </div>
                 </div>
               ) : (
-                gridRenderEntries.map((entry) =>
+                entriesToRender.map((entry) =>
                   entry.kind === "header" ? (
                     <SortableGridSectionHeader
                       key={entry.column.id}

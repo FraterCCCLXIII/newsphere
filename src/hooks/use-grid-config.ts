@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { isTauriRuntime } from "@/lib/tauri-env";
 import {
@@ -21,6 +21,40 @@ const STORE_FILE = "grid-config.json";
 const STORE_KEY = "grid_config";
 const LS_KEY = "newsphere-grid-config-v1";
 const LS_KEY_LEGACY = "newsfeed-grid-config-v1";
+
+const TAURI_STORE_OPTIONS = { defaults: {}, autoSave: true } as const;
+
+let tauriGridStorePromise: ReturnType<
+  typeof import("@tauri-apps/plugin-store").load
+> | null = null;
+
+async function getTauriGridStore() {
+  if (!tauriGridStorePromise) {
+    const { load } = await import("@tauri-apps/plugin-store");
+    tauriGridStorePromise = load(STORE_FILE, TAURI_STORE_OPTIONS);
+  }
+  return tauriGridStorePromise;
+}
+
+/** Let React commit and the browser paint before disk work (keeps page switches snappy). */
+function yieldToPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  });
+}
+
+/** Serialize disk writes so rapid switches cannot reorder saves. */
+let saveTail: Promise<void> = Promise.resolve();
+
+function enqueuePersistToDisk(next: GridConfig): Promise<void> {
+  saveTail = saveTail.then(async () => {
+    await yieldToPaint();
+    await saveConfig(next);
+  });
+  return saveTail;
+}
 
 function normalizeMigratedPages(pages: GridPage[]): GridPage[] {
   return pages.map((p) => {
@@ -92,11 +126,7 @@ function migrateGridConfig(raw: unknown): GridConfig {
 
 async function loadConfig(): Promise<GridConfig> {
   if (isTauriRuntime()) {
-    const { load } = await import("@tauri-apps/plugin-store");
-    const store = await load(STORE_FILE, {
-      defaults: {},
-      autoSave: true,
-    });
+    const store = await getTauriGridStore();
     const value = await store.get<unknown>(STORE_KEY);
     return migrateGridConfig(value);
   }
@@ -116,11 +146,7 @@ async function loadConfig(): Promise<GridConfig> {
 
 async function saveConfig(config: GridConfig): Promise<void> {
   if (isTauriRuntime()) {
-    const { load } = await import("@tauri-apps/plugin-store");
-    const store = await load(STORE_FILE, {
-      defaults: {},
-      autoSave: true,
-    });
+    const store = await getTauriGridStore();
     await store.set(STORE_KEY, config);
     await store.save();
     return;
@@ -203,13 +229,20 @@ export function useGridConfig(): GridController {
     };
   }, []);
 
-  const persistConfig = useCallback(async (next: GridConfig) => {
+  const applyGridState = useCallback((next: GridConfig) => {
     pagesRef.current = next.pages;
     activePageIdRef.current = next.activePageId;
     setPages(next.pages);
     setActivePageId(next.activePageId);
-    await saveConfig(next);
   }, []);
+
+  const persistConfig = useCallback(
+    async (next: GridConfig) => {
+      applyGridState(next);
+      await enqueuePersistToDisk(next);
+    },
+    [applyGridState],
+  );
 
   const updatePageColumns = useCallback(
     async (pageId: string, nextColumns: GridColumn[]) => {
@@ -228,19 +261,29 @@ export function useGridConfig(): GridController {
     async (pageId: string) => {
       if (pageId === AGGREGATE_PAGE_ID) {
         if (pagesRef.current.length <= 1) return;
-        await persistConfig({
+        const next: GridConfig = {
           pages: pagesRef.current,
           activePageId: AGGREGATE_PAGE_ID,
+        };
+        // startTransition marks the re-render as non-urgent so the current
+        // page stays interactive while React prepares the new view.
+        startTransition(() => {
+          applyGridState(next);
         });
+        void enqueuePersistToDisk(next);
         return;
       }
       if (!pagesRef.current.some((p) => p.id === pageId)) return;
-      await persistConfig({
+      const next: GridConfig = {
         pages: pagesRef.current,
         activePageId: pageId,
+      };
+      startTransition(() => {
+        applyGridState(next);
       });
+      void enqueuePersistToDisk(next);
     },
-    [persistConfig],
+    [applyGridState],
   );
 
   const addPage = useCallback(
