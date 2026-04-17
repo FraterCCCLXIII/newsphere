@@ -145,8 +145,8 @@
   },
   {
     "id": "ap-top",
-    "name": "AP News — Top",
-    "url": "https://apnews.com/hub/apf-topnews?output=rss",
+    "name": "ABC News — Top",
+    "url": "https://feeds.abcnews.com/abcnews/topstories",
     "category": "News"
   },
   {
@@ -655,14 +655,14 @@
   },
   {
     "id": "evolving-ground",
-    "name": "Evolving Ground",
-    "url": "https://evolvingground.org/feed/",
+    "name": "Integral European Conference Blog",
+    "url": "https://integraleuropeanconference.com/feed/",
     "category": "Integral"
   },
   {
     "id": "beams-and-struts",
-    "name": "Beams and Struts",
-    "url": "https://beamsandstruts.com/feed/",
+    "name": "Parallax (Layman Pascal)",
+    "url": "https://laymanpascal.substack.com/feed",
     "category": "Integral"
   },
   {
@@ -692,7 +692,7 @@
   {
     "id": "emerge-podcast",
     "name": "Emerge Podcast",
-    "url": "https://emergepodcast.net/feed/podcast/",
+    "url": "https://emerge.substack.com/feed",
     "category": "Integral"
   },
   {
@@ -823,8 +823,8 @@
   },
   {
     "id": "science-and-nonduality",
-    "name": "Science and Nonduality",
-    "url": "https://scienceandnonduality.com/blog/feed/",
+    "name": "Psychedelic Alpha",
+    "url": "https://psychedelicalpha.com/feed",
     "category": "Consciousness"
   },
   {
@@ -841,8 +841,8 @@
   },
   {
     "id": "nonduality-com",
-    "name": "Nonduality",
-    "url": "https://nonduality.com/feed/",
+    "name": "Mind Science Institute",
+    "url": "https://mindscience.org/feed",
     "category": "Consciousness"
   },
   {
@@ -854,13 +854,13 @@
   {
     "id": "sep-plato",
     "name": "Stanford Encyclopedia of Philosophy",
-    "url": "https://plato.stanford.edu/rss.xml",
+    "url": "https://plato.stanford.edu/rss/sep.xml",
     "category": "Academic"
   },
   {
     "id": "philpapers",
-    "name": "PhilPapers",
-    "url": "https://philpapers.org/rss",
+    "name": "Notre Dame Philosophical Reviews",
+    "url": "https://ndpr.nd.edu/reviews.atom",
     "category": "Academic"
   },
   {
@@ -937,14 +937,14 @@
   },
   {
     "id": "journal-consciousness-studies",
-    "name": "Journal of Consciousness Studies",
-    "url": "https://www.ingentaconnect.com/rss/content/imp/jcs",
+    "name": "The Conversation — Philosophy",
+    "url": "https://theconversation.com/us/articles.atom?section=philosophy",
     "category": "Academic"
   },
   {
     "id": "mind-and-life-institute",
-    "name": "Mind & Life Institute",
-    "url": "https://www.mindandlife.org/feed/",
+    "name": "Shinzen Young",
+    "url": "https://www.shinzen.org/feed/",
     "category": "Academic"
   },
   {
@@ -1045,8 +1045,8 @@
   },
   {
     "id": "dharma-seed",
-    "name": "Dharma Seed",
-    "url": "https://dharmaseed.org/feed/talks/",
+    "name": "Tricycle",
+    "url": "https://tricycle.org/feed/",
     "category": "Spirituality"
   },
   {
@@ -1057,8 +1057,8 @@
   },
   {
     "id": "integral-zen",
-    "name": "Integral Zen",
-    "url": "https://integralzen.org/feed/",
+    "name": "Omega Institute",
+    "url": "https://www.eomega.org/rss.xml",
     "category": "Spirituality"
   },
   {
@@ -1100,7 +1100,7 @@
   {
     "id": "works-in-progress",
     "name": "Works in Progress",
-    "url": "https://worksinprogress.co/feed",
+    "url": "https://worksinprogress.co/rss.xml",
     "category": "Progress"
   },
   {
@@ -1136,7 +1136,7 @@
   {
     "id": "long-now-foundation",
     "name": "The Long Now Foundation",
-    "url": "https://longnow.org/ideas/feed/",
+    "url": "https://feeds.feedburner.com/longnow",
     "category": "Sensemaking"
   },
   {
@@ -1171,20 +1171,20 @@
   },
   {
     "id": "auroville",
-    "name": "Auroville",
-    "url": "https://auroville.org/feed/",
+    "name": "Garrison Institute",
+    "url": "https://www.garrisoninstitute.org/feed/",
     "category": "Spirituality"
   },
   {
     "id": "mothers-service-society",
-    "name": "Mother’s Service Society",
-    "url": "https://motherservice.org/feed",
+    "name": "Tara Brach",
+    "url": "https://www.tarabrach.com/feed/podcast/",
     "category": "Spirituality"
   },
   {
     "id": "sri-aurobindo-society",
-    "name": "Sri Aurobindo Society",
-    "url": "https://aurobindosociety.org/feed/",
+    "name": "Yogaville",
+    "url": "https://yogaville.org/feed/",
     "category": "Spirituality"
   },
   {
@@ -1195,8 +1195,8 @@
   },
   {
     "id": "esalen-institute",
-    "name": "Esalen Institute",
-    "url": "https://www.esalen.org/feed",
+    "name": "Kripalu Center",
+    "url": "https://kripalu.org/rss.xml",
     "category": "Spirituality"
   },
   {
@@ -1225,8 +1225,8 @@
   },
   {
     "id": "philosophy-for-life",
-    "name": "Philosophy for Life",
-    "url": "https://philosophyforlife.org/feed/",
+    "name": "Internet Encyclopedia of Philosophy",
+    "url": "https://iep.utm.edu/feed/",
     "category": "Philosophy"
   },
   {

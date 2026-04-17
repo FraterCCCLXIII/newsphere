@@ -354,7 +354,7 @@ const recipe = {
         { catalogId: "beams-and-struts", columnId: "3a83bc45-3d1f-4448-8be1-6d6fd81a569b" },
         {
           id: "e6796c07-73d5-4daf-8fe2-f95fa46a0c17",
-          title: "Consciousness & retreat",
+          title: "Consciousness",
           kind: "header",
         },
         { catalogId: "science-and-nonduality", columnId: "e96a3516-cec7-4a97-9623-86893d234e1a" },
