@@ -6,14 +6,16 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { isMac } from "@/lib/platform";
 
 type NavCaps = {
   canGoBack: boolean;
   canGoForward: boolean;
 };
 
-/** React Router browser history stores `idx` on `window.history.state` (see remix history). */
+/** React Router’s browser history stores `idx` on `window.history.state`. */
 function getRouterHistoryIdx(): number | null {
   const s = window.history.state;
   if (
@@ -54,58 +56,80 @@ function applyIdxCaps(
   });
 }
 
+function shouldIgnoreKeyboardTarget(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
+  if (!el) return false;
+  const tag = el.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+  if (el.isContentEditable) return true;
+  return Boolean(el.closest("[role='textbox']"));
+}
+
 /**
- * Browser-style back / forward using React Router.
+ * Browser-style back / forward using React Router’s session history.
  *
- * Prefers `history.state.idx` (BrowserRouter / Remix history). Tracks the
- * stack tip by wrapping `history.pushState` so we do not rely on
- * `useNavigationType`. Falls back to the Navigation API, then a minimal
- * heuristic. Avoids fragile coupling to RR’s action type in effects (which was a
- * likely source of render issues).
+ * - Tracks `history.state.idx` (React Router) plus the furthest `idx` seen on
+ *   push so “forward” matches a normal tab after going back.
+ * - Falls back to the Navigation API, then `history.length`, when `idx` is missing.
+ * - Re-syncs after each route change to avoid stale button state.
+ * - Keyboard: ⌘[ / ⌘] on macOS, Alt+← / Alt+→ elsewhere (only when the target can
+ *   navigate, so we do not send the user past the SPA root).
  */
 export function useHistoryNavigation() {
   const navigate = useNavigate();
+  const location = useLocation();
   const maxIdxRef = useRef<number | null>(null);
+  const capsRef = useRef<NavCaps>({
+    canGoBack: false,
+    canGoForward: false,
+  });
+
   const [caps, setCaps] = useState<NavCaps>(() => {
     const idx = getRouterHistoryIdx();
     if (idx !== null) {
-      return { canGoBack: idx > 0, canGoForward: false };
+      maxIdxRef.current = idx;
+      const initial = { canGoBack: idx > 0, canGoForward: false };
+      capsRef.current = initial;
+      return initial;
     }
-    return (
+    const fallback =
       readNavigationApiCaps() ?? {
         canGoBack: window.history.length > 1,
         canGoForward: false,
-      }
-    );
+      };
+    capsRef.current = fallback;
+    return fallback;
   });
+
+  capsRef.current = caps;
+
+  const syncFromHistory = useCallback(() => {
+    const idx = getRouterHistoryIdx();
+    if (idx === null) {
+      const nav = readNavigationApiCaps();
+      if (nav) {
+        setCaps(nav);
+      } else {
+        setCaps({
+          canGoBack: window.history.length > 1,
+          canGoForward: false,
+        });
+      }
+      return;
+    }
+
+    if (maxIdxRef.current === null) {
+      maxIdxRef.current = idx;
+    }
+
+    const maxIdx = maxIdxRef.current;
+    applyIdxCaps(idx, maxIdx, setCaps);
+  }, []);
 
   useEffect(() => {
     const hr = window.history;
     const origPush = hr.pushState.bind(hr);
     const origReplace = hr.replaceState.bind(hr);
-
-    const syncFromHistory = () => {
-      const idx = getRouterHistoryIdx();
-      if (idx === null) {
-        const nav = readNavigationApiCaps();
-        if (nav) {
-          setCaps(nav);
-        } else {
-          setCaps({
-            canGoBack: window.history.length > 1,
-            canGoForward: false,
-          });
-        }
-        return;
-      }
-
-      if (maxIdxRef.current === null) {
-        maxIdxRef.current = idx;
-      }
-
-      const maxIdx = maxIdxRef.current;
-      applyIdxCaps(idx, maxIdx, setCaps);
-    };
 
     hr.pushState = (...args: Parameters<History["pushState"]>) => {
       const ret = origPush(...args);
@@ -132,7 +156,39 @@ export function useHistoryNavigation() {
       hr.replaceState = origReplace;
       window.removeEventListener("popstate", syncFromHistory);
     };
-  }, []);
+  }, [syncFromHistory]);
+
+  useEffect(() => {
+    syncFromHistory();
+  }, [location.key, location.pathname, location.search, syncFromHistory]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.repeat) return;
+      if (shouldIgnoreKeyboardTarget(e.target)) return;
+
+      const mac = isMac();
+      if (mac) {
+        if (e.metaKey && (e.key === "[" || e.key === "]")) {
+          if (e.key === "[" && !capsRef.current.canGoBack) return;
+          if (e.key === "]" && !capsRef.current.canGoForward) return;
+          e.preventDefault();
+          navigate(e.key === "[" ? -1 : 1);
+        }
+        return;
+      }
+
+      if (e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+        if (e.key === "ArrowLeft" && !capsRef.current.canGoBack) return;
+        if (e.key === "ArrowRight" && !capsRef.current.canGoForward) return;
+        e.preventDefault();
+        navigate(e.key === "ArrowLeft" ? -1 : 1);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [navigate]);
 
   const goBack = useCallback(() => {
     navigate(-1);

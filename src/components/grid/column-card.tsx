@@ -65,7 +65,8 @@ export function FeedEntryRow({
   showSourceLine?: boolean;
 }) {
   const [shareOpen, setShareOpen] = useState(false);
-  const { bookmarks, toggleBookmark } = useOutletContext<AppOutletContext>();
+  const { bookmarks, toggleBookmark, readHistory } =
+    useOutletContext<AppOutletContext>();
   const { showTimestampsInline, dateFormatStyle } = useDisplayPreferences();
 
   const bookmarked = useMemo(() => {
@@ -73,6 +74,13 @@ export function FeedEntryRow({
     const n = normalizeBookmarkLink(item.link);
     return bookmarks.some((b) => normalizeBookmarkLink(b.link) === n);
   }, [bookmarks, item.link]);
+
+  /** CSS :visited does not apply reliably with client-side routing; use read history instead. */
+  const hasBeenRead = useMemo(() => {
+    if (!item.link) return false;
+    const n = normalizeBookmarkLink(item.link);
+    return readHistory.some((h) => normalizeBookmarkLink(h.link) === n);
+  }, [readHistory, item.link]);
 
   const publishedLabel = formatPublishedForPreference(
     item.published,
@@ -85,12 +93,16 @@ export function FeedEntryRow({
   const showInlineTimestamp =
     showTimestampsInline && Boolean(publishedLabel);
 
-  const linkClassName =
-    "block min-w-0 w-full px-2 py-2 text-left";
+  const linkClassName = cn(
+    "block min-w-0 w-full px-2 py-2 text-left transition-colors",
+    hasBeenRead
+      ? "text-muted-foreground hover:text-foreground"
+      : "text-foreground",
+  );
 
   const linkInner = (
     <span className="min-w-0 flex-1">
-      <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
+      <span className="line-clamp-2 text-sm font-medium leading-snug text-inherit">
         {item.title}
       </span>
       {showInlineTimestamp ? (
@@ -286,7 +298,7 @@ export function ColumnCard({
                 href={websiteHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-foreground transition-colors hover:text-primary"
+                className="text-foreground transition-colors hover:text-primary visited:text-muted-foreground visited:hover:text-primary"
               >
                 {column.title}
               </a>
@@ -300,10 +312,10 @@ export function ColumnCard({
               role="status"
               aria-label="Loading feed"
             >
-              <Loader2
-                className="size-4 shrink-0 animate-spin text-muted-foreground"
-                aria-hidden
-              />
+              {/* Spin the wrapper, not the SVG — avoids baseline / subpixel wobble on the arc icon */}
+              <span className="inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground motion-safe:animate-spin">
+                <Loader2 className="size-4 shrink-0 block" aria-hidden />
+              </span>
             </div>
           ) : null}
           {dragHandle ? (

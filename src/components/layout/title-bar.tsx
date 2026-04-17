@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   Bookmark,
@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { isTauriRuntime } from "@/lib/tauri-env";
-import { controlsOnLeft } from "@/lib/platform";
+import { controlsOnLeft, isMac } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 import type { GridPage } from "@/types/grid";
 
@@ -137,6 +137,19 @@ export function TitleBar({
   const { textScale, setTextScale } = useTextScale();
   const { goBack, goForward, canGoBack, canGoForward } =
     useHistoryNavigation();
+
+  const { backButtonTitle, forwardButtonTitle } = useMemo(() => {
+    if (isMac()) {
+      return {
+        backButtonTitle: "Back — ⌘[",
+        forwardButtonTitle: "Forward — ⌘]",
+      };
+    }
+    return {
+      backButtonTitle: "Back — Alt+←",
+      forwardButtonTitle: "Forward — Alt+→",
+    };
+  }, []);
 
   const linkFromReader = useCallback(
     (to: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -402,7 +415,7 @@ export function TitleBar({
                 !canGoBack && "pointer-events-none opacity-40",
               )}
               disabled={!canGoBack}
-              title="Back"
+              title={backButtonTitle}
               aria-label="Go back"
               onClick={() => {
                 void goBack();
@@ -419,7 +432,7 @@ export function TitleBar({
                 !canGoForward && "pointer-events-none opacity-40",
               )}
               disabled={!canGoForward}
-              title="Forward"
+              title={forwardButtonTitle}
               aria-label="Go forward"
               onClick={() => {
                 void goForward();
