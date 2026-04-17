@@ -133,7 +133,7 @@ function InsertionZone({
           <button
             type="button"
             className={cn(
-              "flex size-full min-h-[2.5rem] min-w-[2.5rem] items-center justify-center rounded-sm border border-transparent bg-transparent p-0 outline-none ring-offset-background transition-[opacity,colors] duration-150 ease-out",
+              "flex size-full min-h-[2.5rem] min-w-[1.5rem] items-center justify-center rounded-sm border border-transparent bg-transparent p-0 outline-none ring-offset-background transition-[opacity,colors] duration-150 ease-out",
               "opacity-0 delay-0 group-hover:opacity-100 group-hover:delay-300 group-focus-within:opacity-100 group-focus-within:delay-300",
               menuOpen && "opacity-100 delay-0",
               "text-muted-foreground hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",

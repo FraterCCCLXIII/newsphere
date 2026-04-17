@@ -90,7 +90,9 @@ export function SortableGridSectionHeader({ column }: { column: GridColumn }) {
     prevIsDragging.current = isDragging;
   }, [isDragging]);
 
-  const sortableListeners = listeners as {
+  // dnd-kit returns `listeners = undefined` when the sortable item is disabled.
+  // Wrap with `?? {}` so property accesses never throw at runtime.
+  const sortableListeners = (listeners ?? {}) as {
     onPointerDown?: (e: ReactPointerEvent) => void;
     onKeyDown?: (e: KeyboardEvent) => void;
   };
@@ -417,7 +419,9 @@ export function SortableGridColumn({
     prevIsDragging.current = isDragging;
   }, [isDragging]);
 
-  const sortableListeners = listeners as {
+  // dnd-kit returns `listeners = undefined` when the sortable item is disabled.
+  // Wrap with `?? {}` so property accesses never throw at runtime.
+  const sortableListeners = (listeners ?? {}) as {
     onPointerDown?: (e: ReactPointerEvent) => void;
     onKeyDown?: (e: KeyboardEvent) => void;
   };
