@@ -528,11 +528,11 @@ export function GridView() {
           <GridHeaderDropLine wrapRef={gridWrapRef} gridRef={gridRef} />
           {showLatestRow ? (
             <div className="px-4 pb-4 pt-4">
-              <h2 className="mb-3 text-xl font-semibold tracking-tight text-foreground">
+              <h2 className="mb-3 pl-4 text-xl font-semibold tracking-tight text-foreground">
                 {latestRowHeading}
               </h2>
               {latestFlatRows.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="pl-4 text-sm text-muted-foreground">
                   No recent articles yet.
                 </p>
               ) : latestDisplay?.kind === "combined" ? (

@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 type FeedItemHoverPreviewPanelProps = {
   excerpt: string | null;
   imageUrl: string | null;
@@ -10,15 +12,24 @@ export function FeedItemHoverPreviewPanel({
   imageUrl,
   dateLabel,
 }: FeedItemHoverPreviewPanelProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageUrl]);
+
+  const showImage = Boolean(imageUrl) && !imageFailed;
+
   return (
     <div className="p-3">
-      {excerpt && imageUrl ? (
+      {excerpt && showImage && imageUrl ? (
         <div className="flex flex-row-reverse items-start gap-3">
           <img
             src={imageUrl}
             alt=""
             className="size-[4.5rem] shrink-0 rounded border border-border object-cover"
             loading="lazy"
+            onError={() => setImageFailed(true)}
           />
           <p className="min-w-0 flex-1 text-sm leading-relaxed text-foreground line-clamp-8">
             {excerpt}
@@ -28,12 +39,13 @@ export function FeedItemHoverPreviewPanel({
         <p className="text-sm leading-relaxed text-foreground line-clamp-8">
           {excerpt}
         </p>
-      ) : imageUrl ? (
+      ) : showImage && imageUrl ? (
         <img
           src={imageUrl}
           alt=""
           className="max-h-40 w-full rounded border border-border object-cover"
           loading="lazy"
+          onError={() => setImageFailed(true)}
         />
       ) : null}
       {dateLabel ? (

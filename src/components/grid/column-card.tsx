@@ -282,15 +282,10 @@ export function ColumnCard({
               : "grid-cols-[auto_minmax(0,1fr)_auto]",
           )}
         >
-          <div className="col-start-1 flex items-center">
+          <div className="col-start-1 row-start-1 flex items-center">
             <FeedFavicon feedUrl={column.feedUrl} className="size-5" />
           </div>
-          <CardTitle
-            className={cn(
-              "min-w-0 line-clamp-2 text-base leading-snug",
-              dragHandle ? "col-start-2 row-start-1" : "col-start-2 row-start-1",
-            )}
-          >
+          <CardTitle className="col-start-2 row-start-1 min-w-0 pl-2 line-clamp-2 text-base leading-snug">
             {websiteHref ? (
               <a
                 href={websiteHref}
@@ -319,9 +314,7 @@ export function ColumnCard({
             </div>
           ) : null}
           {!hasUrl ? (
-            <CardDescription
-              className={dragHandle ? "col-start-2 row-start-2" : "col-start-2 row-start-2"}
-            >
+            <CardDescription className="col-start-2 row-start-2 pl-2">
               No feed URL (add in Settings)
             </CardDescription>
           ) : null}

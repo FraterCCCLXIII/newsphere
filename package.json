@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "icons": "tauri icon public/app-icon.svg -o src-tauri/icons"
+    "icons": "tauri icon public/app-icon.svg -o src-tauri/icons",
+    "generate:default-grid": "node scripts/generate-default-grid.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
