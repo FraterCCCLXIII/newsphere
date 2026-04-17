@@ -392,7 +392,7 @@ export function ColumnCard({
               ))}
             </ul>
             {hasMore ? (
-              <div className="mt-1 border-t border-border pt-1">
+              <div className="mt-0 border-t border-border pt-1">
                 <Button
                   type="button"
                   variant="ghost"
