@@ -157,9 +157,11 @@ html.tauri-app.tauri-macos #root {
   border-radius: var(--radius-xl);
   overflow: hidden;
   background: var(--background);
-  box-shadow:
-    0 0 0 1px color-mix(in oklch, var(--foreground) 12%, transparent),
-    0 12px 40px color-mix(in oklch, var(--foreground) 8%, transparent);
+  /* outline paints above child content (unlike inset box-shadow which children cover).
+     outline-offset: -1px keeps it just inside the rounded edge. */
+  outline: 1px solid color-mix(in oklch, var(--foreground) 12%, transparent);
+  outline-offset: -1px;
+  box-shadow: 0 12px 40px color-mix(in oklch, var(--foreground) 8%, transparent);
 }
 
 html.tauri-app:not(.tauri-macos) #root {
