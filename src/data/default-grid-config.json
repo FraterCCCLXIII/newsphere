@@ -84,6 +84,52 @@
           "title": "BBC News — World",
           "kind": "feed",
           "feedUrl": "https://feeds.bbci.co.uk/news/world/rss.xml"
+        },
+        {
+          "id": "b4d69d72-68cd-4b72-ac25-9e7bde9b6129",
+          "title": "US & national",
+          "kind": "header"
+        },
+        {
+          "id": "9ec52ce9-ab92-40d8-bc6d-ddc92c7ac583",
+          "title": "CNN — Top stories",
+          "kind": "feed",
+          "feedUrl": "http://rss.cnn.com/rss/cnn_topstories.rss"
+        },
+        {
+          "id": "889b917c-d519-493e-8546-205575b32ab7",
+          "title": "Washington Post — Politics",
+          "kind": "feed",
+          "feedUrl": "https://feeds.washingtonpost.com/rss/politics"
+        },
+        {
+          "id": "b9397a02-b7e3-4db7-bf04-14a4c55c0671",
+          "title": "The New Yorker",
+          "kind": "feed",
+          "feedUrl": "https://www.newyorker.com/feed/news"
+        },
+        {
+          "id": "10b99785-8c9a-4979-b5fb-d81f982ecd95",
+          "title": "Tech & rights",
+          "kind": "header"
+        },
+        {
+          "id": "e109ac54-25b8-499f-a576-e55331ff6a83",
+          "title": "BBC News — Technology",
+          "kind": "feed",
+          "feedUrl": "https://feeds.bbci.co.uk/news/technology/rss.xml"
+        },
+        {
+          "id": "8a37be87-025d-48f6-bb14-5b76b8a020cb",
+          "title": "The Guardian — Technology",
+          "kind": "feed",
+          "feedUrl": "https://www.theguardian.com/technology/rss"
+        },
+        {
+          "id": "02d6dfd0-cbc3-4d60-9cb2-78b1ddd7b65c",
+          "title": "Electronic Frontier Foundation",
+          "kind": "feed",
+          "feedUrl": "https://www.eff.org/rss/updates.xml"
         }
       ]
     },
@@ -189,6 +235,52 @@
           "title": "CSS-Tricks",
           "kind": "feed",
           "feedUrl": "https://css-tricks.com/feed/"
+        },
+        {
+          "id": "511a96e8-06c3-4b95-8412-2b8b5cef6c2a",
+          "title": "Security & industry",
+          "kind": "header"
+        },
+        {
+          "id": "eff66ccc-a507-47a5-98b5-02402a40a706",
+          "title": "MIT Technology Review",
+          "kind": "feed",
+          "feedUrl": "https://www.technologyreview.com/feed/"
+        },
+        {
+          "id": "83f7370b-6db6-4e8b-96bd-438aeced68ed",
+          "title": "The Record (cyber)",
+          "kind": "feed",
+          "feedUrl": "https://therecord.media/feed/"
+        },
+        {
+          "id": "20707f54-0f49-40dc-9ab4-1a41ea96e840",
+          "title": "ZDNet",
+          "kind": "feed",
+          "feedUrl": "https://www.zdnet.com/news/rss.xml"
+        },
+        {
+          "id": "c4c2d771-ce25-4d56-9cc7-64c0c294b3bc",
+          "title": "More voices",
+          "kind": "header"
+        },
+        {
+          "id": "c923392e-2e0f-4dd6-a376-f0080ecd80a6",
+          "title": "Mozilla Hacks",
+          "kind": "feed",
+          "feedUrl": "https://hacks.mozilla.org/feed/"
+        },
+        {
+          "id": "66da673a-f4a6-4463-91cd-2899c1fcba64",
+          "title": "LWN.net (Kernel)",
+          "kind": "feed",
+          "feedUrl": "https://lwn.net/headlines/newrss"
+        },
+        {
+          "id": "1717d472-cc59-4c2a-b541-2cf18446a922",
+          "title": "Hacker News — Best",
+          "kind": "feed",
+          "feedUrl": "https://hnrss.org/best"
         }
       ]
     },
@@ -247,6 +339,29 @@
           "title": "Wired — Business",
           "kind": "feed",
           "feedUrl": "https://www.wired.com/feed/category/business/latest/rss"
+        },
+        {
+          "id": "73744d07-9c00-4fae-a5b9-898475c1c088",
+          "title": "Commentary",
+          "kind": "header"
+        },
+        {
+          "id": "737597dc-171d-4f7c-a724-ce95cdc8108a",
+          "title": "NYT — Technology",
+          "kind": "feed",
+          "feedUrl": "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"
+        },
+        {
+          "id": "86cc5078-6ad9-4d6f-a9af-ca64859c2985",
+          "title": "Marginal Revolution",
+          "kind": "feed",
+          "feedUrl": "https://marginalrevolution.com/feed"
+        },
+        {
+          "id": "fc8f49d2-3317-47f8-9767-260f7d9020f5",
+          "title": "Works in Progress",
+          "kind": "feed",
+          "feedUrl": "https://worksinprogress.co/feed"
         }
       ]
     },
@@ -299,6 +414,29 @@
           "title": "WHO — News",
           "kind": "feed",
           "feedUrl": "https://www.who.int/rss-feeds/news-english.xml"
+        },
+        {
+          "id": "ffe2e3e8-4765-4edc-9de3-67481b7fa18a",
+          "title": "Deep dives",
+          "kind": "header"
+        },
+        {
+          "id": "ffd4a7a4-5d9c-4bef-9b26-69b7895fdc91",
+          "title": "Quanta Magazine",
+          "kind": "feed",
+          "feedUrl": "https://www.quantamagazine.org/feed/"
+        },
+        {
+          "id": "50d1b727-3644-4ecc-9c50-331e6e78a9c2",
+          "title": "Space.com",
+          "kind": "feed",
+          "feedUrl": "https://www.space.com/feeds/all"
+        },
+        {
+          "id": "259494cf-6bc4-4a97-b6be-9b27a5012a4a",
+          "title": "CDC — Press releases",
+          "kind": "feed",
+          "feedUrl": "https://tools.cdc.gov/api/v2/resources/media/132608.rss"
         }
       ]
     },
@@ -345,6 +483,127 @@
           "title": "Ribbonfarm",
           "kind": "feed",
           "feedUrl": "https://www.ribbonfarm.com/feed/"
+        },
+        {
+          "id": "60d20bbf-46a9-40d6-9005-15d92b21152a",
+          "title": "Essays & reviews",
+          "kind": "header"
+        },
+        {
+          "id": "c1580b3e-c2f5-4bb2-9086-53cee4453d6f",
+          "title": "Aeon",
+          "kind": "feed",
+          "feedUrl": "https://aeon.co/feed.rss"
+        },
+        {
+          "id": "19e88b8e-cfb8-48cf-b601-87fdfb8931d4",
+          "title": "LARB",
+          "kind": "feed",
+          "feedUrl": "https://lareviewofbooks.org/feed/"
+        },
+        {
+          "id": "4f005f7a-908f-4cc9-91b4-bb8429d155bd",
+          "title": "3 Quarks Daily",
+          "kind": "feed",
+          "feedUrl": "https://3quarksdaily.com/feed"
+        }
+      ]
+    },
+    {
+      "id": "page-sports",
+      "name": "Sports",
+      "columns": [
+        {
+          "id": "05943908-609d-4027-a45c-9a052aeb6b69",
+          "title": "Leagues & desks",
+          "kind": "header"
+        },
+        {
+          "id": "ee16739e-68b2-44b4-83d3-6f6a03703d58",
+          "title": "ESPN — Top",
+          "kind": "feed",
+          "feedUrl": "https://www.espn.com/espn/rss/news"
+        },
+        {
+          "id": "843446df-f96b-4e6c-9ee7-80e7ab823722",
+          "title": "BBC Sport",
+          "kind": "feed",
+          "feedUrl": "https://feeds.bbci.co.uk/sport/rss.xml"
+        },
+        {
+          "id": "62537d81-12ce-4136-bb56-a6add5fae81b",
+          "title": "The Guardian — Sport",
+          "kind": "feed",
+          "feedUrl": "https://www.theguardian.com/sport/rss"
+        },
+        {
+          "id": "fe4d0a4b-97ad-4eb0-81e9-52ee786b6a33",
+          "title": "NYT — Sports",
+          "kind": "feed",
+          "feedUrl": "https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml"
+        },
+        {
+          "id": "9c1d9e2d-c232-49dc-b381-2c038b9d0ff0",
+          "title": "Community",
+          "kind": "header"
+        },
+        {
+          "id": "560b4564-fc37-4dd3-84f3-e5433a5fe1ee",
+          "title": "Reddit — r/sports",
+          "kind": "feed",
+          "feedUrl": "https://www.reddit.com/r/sports/.rss"
+        }
+      ]
+    },
+    {
+      "id": "page-ideas",
+      "name": "Ideas",
+      "columns": [
+        {
+          "id": "bc866bfc-49b3-422c-908e-1593f453b2e0",
+          "title": "Sensemaking",
+          "kind": "header"
+        },
+        {
+          "id": "dc0e5316-9275-4a35-b795-a9f75749e96d",
+          "title": "The Long Now Foundation",
+          "kind": "feed",
+          "feedUrl": "https://longnow.org/ideas/feed/"
+        },
+        {
+          "id": "cf1814b2-6331-4be2-95f4-77cd23796b0a",
+          "title": "Edge.org",
+          "kind": "feed",
+          "feedUrl": "https://www.edge.org/feed"
+        },
+        {
+          "id": "3656a78c-198a-4b39-94aa-9d7f0e790895",
+          "title": "Noema Magazine",
+          "kind": "feed",
+          "feedUrl": "https://www.noemamag.com/feed/"
+        },
+        {
+          "id": "0c08e453-20ec-4299-aa77-af6dbbc2b2af",
+          "title": "Metamoderna",
+          "kind": "feed",
+          "feedUrl": "https://metamoderna.org/feed/"
+        },
+        {
+          "id": "a15dfa88-dabe-42aa-99a6-721b8e77feb9",
+          "title": "Philosophy & mind",
+          "kind": "header"
+        },
+        {
+          "id": "a6717739-2dd2-4e56-87a3-53e60517384e",
+          "title": "Daily Nous",
+          "kind": "feed",
+          "feedUrl": "https://dailynous.com/feed/"
+        },
+        {
+          "id": "5f2234ad-a18d-4aea-aeb8-cedb3a892a72",
+          "title": "PsyPost",
+          "kind": "feed",
+          "feedUrl": "https://www.psypost.org/feed/"
         }
       ]
     }
