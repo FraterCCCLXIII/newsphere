@@ -18,12 +18,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { FeedArticleHoverCard } from "@/components/feed/feed-article-hover-card";
 import { FeedItemHoverPreviewPanel } from "@/components/feed/feed-item-hover-preview-panel";
 import { ShareModal } from "@/components/share/share-modal";
 import { COLUMN_RSS_PLACEHOLDER } from "@/lib/feed-messages";
 import { getFeedPreviewParts } from "@/lib/feed-preview";
-import { formatPublishedDateTime, formatRelativePublished } from "@/lib/feed-time";
+import { formatPublishedForPreference } from "@/lib/feed-time";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { buildReaderUrl } from "@/lib/reader-url";
 import { isTauriRuntime } from "@/lib/tauri-env";
@@ -70,6 +71,7 @@ export function FeedEntryRow({
 }) {
   const [shareOpen, setShareOpen] = useState(false);
   const { bookmarks, toggleBookmark } = useOutletContext<AppOutletContext>();
+  const { showTimestampsInline, dateFormatStyle } = useDisplayPreferences();
 
   const bookmarked = useMemo(() => {
     if (!item.link) return false;
@@ -77,12 +79,16 @@ export function FeedEntryRow({
     return bookmarks.some((b) => normalizeBookmarkLink(b.link) === n);
   }, [bookmarks, item.link]);
 
-  const publishedLabel = formatPublishedDateTime(item.published);
+  const publishedLabel = formatPublishedForPreference(
+    item.published,
+    dateFormatStyle,
+  );
   const rowBorder = !isLast ? "border-b border-border" : "";
 
   const preview = useMemo(() => getFeedPreviewParts(item), [item]);
   const showPreview = Boolean(preview.excerpt || preview.imageUrl);
-  const relativeLabel = formatRelativePublished(item.published);
+  const showInlineTimestamp =
+    showTimestampsInline && Boolean(publishedLabel);
 
   const linkClassName =
     "flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left";
@@ -92,7 +98,7 @@ export function FeedEntryRow({
       <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
         {item.title}
       </span>
-      {publishedLabel ? (
+      {showInlineTimestamp ? (
         <span className="mt-0.5 block text-xs tabular-nums text-muted-foreground">
           {publishedLabel}
         </span>
@@ -119,7 +125,7 @@ export function FeedEntryRow({
             <span className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
               {item.title}
             </span>
-            {publishedLabel ? (
+            {showInlineTimestamp ? (
               <span className="mt-0.5 block text-xs tabular-nums text-muted-foreground">
                 {publishedLabel}
               </span>
@@ -161,7 +167,7 @@ export function FeedEntryRow({
               <FeedItemHoverPreviewPanel
                 excerpt={preview.excerpt}
                 imageUrl={preview.imageUrl}
-                relativeLabel={relativeLabel}
+                dateLabel={publishedLabel}
               />
             </FeedArticleHoverCard>
           ) : (

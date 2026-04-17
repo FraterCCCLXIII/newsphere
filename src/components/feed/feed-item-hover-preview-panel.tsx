@@ -1,13 +1,14 @@
 type FeedItemHoverPreviewPanelProps = {
   excerpt: string | null;
   imageUrl: string | null;
-  relativeLabel: string;
+  /** Publish time, formatted per user preference. */
+  dateLabel: string;
 };
 
 export function FeedItemHoverPreviewPanel({
   excerpt,
   imageUrl,
-  relativeLabel,
+  dateLabel,
 }: FeedItemHoverPreviewPanelProps) {
   return (
     <div className="p-3">
@@ -35,9 +36,9 @@ export function FeedItemHoverPreviewPanel({
           loading="lazy"
         />
       ) : null}
-      {relativeLabel ? (
+      {dateLabel ? (
         <p className="mt-2 text-xs tabular-nums text-muted-foreground">
-          {relativeLabel}
+          {dateLabel}
         </p>
       ) : null}
     </div>

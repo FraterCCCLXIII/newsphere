@@ -122,7 +122,7 @@ export function GridInsertPlusMenu({
       <div
         ref={menuRef}
         role="menu"
-        className="fixed z-[100] min-w-[13rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in duration-200 ease-out"
+        className="fixed z-[100] min-w-[13rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
         style={{
           left: coords.x,
           top: coords.y + 4,

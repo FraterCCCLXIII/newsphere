@@ -1,3 +1,5 @@
+import type { PublishedDateFormatStyle } from "@/types/display-preferences";
+
 /** Sort key: newer → larger. Missing/invalid dates sort as 0 (oldest). */
 export function publishedSortKey(iso?: string): number {
   if (!iso) return 0;
@@ -43,4 +45,13 @@ export function formatPublishedDateTime(iso?: string): string {
   } catch {
     return "";
   }
+}
+
+/** Published time for feed lists per user preference (relative vs absolute). */
+export function formatPublishedForPreference(
+  iso: string | undefined,
+  style: PublishedDateFormatStyle,
+): string {
+  if (style === "relative") return formatRelativePublished(iso);
+  return formatPublishedDateTime(iso);
 }

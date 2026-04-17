@@ -2,13 +2,14 @@ import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { Bookmark, ExternalLink, Share2 } from "lucide-react";
 
+import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { FeedArticleHoverCard } from "@/components/feed/feed-article-hover-card";
 import { FeedItemHoverPreviewPanel } from "@/components/feed/feed-item-hover-preview-panel";
 import { FeedFavicon } from "@/components/grid/feed-favicon";
 import { ShareModal } from "@/components/share/share-modal";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { getFeedPreviewParts } from "@/lib/feed-preview";
-import { formatPublishedDateTime, formatRelativePublished } from "@/lib/feed-time";
+import { formatPublishedForPreference } from "@/lib/feed-time";
 import { buildReaderUrl } from "@/lib/reader-url";
 import { cn } from "@/lib/utils";
 import type { AppOutletContext } from "@/types/app-outlet";
@@ -31,6 +32,7 @@ export function TimelineFeedRow({
 }: TimelineFeedRowProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const { bookmarks, toggleBookmark } = useOutletContext<AppOutletContext>();
+  const { showTimestampsInline, dateFormatStyle } = useDisplayPreferences();
 
   const bookmarked = useMemo(() => {
     if (!item.link) return false;
@@ -38,12 +40,16 @@ export function TimelineFeedRow({
     return bookmarks.some((b) => normalizeBookmarkLink(b.link) === n);
   }, [bookmarks, item.link]);
 
-  const publishedLabel = formatPublishedDateTime(item.published);
+  const publishedLabel = formatPublishedForPreference(
+    item.published,
+    dateFormatStyle,
+  );
+  const showInlineTimestamp =
+    showTimestampsInline && Boolean(publishedLabel);
   const rowBorder = !isLast ? "border-b border-border" : "";
 
   const preview = useMemo(() => getFeedPreviewParts(item), [item]);
   const showPreview = Boolean(preview.excerpt || preview.imageUrl);
-  const relativeLabel = formatRelativePublished(item.published);
 
   if (!item.link) {
     return (
@@ -60,7 +66,7 @@ export function TimelineFeedRow({
               </p>
             ) : null}
             <p className="mt-1 text-xs text-muted-foreground">{columnTitle}</p>
-            {publishedLabel ? (
+            {showInlineTimestamp ? (
               <p className="mt-0.5 text-xs tabular-nums text-muted-foreground">
                 {publishedLabel}
               </p>
@@ -82,7 +88,7 @@ export function TimelineFeedRow({
             <span className="text-sm font-semibold text-foreground">
               {columnTitle}
             </span>
-            {publishedLabel ? (
+            {showInlineTimestamp ? (
               <span className="text-xs tabular-nums text-muted-foreground">
                 · {publishedLabel}
               </span>
@@ -112,7 +118,7 @@ export function TimelineFeedRow({
               <FeedItemHoverPreviewPanel
                 excerpt={preview.excerpt}
                 imageUrl={preview.imageUrl}
-                relativeLabel={relativeLabel}
+                dateLabel={publishedLabel}
               />
             </FeedArticleHoverCard>
           ) : (

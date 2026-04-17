@@ -124,7 +124,9 @@ export function TitleBar({
   const showControls = isTauriRuntime();
   const mac = controlsOnLeft();
   const location = useLocation();
-  const settingsActive = location.pathname === "/settings";
+  const settingsActive =
+    location.pathname === "/settings" ||
+    location.pathname.startsWith("/settings/");
   const { theme, setTheme } = useTheme();
   const { textScale, setTextScale } = useTextScale();
   const { goBack, goForward, canGoBack, canGoForward } =

@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { isFeedColumn, type GridColumn } from "@/types/grid";
 
@@ -395,30 +394,28 @@ export function SortableColumnList({
           items={columns.map((c) => c.id)}
           strategy={rectSortingStrategy}
         >
-          <ScrollArea className="h-[min(60vh,520px)] pr-3">
-            <div
-              className="grid grid-cols-1 items-start gap-2 sm:grid-cols-2 lg:grid-cols-3"
-              data-sortable-column-grid
-            >
-              {columns.map((column) =>
-                isFeedColumn(column) ? (
-                  <SortableFeedRow
-                    key={column.id}
-                    column={column}
-                    onRemove={onRemove}
-                    onEditTitle={() => openEdit(column)}
-                  />
-                ) : (
-                  <SortableHeaderRow
-                    key={column.id}
-                    column={column}
-                    onRemove={onRemove}
-                    onEditTitle={() => openEdit(column)}
-                  />
-                ),
-              )}
-            </div>
-          </ScrollArea>
+          <div
+            className="grid grid-cols-1 items-start gap-2 sm:grid-cols-2 lg:grid-cols-3"
+            data-sortable-column-grid
+          >
+            {columns.map((column) =>
+              isFeedColumn(column) ? (
+                <SortableFeedRow
+                  key={column.id}
+                  column={column}
+                  onRemove={onRemove}
+                  onEditTitle={() => openEdit(column)}
+                />
+              ) : (
+                <SortableHeaderRow
+                  key={column.id}
+                  column={column}
+                  onRemove={onRemove}
+                  onEditTitle={() => openEdit(column)}
+                />
+              ),
+            )}
+          </div>
         </SortableContext>
         <DragOverlay dropAnimation={null}>
           {activeDragColumn && isFeedColumn(activeDragColumn) ? (

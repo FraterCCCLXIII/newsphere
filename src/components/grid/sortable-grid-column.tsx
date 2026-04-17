@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { useGridSortDragKind } from "@/components/grid/grid-sort-drag-context";
 import { sortableStackZIndex } from "@/lib/grid-sort-dnd";
 import { cn } from "@/lib/utils";
@@ -37,8 +38,11 @@ type SortableGridColumnProps = {
 export function SortableGridSectionHeader({ column }: { column: GridColumn }) {
   const gridSortDragKind = useGridSortDragKind();
   const suppressShuffle = gridSortDragKind === "header";
+  const { allowGridReorder } = useDisplayPreferences();
   const { updateColumnTitle, removeColumn, isAggregateView } =
     useOutletContext<AppOutletContext>();
+  /** When drag is off, open menu from Radix; quick-press finish() is unreliable with disabled sortable. */
+  const gripMenuViaRadix = isAggregateView || !allowGridReorder;
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(column.title);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -65,7 +69,7 @@ export function SortableGridSectionHeader({ column }: { column: GridColumn }) {
     activeIndex,
   } = useSortable({
     id: column.id,
-    disabled: isAggregateView || editing,
+    disabled: isAggregateView || editing || !allowGridReorder,
   });
 
   isDraggingRef.current = isDragging;
@@ -217,6 +221,9 @@ export function SortableGridSectionHeader({ column }: { column: GridColumn }) {
           open={menuOpen}
           onOpenChange={(open) => {
             if (open) {
+              if (gripMenuViaRadix) {
+                setMenuOpen(true);
+              }
               return;
             }
             setMenuOpen(false);
@@ -233,12 +240,20 @@ export function SortableGridSectionHeader({ column }: { column: GridColumn }) {
                 "opacity-0 group-hover:opacity-100",
                 isDragging && "opacity-100",
                 "hover:bg-accent hover:text-foreground",
-                "cursor-grab active:cursor-grabbing",
+                allowGridReorder && !isAggregateView
+                  ? "cursor-grab active:cursor-grabbing"
+                  : "cursor-default",
               )}
               aria-label="Section options"
               aria-haspopup="menu"
-              title="Drag to reorder, or quick-click for menu"
-              {...attributes}
+              title={
+                isAggregateView
+                  ? "Quick-click for menu (reorder from a single page in Settings)"
+                  : allowGridReorder
+                    ? "Drag to reorder, or quick-click for menu"
+                    : "Quick-click for menu"
+              }
+              {...(gripMenuViaRadix ? {} : attributes)}
               onPointerDown={(e) => {
                 sortableListeners.onPointerDown?.(e);
                 handleGripPointerDown(e);
@@ -356,7 +371,10 @@ export function SortableGridColumn({
 }: SortableGridColumnProps) {
   const gridSortDragKind = useGridSortDragKind();
   const suppressShuffle = gridSortDragKind === "header";
+  const { allowGridReorder } = useDisplayPreferences();
   const { removeColumn, isAggregateView } = useOutletContext<AppOutletContext>();
+  /** When drag is off, open menu from Radix; quick-press finish() is unreliable with disabled sortable. */
+  const gripMenuViaRadix = isAggregateView || !allowGridReorder;
   const [menuOpen, setMenuOpen] = useState(false);
   const prevIsDragging = useRef(false);
   const suppressMenuOpenAfterDragRef = useRef(false);
@@ -376,7 +394,10 @@ export function SortableGridColumn({
     isSorting,
     index,
     activeIndex,
-  } = useSortable({ id: column.id, disabled: isAggregateView });
+  } = useSortable({
+    id: column.id,
+    disabled: isAggregateView || !allowGridReorder,
+  });
 
   isDraggingRef.current = isDragging;
 
@@ -464,7 +485,9 @@ export function SortableGridColumn({
       open={menuOpen}
       onOpenChange={(open) => {
         if (open) {
-          /* Opening is only via setMenuOpen(true) after a valid quick press; Radix trigger open is ignored. */
+          if (gripMenuViaRadix) {
+            setMenuOpen(true);
+          }
           return;
         }
         setMenuOpen(false);
@@ -477,16 +500,20 @@ export function SortableGridColumn({
           size="icon"
           className={cn(
             "app-no-drag touch-none size-8 shrink-0 text-muted-foreground hover:bg-accent hover:text-foreground",
-            "cursor-grab active:cursor-grabbing",
+            allowGridReorder && !isAggregateView
+              ? "cursor-grab active:cursor-grabbing"
+              : "cursor-default",
           )}
           aria-label="Column options"
           aria-haspopup="menu"
           title={
             isAggregateView
               ? "Quick-click for menu (reorder on a single page from the header)"
-              : "Drag to reorder, or quick-click for menu"
+              : allowGridReorder
+                ? "Drag to reorder, or quick-click for menu"
+                : "Quick-click for menu"
           }
-          {...attributes}
+          {...(gripMenuViaRadix ? {} : attributes)}
           onPointerDown={(e) => {
             sortableListeners.onPointerDown?.(e);
             handleGripPointerDown(e);

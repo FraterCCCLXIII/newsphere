@@ -20,6 +20,60 @@ function cssEscapeSelector(s: string): string {
     : s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
+/** Top-left of the grid's padding box in viewport coords (matches absolute inset-0 origin inside a relative grid). */
+function gridPaddingBoxOriginViewport(grid: HTMLElement): { x: number; y: number } {
+  const r = grid.getBoundingClientRect();
+  const s = getComputedStyle(grid);
+  const bl = parseFloat(s.borderLeftWidth) || 0;
+  const bt = parseFloat(s.borderTopWidth) || 0;
+  return { x: r.left + bl, y: r.top + bt };
+}
+
+/** Bottom edge of the grid content area (above padding + bottom border) in viewport Y. */
+function gridContentBottomViewport(grid: HTMLElement): number {
+  const r = grid.getBoundingClientRect();
+  const s = getComputedStyle(grid);
+  const bb = parseFloat(s.borderBottomWidth) || 0;
+  const pb = parseFloat(s.paddingBottom) || 0;
+  return r.bottom - bb - pb;
+}
+
+/** Matches `.grid-feed` column breakpoints in `src/index.css`. */
+function gridFeedColumnCount(): number {
+  if (typeof window === "undefined") return 1;
+  if (window.matchMedia("(min-width: 1024px)").matches) return 3;
+  if (window.matchMedia("(min-width: 640px)").matches) return 2;
+  return 1;
+}
+
+/** Track width and gap using `clientWidth` so sizing matches layout (incl. scrollbar). */
+function gridFeedTrackMetrics(grid: HTMLElement) {
+  const s = getComputedStyle(grid);
+  const pl = parseFloat(s.paddingLeft) || 0;
+  const pr = parseFloat(s.paddingRight) || 0;
+  const colGap = parseFloat(s.columnGap || s.gap) || 0;
+  const cols = gridFeedColumnCount();
+  const inner = grid.clientWidth - pl - pr;
+  if (cols <= 1) {
+    return { cols, colGap, track: inner, pl };
+  }
+  const track = (inner - colGap * (cols - 1)) / cols;
+  return { cols, colGap, track, pl };
+}
+
+/**
+ * Horizontal center of the gap between grid column tracks `gapIndex` and `gapIndex + 1`
+ * (0 = gap after first column), in overlay coords (origin = grid padding box top-left).
+ */
+function verticalGapCenterX(
+  pl: number,
+  track: number,
+  colGap: number,
+  gapIndex: number,
+): number {
+  return pl + (gapIndex + 1) * track + (gapIndex + 0.5) * colGap;
+}
+
 type Item = { id: string; rect: DOMRect };
 
 type LayoutZone =
@@ -118,14 +172,12 @@ function InsertionZone({
 
 export function GridInsertionOverlay({
   gridRef,
-  wrapRef,
   orderedIds,
   hidden,
   onInsertSectionHeader,
   onOpenAddFeedModal,
 }: {
   gridRef: RefObject<HTMLElement | null>;
-  wrapRef: RefObject<HTMLElement | null>;
   orderedIds: string[];
   hidden: boolean;
   onInsertSectionHeader: (afterId: string | null) => void;
@@ -135,13 +187,13 @@ export function GridInsertionOverlay({
 
   const measure = useCallback(() => {
     const grid = gridRef.current;
-    const wrap = wrapRef.current;
-    if (!grid || !wrap || orderedIds.length === 0) {
+    if (!grid || orderedIds.length === 0) {
       setZones([]);
       return;
     }
 
-    const wrapRect = wrap.getBoundingClientRect();
+    const origin = gridPaddingBoxOriginViewport(grid);
+    const contentBottomY = gridContentBottomViewport(grid);
     const items: Item[] = [];
     for (const id of orderedIds) {
       const el = grid.querySelector(
@@ -181,7 +233,7 @@ export function GridInsertionOverlay({
     const out: LayoutZone[] = [];
 
     const firstTop = Math.min(...rows[0]!.map((x) => x.rect.top));
-    const rawTopPad = firstTop - wrapRect.top;
+    const rawTopPad = firstTop - origin.y;
     const topH =
       rawTopPad > 0 ? Math.min(40, Math.max(rawTopPad, 8)) : 8;
     out.push({
@@ -200,7 +252,7 @@ export function GridInsertionOverlay({
     const lastRow = rows[rows.length - 1]!;
     const lastBottom = Math.max(...lastRow.map((x) => x.rect.bottom));
     const lastId = orderedIds[orderedIds.length - 1]!;
-    const bottomSpace = wrapRect.bottom - lastBottom;
+    const bottomSpace = contentBottomY - lastBottom;
     const bottomH = bottomSpace > 0 ? bottomSpace : MIN_H_GAP;
     out.push({
       key: "h-bottom",
@@ -209,7 +261,7 @@ export function GridInsertionOverlay({
       style: {
         position: "absolute",
         left: 0,
-        top: lastBottom - wrapRect.top,
+        top: lastBottom - origin.y,
         width: "100%",
         height: bottomH,
       },
@@ -226,7 +278,7 @@ export function GridInsertionOverlay({
       if (!afterId) continue;
       const h =
         gap > 0 ? Math.max(MIN_H_GAP, gap) : MIN_H_GAP;
-      const mid = (bottomR + topNext) / 2 - wrapRect.top;
+      const mid = (bottomR + topNext) / 2 - origin.y;
       out.push({
         key: `h-row-${r}`,
         kind: "horizontal",
@@ -241,6 +293,8 @@ export function GridInsertionOverlay({
       });
     }
 
+    const { cols: gridCols, colGap, track, pl } = gridFeedTrackMetrics(grid);
+
     for (const row of rows) {
       const rowTop = Math.min(...row.map((x) => x.rect.top));
       const rowBottom = Math.max(...row.map((x) => x.rect.bottom));
@@ -248,8 +302,15 @@ export function GridInsertionOverlay({
         const a = row[i]!;
         const b = row[i + 1]!;
         const gapW = b.rect.left - a.rect.right;
-        const centerX = (a.rect.right + b.rect.left) / 2 - wrapRect.left;
-        const gw = Math.max(MIN_V_GAP, gapW > 0 ? gapW : MIN_V_GAP);
+        let centerX: number;
+        let gw: number;
+        if (gridCols >= 2 && row.length <= gridCols) {
+          centerX = verticalGapCenterX(pl, track, colGap, i);
+          gw = Math.max(MIN_V_GAP, colGap, gapW > 0 ? gapW : colGap);
+        } else {
+          centerX = (a.rect.right + b.rect.left) / 2 - origin.x;
+          gw = Math.max(MIN_V_GAP, gapW > 0 ? gapW : MIN_V_GAP);
+        }
         out.push({
           key: `v-${a.id}-${b.id}`,
           kind: "vertical",
@@ -257,7 +318,7 @@ export function GridInsertionOverlay({
           style: {
             position: "absolute",
             left: centerX - gw / 2,
-            top: rowTop - wrapRect.top,
+            top: rowTop - origin.y,
             width: gw,
             height: rowBottom - rowTop,
           },
@@ -266,7 +327,7 @@ export function GridInsertionOverlay({
     }
 
     setZones(out);
-  }, [gridRef, wrapRef, orderedIds]);
+  }, [gridRef, orderedIds]);
 
   useLayoutEffect(() => {
     measure();
@@ -274,15 +335,13 @@ export function GridInsertionOverlay({
       measure();
     });
     const grid = gridRef.current;
-    const wrap = wrapRef.current;
     if (grid) ro.observe(grid);
-    if (wrap) ro.observe(wrap);
     window.addEventListener("resize", measure);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", measure);
     };
-  }, [measure, gridRef, wrapRef]);
+  }, [measure, gridRef]);
 
   if (orderedIds.length === 0) {
     return null;

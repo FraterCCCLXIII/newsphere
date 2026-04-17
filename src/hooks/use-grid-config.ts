@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { isTauriRuntime } from "@/lib/tauri-env";
 import {
+  DEFAULT_LATEST_ROW_TITLE,
   isFeedColumn,
   type GridColumn,
   type GridConfig,
   type GridController,
   type GridPage,
+  type LatestRowSettings,
   type LegacyGridConfig,
 } from "@/types/grid";
 import {
@@ -422,6 +424,26 @@ export function useGridConfig(): GridController {
     [persistConfig],
   );
 
+  const updatePageLatestRow = useCallback(
+    async (pageId: string, partial: Partial<LatestRowSettings>) => {
+      if (!pagesRef.current.some((p) => p.id === pageId)) return;
+      const nextPages = pagesRef.current.map((p) => {
+        if (p.id !== pageId) return p;
+        const prev = p.latestRow ?? { enabled: false };
+        const merged: LatestRowSettings = { ...prev, ...partial };
+        if (merged.enabled && !merged.title?.trim()) {
+          merged.title = DEFAULT_LATEST_ROW_TITLE;
+        }
+        return { ...p, latestRow: merged };
+      });
+      await persistConfig({
+        pages: nextPages,
+        activePageId: activePageIdRef.current,
+      });
+    },
+    [persistConfig],
+  );
+
   const refresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -453,5 +475,6 @@ export function useGridConfig(): GridController {
     reorderColumns,
     reorderPages,
     renamePage,
+    updatePageLatestRow,
   };
 }

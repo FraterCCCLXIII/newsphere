@@ -14,10 +14,12 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
+import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { FeedEntryRow } from "@/components/grid/column-card";
+import { Card, CardContent } from "@/components/ui/card";
 import { GridInsertPlusMenu } from "@/components/grid/grid-insert-plus-menu";
 import { GridHeaderDropLine } from "@/components/grid/grid-header-drop-line";
 import { GridInsertionOverlay } from "@/components/grid/grid-insertion-overlay";
@@ -31,6 +33,7 @@ import {
   SortableGridColumn,
   SortableGridSectionHeader,
 } from "@/components/grid/sortable-grid-column";
+import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { cn } from "@/lib/utils";
 import { GRID_EMPTY_RSS_NOTE } from "@/lib/feed-messages";
 import { publishedSortKey } from "@/lib/feed-time";
@@ -41,7 +44,22 @@ import { isTauriRuntime } from "@/lib/tauri-env";
 import { matchesArticleSearch } from "@/lib/search-utils";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
-import type { GridColumn } from "@/types/grid";
+import {
+  DEFAULT_LATEST_ROW_TITLE,
+  isFeedColumn,
+  type GridColumn,
+} from "@/types/grid";
+
+/** Matches `.grid-feed` breakpoints in `src/index.css`. */
+function gridFeedColumnCount(): 1 | 2 | 3 {
+  if (typeof window === "undefined") return 1;
+  if (window.matchMedia("(min-width: 1024px)").matches) return 3;
+  if (window.matchMedia("(min-width: 640px)").matches) return 2;
+  return 1;
+}
+
+const LATEST_ROWS_PER_COLUMN = 5;
+const LATEST_MAX_ITEMS = 15;
 
 /** Hide column cards that only show an empty feed; keep placeholders and in-flight/error columns. */
 function shouldShowColumnCard(
@@ -126,7 +144,110 @@ export function GridView() {
     feedErrorByColumnId,
     insertColumnAfter,
     openAddFeedModal,
+    pages,
+    activePageId,
+    isAggregateView,
   } = useOutletContext<AppOutletContext>();
+
+  const { showGridInsertionLines } = useDisplayPreferences();
+
+  const activePage = useMemo(() => {
+    if (isAggregateView) return null;
+    return pages.find((p) => p.id === activePageId) ?? null;
+  }, [pages, activePageId, isAggregateView]);
+
+  const showLatestRow = useMemo(() => {
+    if (isAggregateView || !activePage?.latestRow?.enabled) return false;
+    return columns.some((c) => isFeedColumn(c));
+  }, [activePage, columns, isAggregateView]);
+
+  const latestRowHeading = useMemo(() => {
+    const t = activePage?.latestRow?.title?.trim();
+    return t || DEFAULT_LATEST_ROW_TITLE;
+  }, [activePage?.latestRow?.title]);
+
+  const [latestLayoutColumnCount, setLatestLayoutColumnCount] = useState<
+    1 | 2 | 3
+  >(() => gridFeedColumnCount());
+
+  useEffect(() => {
+    const read = () => setLatestLayoutColumnCount(gridFeedColumnCount());
+    read();
+    const mqLg = window.matchMedia("(min-width: 1024px)");
+    const mqSm = window.matchMedia("(min-width: 640px)");
+    mqLg.addEventListener("change", read);
+    mqSm.addEventListener("change", read);
+    return () => {
+      mqLg.removeEventListener("change", read);
+      mqSm.removeEventListener("change", read);
+    };
+  }, []);
+
+  type LatestRow = {
+    item: FeedItem;
+    columnTitle: string;
+    columnId: string;
+  };
+
+  const latestFlatRows = useMemo((): LatestRow[] => {
+    if (!showLatestRow) return [];
+    const rows: LatestRow[] = [];
+    for (const col of columns) {
+      if (!isFeedColumn(col)) continue;
+      const items = feedItemsByColumnId[col.id] ?? [];
+      for (const item of items) {
+        rows.push({
+          item,
+          columnTitle: col.title,
+          columnId: col.id,
+        });
+      }
+    }
+    rows.sort(
+      (a, b) =>
+        publishedSortKey(b.item.published) -
+        publishedSortKey(a.item.published),
+    );
+    const seen = new Set<string>();
+    const out: LatestRow[] = [];
+    for (const r of rows) {
+      const linkKey = normalizeBookmarkLink(r.item.link ?? "");
+      const key =
+        linkKey ||
+        `title:${r.item.title ?? ""}|col:${r.columnId}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(r);
+      if (out.length >= LATEST_MAX_ITEMS) break;
+    }
+    return out;
+  }, [columns, feedItemsByColumnId, showLatestRow]);
+
+  /**
+   * Always up to three cards × five rows (15 items) in wide mode; only CSS columns
+   * change (2 vs 3). Two-column layout wraps the third card—does not drop it.
+   * 1 col: one combined list (15 max).
+   */
+  const latestDisplay = useMemo(() => {
+    if (!showLatestRow || latestFlatRows.length === 0) return null;
+    const n = latestLayoutColumnCount;
+    if (n === 1) {
+      return {
+        kind: "combined" as const,
+        rows: latestFlatRows.slice(0, LATEST_MAX_ITEMS),
+      };
+    }
+    const limited = latestFlatRows.slice(0, LATEST_MAX_ITEMS);
+    const chunks: LatestRow[][] = [];
+    for (let i = 0; i < limited.length; i += LATEST_ROWS_PER_COLUMN) {
+      chunks.push(limited.slice(i, i + LATEST_ROWS_PER_COLUMN));
+    }
+    return {
+      kind: "wide" as const,
+      columnCount: n as 2 | 3,
+      chunks,
+    };
+  }, [latestFlatRows, latestLayoutColumnCount, showLatestRow]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -372,7 +493,7 @@ export function GridView() {
     );
   }
 
-  if (gridRenderEntries.length === 0) {
+  if (gridRenderEntries.length === 0 && !showLatestRow) {
     return (
       <div className="flex min-h-[35vh] w-full flex-col items-center justify-center gap-4 px-4 pb-8 text-center">
         <div className="flex flex-col gap-2">
@@ -403,42 +524,123 @@ export function GridView() {
       onDragCancel={handleDragCancel}
     >
       <GridSortDragKindContext.Provider value={gridSortDragKind}>
-        <SortableContext
-          items={gridRenderEntries.map((e) => e.column.id)}
-          strategy={rectSortingNoScaleStrategy}
-        >
-          <div ref={gridWrapRef} className="relative w-full min-w-0">
-            <GridHeaderDropLine wrapRef={gridWrapRef} gridRef={gridRef} />
-            <div ref={gridRef} className="grid-feed w-full min-w-0">
-              {gridRenderEntries.map((entry) =>
-                entry.kind === "header" ? (
-                  <SortableGridSectionHeader
-                    key={entry.column.id}
-                    column={entry.column}
-                  />
-                ) : (
-                  <SortableGridColumn
-                    key={entry.column.id}
-                    column={entry.column}
-                    items={filteredByColumnId[entry.column.id] ?? []}
-                    loading={feedLoadingByColumnId[entry.column.id] ?? false}
-                    error={feedErrorByColumnId[entry.column.id]}
-                  />
-                ),
-              )}
+        <div ref={gridWrapRef} className="relative w-full min-w-0">
+          <GridHeaderDropLine wrapRef={gridWrapRef} gridRef={gridRef} />
+          {showLatestRow ? (
+            <div className="px-4 pb-4 pt-4">
+              <h2 className="mb-3 text-xl font-semibold tracking-tight text-foreground">
+                {latestRowHeading}
+              </h2>
+              {latestFlatRows.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No recent articles yet.
+                </p>
+              ) : latestDisplay?.kind === "combined" ? (
+                <Card className="flex h-auto min-w-0 w-full flex-col border-0 shadow-none">
+                  <CardContent className="flex min-h-0 flex-1 flex-col px-2 pb-3 pt-0">
+                    <ul className="min-w-0">
+                      {latestDisplay.rows.map((row, i) => (
+                        <FeedEntryRow
+                          key={`${row.columnId}-${row.item.link ?? row.item.title}-${i}`}
+                          item={row.item}
+                          isLast={i === latestDisplay.rows.length - 1}
+                          columnTitle={row.columnTitle}
+                          columnId={row.columnId}
+                          showSourceLine
+                        />
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              ) : latestDisplay?.kind === "wide" ? (
+                <div
+                  className={cn(
+                    "grid gap-4",
+                    latestDisplay.columnCount === 3
+                      ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                      : "grid-cols-1 sm:grid-cols-2",
+                  )}
+                >
+                  {latestDisplay.chunks.map((chunk, colIdx) => (
+                    <Card
+                      key={`latest-col-${colIdx}`}
+                      className="flex h-auto min-h-[220px] w-full min-w-0 flex-col border-0 shadow-none"
+                    >
+                      <CardContent className="flex min-h-0 flex-1 flex-col px-2 pb-3 pt-0">
+                        <ul className="min-w-0">
+                          {chunk.map((row, i) => (
+                            <FeedEntryRow
+                              key={`${row.columnId}-${row.item.link ?? row.item.title}-${i}`}
+                              item={row.item}
+                              isLast={i === chunk.length - 1}
+                              columnTitle={row.columnTitle}
+                              columnId={row.columnId}
+                              showSourceLine
+                            />
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : null}
             </div>
-            <GridInsertionOverlay
-              gridRef={gridRef}
-              wrapRef={gridWrapRef}
-              orderedIds={insertionOrderedIds}
-              hidden={activeColumnId !== null}
-              onInsertSectionHeader={(afterId) =>
-                void insertColumnAfter(afterId, "header", "New section")
-              }
-              onOpenAddFeedModal={(afterId) => openAddFeedModal(afterId)}
-            />
-          </div>
-        </SortableContext>
+          ) : null}
+          <SortableContext
+            items={gridRenderEntries.map((e) => e.column.id)}
+            strategy={rectSortingNoScaleStrategy}
+          >
+            <div ref={gridRef} className="relative z-0 grid-feed w-full min-w-0">
+              {gridRenderEntries.length === 0 ? (
+                <div className="col-span-full flex min-h-[24vh] flex-col items-center justify-center gap-2 px-2 py-8 text-center">
+                  <p className="text-sm font-medium text-foreground">
+                    No articles in the grid
+                  </p>
+                  <p className="max-w-sm text-sm text-muted-foreground">
+                    Feeds may be empty or hidden here. Add sources in Settings or
+                    use the control below.
+                  </p>
+                  <div className="mt-2 w-full max-w-md">
+                    <GridAddDividerRow
+                      onAddSectionHeader={() =>
+                        void insertColumnAfter(null, "header", "New section")
+                      }
+                      onOpenAddFeedModal={() => openAddFeedModal(null)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                gridRenderEntries.map((entry) =>
+                  entry.kind === "header" ? (
+                    <SortableGridSectionHeader
+                      key={entry.column.id}
+                      column={entry.column}
+                    />
+                  ) : (
+                    <SortableGridColumn
+                      key={entry.column.id}
+                      column={entry.column}
+                      items={filteredByColumnId[entry.column.id] ?? []}
+                      loading={feedLoadingByColumnId[entry.column.id] ?? false}
+                      error={feedErrorByColumnId[entry.column.id]}
+                    />
+                  ),
+                )
+              )}
+              <GridInsertionOverlay
+                gridRef={gridRef}
+                orderedIds={insertionOrderedIds}
+                hidden={
+                  activeColumnId !== null || !showGridInsertionLines
+                }
+                onInsertSectionHeader={(afterId) =>
+                  void insertColumnAfter(afterId, "header", "New section")
+                }
+                onOpenAddFeedModal={(afterId) => openAddFeedModal(afterId)}
+              />
+            </div>
+          </SortableContext>
+        </div>
       </GridSortDragKindContext.Provider>
       <DragOverlay>
         {activeGridEntry?.kind === "header" ? (

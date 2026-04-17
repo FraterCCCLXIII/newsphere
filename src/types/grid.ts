@@ -21,11 +21,21 @@ export function isFeedColumn(c: GridColumn): boolean {
   return c.kind !== "header";
 }
 
+/** Optional strip above the main feed grid (home grid, single-page view only). */
+export type LatestRowSettings = {
+  enabled: boolean;
+  /** Header above the three latest articles; defaults to "Latest". */
+  title?: string;
+};
+
+export const DEFAULT_LATEST_ROW_TITLE = "Latest";
+
 /** A named page of feed columns (sources). */
 export type GridPage = {
   id: string;
   name: string;
   columns: GridColumn[];
+  latestRow?: LatestRowSettings;
 };
 
 export type GridConfig = {
@@ -76,4 +86,9 @@ export type GridController = {
   /** Persist a new order for `pages` (same ids as current config). */
   reorderPages: (pages: GridPage[]) => Promise<void>;
   renamePage: (pageId: string, name: string) => Promise<void>;
+  /** Per-page: show three most recent articles above the grid (not part of column layout). */
+  updatePageLatestRow: (
+    pageId: string,
+    partial: Partial<LatestRowSettings>,
+  ) => Promise<void>;
 };

@@ -36,6 +36,7 @@ type TriggerProps = {
 /**
  * Article preview on hover: panel opens below, left-aligned with the trigger.
  * Moving the pointer onto the panel closes it (preview is trigger-only).
+ * While open, scrolling closes the preview if the pointer is no longer over the trigger.
  */
 export function FeedArticleHoverCard({
   trigger,
@@ -53,6 +54,8 @@ export function FeedArticleHoverCard({
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLElement | null>(null);
+  /** Last pointer position (client coords) for scroll + hit-test when panel is open. */
+  const pointerPosRef = useRef<{ x: number; y: number } | null>(null);
   const showTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
@@ -92,11 +95,54 @@ export function FeedArticleHoverCard({
 
   useEffect(() => () => clearTimers(), [clearTimers]);
 
+  /**
+   * While preview is open: track pointer and close on scroll if cursor is no longer over the trigger.
+   * Scroll is rAF-throttled so trackpad momentum scrolling does not flood the main thread with
+   * elementFromPoint work (which can stall :hover / pointer updates in the rest of the UI).
+   */
+  useEffect(() => {
+    if (!open) return;
+
+    const syncPointer = (e: PointerEvent) => {
+      pointerPosRef.current = { x: e.clientX, y: e.clientY };
+    };
+
+    let scrollRafId: number | null = null;
+    const flushScrollCheck = () => {
+      scrollRafId = null;
+      const t = triggerRef.current;
+      if (!t) {
+        closePanel();
+        return;
+      }
+      const pos = pointerPosRef.current;
+      if (pos == null) return;
+      const topEl = document.elementFromPoint(pos.x, pos.y);
+      if (!topEl || !t.contains(topEl)) {
+        closePanel();
+      }
+    };
+
+    const onScroll = () => {
+      if (scrollRafId != null) return;
+      scrollRafId = requestAnimationFrame(flushScrollCheck);
+    };
+
+    window.addEventListener("pointermove", syncPointer, { passive: true });
+    window.addEventListener("scroll", onScroll, true);
+    return () => {
+      window.removeEventListener("pointermove", syncPointer);
+      window.removeEventListener("scroll", onScroll, true);
+      if (scrollRafId != null) cancelAnimationFrame(scrollRafId);
+    };
+  }, [open, closePanel]);
+
   const triggerRefFromProps = trigger.props.ref;
   const triggerEl = cloneElement(trigger, {
     ref: mergeRefs(triggerRef, triggerRefFromProps),
     onPointerEnter: (e: ReactPointerEvent<HTMLElement>) => {
       if (e.pointerType === "touch") return;
+      pointerPosRef.current = { x: e.clientX, y: e.clientY };
       scheduleShow();
       trigger.props.onPointerEnter?.(e);
     },

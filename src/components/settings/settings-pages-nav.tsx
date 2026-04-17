@@ -17,6 +17,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Pencil, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
+import { NavLink } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -128,7 +129,7 @@ type SettingsPagesNavProps = {
   onSelectPage: (pageId: string) => void;
   onAddPage: (name: string) => Promise<void>;
   onReorderPages: (pages: GridPage[]) => Promise<void>;
-  onRenamePage: (pageId: string, name: string) => Promise<void>;
+  onRequestRenamePage: (page: GridPage) => void;
 };
 
 export function SettingsPagesNav({
@@ -137,14 +138,11 @@ export function SettingsPagesNav({
   onSelectPage,
   onAddPage,
   onReorderPages,
-  onRenamePage,
+  onRequestRenamePage,
 }: SettingsPagesNavProps) {
   const [addOpen, setAddOpen] = useState(false);
   const [newPageName, setNewPageName] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [renameTarget, setRenameTarget] = useState<GridPage | null>(null);
-  const [renameValue, setRenameValue] = useState("");
-  const [renameSubmitting, setRenameSubmitting] = useState(false);
 
   const selectedId = useMemo(
     () => effectiveSettingsPageId(activePageId, pages),
@@ -182,21 +180,6 @@ export function SettingsPagesNav({
     }
   }
 
-  async function handleRenameSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!renameTarget || renameSubmitting) return;
-    const name = renameValue.trim();
-    if (!name) return;
-    setRenameSubmitting(true);
-    try {
-      await onRenamePage(renameTarget.id, name);
-      setRenameTarget(null);
-      setRenameValue("");
-    } finally {
-      setRenameSubmitting(false);
-    }
-  }
-
   return (
     <>
       <aside className="flex min-h-0 shrink-0 flex-col border-b border-border bg-muted/20 max-md:max-h-[min(42vh,20rem)] md:w-56 md:border-b-0 md:border-r">
@@ -204,58 +187,83 @@ export function SettingsPagesNav({
           <h2 className="text-lg font-semibold tracking-tight text-foreground">
             Settings
           </h2>
-          <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
-            Drag pages to reorder. Click a page to edit its sources, or use the
-            pencil to rename.
-          </p>
         </div>
-        <ScrollArea className="min-h-0 flex-1">
-          {pages.length === 0 ? (
-            <p className="px-3 py-2 text-xs text-muted-foreground">
-              No pages yet.
-            </p>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={pages.map((p) => p.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <nav className="space-y-0.5 p-2" aria-label="Grid pages">
-                  {pages.map((p) => (
-                    <SortablePageRow
-                      key={p.id}
-                      page={p}
-                      isActive={selectedId === p.id}
-                      onSelect={() => {
-                        void onSelectPage(p.id);
-                      }}
-                      onRename={() => {
-                        setRenameTarget(p);
-                        setRenameValue(p.name);
-                      }}
-                    />
-                  ))}
-                </nav>
-              </SortableContext>
-            </DndContext>
-          )}
-        </ScrollArea>
-        <div className="border-t border-border p-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full gap-1.5"
-            onClick={() => setAddOpen(true)}
+
+        <nav
+          className="shrink-0 space-y-0.5 border-b border-border px-2 py-2"
+          aria-label="Settings sections"
+        >
+          <NavLink
+            to="/settings/app"
+            className={({ isActive }) =>
+              cn(
+                "app-no-drag flex w-full rounded-md px-2 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-secondary text-secondary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )
+            }
           >
-            <Plus className="size-4 shrink-0" aria-hidden />
-            Add page
-          </Button>
-        </div>
+            App
+          </NavLink>
+        </nav>
+
+        <ScrollArea className="min-h-0 flex-1">
+          <div className="min-w-0">
+            <h3
+              id="settings-pages-heading"
+              className="px-3 pb-1 pt-2 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground"
+            >
+              Pages
+            </h3>
+            {pages.length === 0 ? (
+              <p className="px-3 pb-2 text-xs text-muted-foreground">
+                No pages yet.
+              </p>
+            ) : (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={pages.map((p) => p.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <nav
+                    className="space-y-0.5 p-2"
+                    aria-labelledby="settings-pages-heading"
+                    aria-label="Grid pages"
+                  >
+                    {pages.map((p) => (
+                      <SortablePageRow
+                        key={p.id}
+                        page={p}
+                        isActive={selectedId === p.id}
+                        onSelect={() => {
+                          void onSelectPage(p.id);
+                        }}
+                        onRename={() => onRequestRenamePage(p)}
+                      />
+                    ))}
+                  </nav>
+                </SortableContext>
+              </DndContext>
+            )}
+            <div className="p-2 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full gap-1.5"
+                onClick={() => setAddOpen(true)}
+              >
+                <Plus className="size-4 shrink-0" aria-hidden />
+                Add page
+              </Button>
+            </div>
+          </div>
+        </ScrollArea>
       </aside>
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -295,58 +303,6 @@ export function SettingsPagesNav({
               </Button>
               <Button type="submit" disabled={submitting || !newPageName.trim()}>
                 {submitting ? "Creating…" : "Create page"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={renameTarget !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setRenameTarget(null);
-            setRenameValue("");
-          }
-        }}
-      >
-        <DialogContent className="app-no-drag sm:max-w-md">
-          <form onSubmit={handleRenameSubmit}>
-            <DialogHeader>
-              <DialogTitle>Rename page</DialogTitle>
-              <DialogDescription>
-                Update the name shown in the app. Column contents are unchanged.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-2 py-2">
-              <Label htmlFor="settings-rename-page">Page name</Label>
-              <Input
-                id="settings-rename-page"
-                value={renameValue}
-                onChange={(e) => setRenameValue(e.target.value)}
-                placeholder="Page name"
-                autoComplete="off"
-                autoFocus
-                disabled={renameSubmitting}
-              />
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setRenameTarget(null);
-                  setRenameValue("");
-                }}
-                disabled={renameSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={renameSubmitting || !renameValue.trim()}
-              >
-                {renameSubmitting ? "Saving…" : "Save"}
               </Button>
             </DialogFooter>
           </form>
