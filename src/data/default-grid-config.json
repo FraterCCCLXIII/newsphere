@@ -208,6 +208,41 @@
           "feedUrl": "http://rss.slashdot.org/Slashdot/slashdotMain"
         },
         {
+          "id": "5f6ee6c0-1dd2-4aef-aa22-05cc2f4efe24",
+          "title": "AI",
+          "kind": "header"
+        },
+        {
+          "id": "d272b628-d022-4935-a9ed-35e5d467f6ca",
+          "title": "TechCrunch — Artificial intelligence",
+          "kind": "feed",
+          "feedUrl": "https://techcrunch.com/category/artificial-intelligence/feed/"
+        },
+        {
+          "id": "5dbdc5a8-e70b-42e8-beb1-94296bd7df7e",
+          "title": "MIT Technology Review — Artificial intelligence",
+          "kind": "feed",
+          "feedUrl": "https://www.technologyreview.com/topic/artificial-intelligence/feed/"
+        },
+        {
+          "id": "60e40bd7-f1a0-4daa-bd89-4b743eb48dbe",
+          "title": "Wired — AI",
+          "kind": "feed",
+          "feedUrl": "https://www.wired.com/feed/tag/ai/latest/rss"
+        },
+        {
+          "id": "fbe91efd-715c-4c78-908d-f30caf441e8c",
+          "title": "Simon Willison's blog",
+          "kind": "feed",
+          "feedUrl": "https://simonwillison.net/atom/everything/"
+        },
+        {
+          "id": "06bbe81d-6020-4c57-9775-416f00e9afb6",
+          "title": "OpenAI Blog",
+          "kind": "feed",
+          "feedUrl": "https://openai.com/blog/rss.xml"
+        },
+        {
           "id": "03cc2e0f-54d8-4c37-b5d2-8ecdc768f096",
           "title": "Dev & design",
           "kind": "header"

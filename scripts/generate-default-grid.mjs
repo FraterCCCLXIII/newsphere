@@ -87,6 +87,16 @@ const recipe = {
         { catalogId: "engadget", columnId: "78cd6749-6577-464b-94b2-80b127b040cc" },
         { catalogId: "slashdot", columnId: "fabb11a5-ef20-4bcc-bd47-31c16c14c989" },
         {
+          id: "5f6ee6c0-1dd2-4aef-aa22-05cc2f4efe24",
+          title: "AI",
+          kind: "header",
+        },
+        { catalogId: "techcrunch-ai", columnId: "d272b628-d022-4935-a9ed-35e5d467f6ca" },
+        { catalogId: "mit-tr-ai", columnId: "5dbdc5a8-e70b-42e8-beb1-94296bd7df7e" },
+        { catalogId: "wired-ai", columnId: "60e40bd7-f1a0-4daa-bd89-4b743eb48dbe" },
+        { catalogId: "simon-willison", columnId: "fbe91efd-715c-4c78-908d-f30caf441e8c" },
+        { catalogId: "openai-blog", columnId: "06bbe81d-6020-4c57-9775-416f00e9afb6" },
+        {
           id: "03cc2e0f-54d8-4c37-b5d2-8ecdc768f096",
           title: "Dev & design",
           kind: "header",
