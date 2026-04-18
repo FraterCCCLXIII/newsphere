@@ -164,7 +164,7 @@ function SortableHeaderRow({
       data-sortable-column-id={column.id}
       style={style}
       className={cn(
-        "col-span-full flex min-h-11 min-w-0 items-center gap-2 rounded-md border border-border/80 px-2 py-2.5",
+        "col-span-full flex min-h-11 min-w-0 items-center gap-2 rounded-md border border-border/80 bg-card px-2 py-2.5 shadow-sm",
         isDragging && "z-10",
       )}
     >
