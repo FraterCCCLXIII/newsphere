@@ -212,6 +212,7 @@ export function AddSourceModal({
           "app-no-drag flex h-[min(92vh,640px)] w-full max-w-[min(32rem,calc(100%-1.5rem))] flex-col gap-0 overflow-hidden p-0",
         )}
         onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader className="shrink-0 space-y-1 border-b px-6 py-4 pr-14 text-left">
           <DialogTitle>Add source</DialogTitle>

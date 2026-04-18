@@ -1,3 +1,4 @@
+mod url_policy;
 mod feed;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

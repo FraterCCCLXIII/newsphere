@@ -1,4 +1,5 @@
 import DOMPurify from "dompurify";
+import type { Config } from "dompurify";
 import { Readability } from "@mozilla/readability";
 
 import { estimateLikelyTruncated } from "@/lib/article-truncation";
@@ -14,18 +15,31 @@ export type ExtractedArticle = {
   likelyTruncated: boolean;
 };
 
-let linkHooksInstalled = false;
+let purifySingleton: ReturnType<typeof DOMPurify> | null = null;
 
-function ensureExternalLinkHooks(): void {
-  if (linkHooksInstalled) return;
-  linkHooksInstalled = true;
-  DOMPurify.addHook("afterSanitizeAttributes", (node) => {
+function getReaderPurify(): ReturnType<typeof DOMPurify> {
+  if (purifySingleton) return purifySingleton;
+  if (typeof window === "undefined") {
+    throw new Error("Reader sanitization requires a browser environment");
+  }
+  const purify = DOMPurify(window);
+  purify.addHook("afterSanitizeAttributes", (node) => {
     if (node.tagName === "A" && node instanceof HTMLAnchorElement) {
       node.setAttribute("target", "_blank");
       node.setAttribute("rel", "noopener noreferrer");
     }
   });
+  purifySingleton = purify;
+  return purify;
 }
+
+const READER_SANITIZE_CONFIG: Config = {
+  FORBID_TAGS: ["style", "iframe", "object", "embed", "form"],
+  FORBID_ATTR: ["style"],
+  ADD_ATTR: ["target", "rel"],
+  ALLOWED_URI_REGEXP:
+    /^(?:(?:(?:f|ht)tps?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
+};
 
 /** Extract main article HTML with Readability (Mozilla). */
 export function extractArticleFromHtml(
@@ -55,9 +69,5 @@ export function extractArticleFromHtml(
 }
 
 export function sanitizeReaderHtml(html: string): string {
-  ensureExternalLinkHooks();
-  return DOMPurify.sanitize(html, {
-    FORBID_TAGS: ["style", "iframe", "object", "embed", "form"],
-    FORBID_ATTR: ["style"],
-  });
+  return getReaderPurify().sanitize(html, READER_SANITIZE_CONFIG);
 }

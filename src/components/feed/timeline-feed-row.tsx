@@ -5,12 +5,14 @@ import { Bookmark, ExternalLink, Share2 } from "lucide-react";
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { FeedArticleHoverCard } from "@/components/feed/feed-article-hover-card";
 import { FeedItemHoverPreviewPanel } from "@/components/feed/feed-item-hover-preview-panel";
+import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 import { FeedFavicon } from "@/components/grid/feed-favicon";
 import { ShareModal } from "@/components/share/share-modal";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { getFeedPreviewParts } from "@/lib/feed-preview";
 import { formatPublishedForPreference } from "@/lib/feed-time";
 import { buildReaderUrl } from "@/lib/reader-url";
+import { safeHttpHref } from "@/lib/safe-url";
 import { cn } from "@/lib/utils";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
@@ -45,6 +47,11 @@ export function TimelineFeedRow({
     return bookmarks.some((b) => normalizeBookmarkLink(b.link) === n);
   }, [bookmarks, item.link]);
 
+  const safeLink = useMemo(
+    () => (item.link ? safeHttpHref(item.link) : null),
+    [item.link],
+  );
+
   const publishedLabel = formatPublishedForPreference(
     item.published,
     dateFormatStyle,
@@ -56,7 +63,7 @@ export function TimelineFeedRow({
   const preview = useMemo(() => getFeedPreviewParts(item), [item]);
   const showPreview = Boolean(preview.excerpt || preview.imageUrl);
 
-  if (!item.link) {
+  if (!safeLink) {
     return (
       <Row className={cn("px-4 py-3", rowBorder)} {...rowRole}>
         <div className="flex gap-3">
@@ -82,7 +89,7 @@ export function TimelineFeedRow({
     );
   }
 
-  const readerUrl = buildReaderUrl(item.link, columnId);
+  const readerUrl = buildReaderUrl(safeLink, columnId);
 
   return (
     <Row
@@ -145,17 +152,16 @@ export function TimelineFeedRow({
             </Link>
           )}
           <div className="mt-2 flex items-center gap-0.5 text-muted-foreground">
-            <a
-              href={item.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="app-no-drag inline-flex size-8 items-center justify-center rounded-full hover:bg-accent hover:text-foreground"
-              title="Open in browser"
-              aria-label="Open in browser"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ExternalLink className="size-4" aria-hidden />
-            </a>
+            <span onClick={(e) => e.stopPropagation()} className="inline-flex">
+              <ExternalBrowserLink
+                href={safeLink}
+                className="app-no-drag inline-flex size-8 items-center justify-center rounded-full hover:bg-accent hover:text-foreground"
+                title="Open in browser"
+                aria-label="Open in browser"
+              >
+                <ExternalLink className="size-4" aria-hidden />
+              </ExternalBrowserLink>
+            </span>
             <button
               type="button"
               className="app-no-drag inline-flex size-8 items-center justify-center rounded-full hover:bg-accent hover:text-foreground"
@@ -178,7 +184,7 @@ export function TimelineFeedRow({
                 e.preventDefault();
                 void toggleBookmark({
                   title: item.title,
-                  link: item.link!,
+                  link: safeLink,
                   published: item.published,
                   sourceFeedTitle: columnTitle,
                   sourceColumnId: columnId,
@@ -203,7 +209,7 @@ export function TimelineFeedRow({
       <ShareModal
         open={shareOpen}
         onOpenChange={setShareOpen}
-        url={item.link}
+        url={safeLink}
         title={item.title}
       />
     </Row>

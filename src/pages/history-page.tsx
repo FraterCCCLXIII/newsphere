@@ -2,6 +2,7 @@ import { Bookmark, ExternalLink, Search, Share2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 
+import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 import { ShareModal } from "@/components/share/share-modal";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { buildReaderUrl } from "@/lib/reader-url";
+import { safeHttpHref } from "@/lib/safe-url";
 import { matchesReadHistorySearch } from "@/lib/search-utils";
 import { cn } from "@/lib/utils";
 import type { ReadHistoryEntry } from "@/types/read-history";
@@ -57,6 +59,8 @@ function HistoryRow({
   const [shareOpen, setShareOpen] = useState(false);
   const { bookmarks, toggleBookmark } = useOutletContext<AppOutletContext>();
 
+  const safeLink = useMemo(() => safeHttpHref(h.link), [h.link]);
+
   const bookmarked = useMemo(() => {
     const n = normalizeBookmarkLink(h.link);
     return bookmarks.some((b) => normalizeBookmarkLink(b.link) === n);
@@ -78,32 +82,47 @@ function HistoryRow({
     <li className="group px-4 py-3 transition-colors hover:bg-accent/50">
       <div className="min-w-0 space-y-1.5">
         <div className="flex items-start gap-2">
-          <Link
-            to={buildReaderUrl(h.link, h.sourceColumnId)}
-            className="line-clamp-2 min-w-0 flex-1 text-base font-medium leading-snug text-foreground hover:text-primary"
-          >
-            {h.title}
-          </Link>
+          {safeLink ? (
+            <Link
+              to={buildReaderUrl(safeLink, h.sourceColumnId)}
+              className="line-clamp-2 min-w-0 flex-1 text-base font-medium leading-snug text-foreground hover:text-primary"
+            >
+              {h.title}
+            </Link>
+          ) : (
+            <span className="line-clamp-2 min-w-0 flex-1 text-base font-medium leading-snug text-foreground">
+              {h.title}
+            </span>
+          )}
           <div
             className="flex shrink-0 items-center gap-0"
             role="group"
             aria-label="History actions"
           >
-            <a
-              href={h.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={iconBtn}
-              title="Open in browser"
-              aria-label="Open in browser"
-            >
-              <ExternalLink className="size-4" aria-hidden />
-            </a>
+            {safeLink ? (
+              <ExternalBrowserLink
+                href={safeLink}
+                className={iconBtn}
+                title="Open in browser"
+                aria-label="Open in browser"
+              >
+                <ExternalLink className="size-4" aria-hidden />
+              </ExternalBrowserLink>
+            ) : (
+              <span
+                className={cn(iconBtn, "pointer-events-none opacity-40")}
+                title="No safe URL"
+                aria-hidden
+              >
+                <ExternalLink className="size-4" aria-hidden />
+              </span>
+            )}
             <button
               type="button"
               className={iconBtn}
               title="Share"
               aria-label="Share"
+              disabled={!safeLink}
               onClick={() => setShareOpen(true)}
             >
               <Share2 className="size-4" aria-hidden />
@@ -119,7 +138,7 @@ function HistoryRow({
               onClick={() =>
                 void toggleBookmark({
                   title: h.title,
-                  link: h.link,
+                  link: safeLink ?? h.link,
                   published: h.published,
                   sourceFeedTitle: h.sourceFeedTitle,
                   sourceColumnId: h.sourceColumnId,
@@ -174,7 +193,7 @@ function HistoryRow({
       <ShareModal
         open={shareOpen}
         onOpenChange={setShareOpen}
-        url={h.link}
+        url={safeLink ?? ""}
         title={h.title}
       />
     </li>

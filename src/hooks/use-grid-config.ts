@@ -515,11 +515,11 @@ export function useGridConfig(): GridController {
     setRefreshing(true);
     try {
       const config = await loadConfig();
-      await persistConfig(config);
+      applyGridState(config);
     } finally {
       setRefreshing(false);
     }
-  }, [persistConfig]);
+  }, [applyGridState]);
 
   const resetLayoutToDefaults = useCallback(async () => {
     await persistConfig(getBundledDefaultGridConfig());

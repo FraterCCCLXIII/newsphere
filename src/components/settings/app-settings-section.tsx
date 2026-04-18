@@ -3,7 +3,9 @@ import {
   ChevronDown,
   Clock,
   GripVertical,
+  ImageIcon,
   LayoutGrid,
+  Unplug,
 } from "lucide-react";
 
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
@@ -50,6 +52,10 @@ export function AppSettingsSection({ className }: { className?: string }) {
     setShowGridInsertionLines,
     allowGridReorder,
     setAllowGridReorder,
+    hideBrokenFeeds,
+    setHideBrokenFeeds,
+    loadNetworkFavicons,
+    setLoadNetworkFavicons,
   } = useDisplayPreferences();
 
   const dateFormatLabel =
@@ -196,6 +202,63 @@ export function AppSettingsSection({ className }: { className?: string }) {
               When on, the grip handles drag columns and section headers. When
               off, the grip still opens the column menu (remove). You can
               reorder from Settings anytime.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2 border-t border-border pt-3">
+          <ImageIcon
+            className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor="settings-load-network-favicons"
+                className="flex-1 cursor-pointer text-sm font-normal text-foreground"
+              >
+                Load site icons from the network
+              </Label>
+              <Switch
+                id="settings-load-network-favicons"
+                className="app-no-drag shrink-0"
+                checked={loadNetworkFavicons}
+                onCheckedChange={setLoadNetworkFavicons}
+                aria-label="Load feed column icons from third-party favicon services"
+              />
+            </div>
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              When off (default), feed columns use the RSS placeholder. When on,
+              icons may be fetched via external services and can reveal which
+              sites you follow.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2 border-t border-border pt-3">
+          <Unplug
+            className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor="settings-hide-broken-feeds"
+                className="flex-1 cursor-pointer text-sm font-normal text-foreground"
+              >
+                Hide feeds that fail to load
+              </Label>
+              <Switch
+                id="settings-hide-broken-feeds"
+                className="app-no-drag shrink-0"
+                checked={hideBrokenFeeds}
+                onCheckedChange={setHideBrokenFeeds}
+                aria-label="Hide feed columns that failed to load on the home grid and unified feed"
+              />
+            </div>
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              When on, sources that return an error are hidden from the grid and
+              Latest stream. Turn off to see them and fix URLs in Settings.
             </p>
           </div>
         </div>

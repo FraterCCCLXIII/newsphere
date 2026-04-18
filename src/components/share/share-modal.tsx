@@ -16,6 +16,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { openExternalUrl } from "@/lib/open-external";
+import { isTauriRuntime } from "@/lib/tauri-env";
 import { cn } from "@/lib/utils";
 
 type ShareModalProps = {
@@ -64,6 +66,17 @@ function CircleAction({ href, onClick, label, className, children }: CircleActio
   );
 
   if (href) {
+    if (isTauriRuntime()) {
+      return (
+        <button
+          type="button"
+          className="app-no-drag flex flex-col items-center gap-1.5 rounded-lg p-1 outline-none transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring"
+          onClick={() => void openExternalUrl(href)}
+        >
+          {inner}
+        </button>
+      );
+    }
     return (
       <a
         href={href}

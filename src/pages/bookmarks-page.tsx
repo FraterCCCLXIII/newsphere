@@ -2,6 +2,7 @@ import { ExternalLink, Search, Share2, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 
+import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 import { ShareModal } from "@/components/share/share-modal";
 import {
   Tooltip,
@@ -12,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { buildReaderUrl } from "@/lib/reader-url";
+import { safeHttpHref } from "@/lib/safe-url";
 import { matchesBookmarkSearch } from "@/lib/search-utils";
 import { cn } from "@/lib/utils";
 import type { BookmarkEntry } from "@/types/bookmark";
@@ -56,6 +58,8 @@ function BookmarkRow({
 }) {
   const [shareOpen, setShareOpen] = useState(false);
 
+  const safeLink = useMemo(() => safeHttpHref(b.link), [b.link]);
+
   const metaParts: string[] = [];
   if (b.sourceFeedTitle?.trim()) {
     metaParts.push(`From ${b.sourceFeedTitle.trim()}`);
@@ -72,32 +76,47 @@ function BookmarkRow({
     <li className="group px-4 py-3 transition-colors hover:bg-accent/50">
       <div className="min-w-0 space-y-1.5">
         <div className="flex items-start gap-2">
-          <Link
-            to={buildReaderUrl(b.link, b.sourceColumnId)}
-            className="line-clamp-2 min-w-0 flex-1 text-base font-medium leading-snug text-foreground hover:text-primary"
-          >
-            {b.title}
-          </Link>
+          {safeLink ? (
+            <Link
+              to={buildReaderUrl(safeLink, b.sourceColumnId)}
+              className="line-clamp-2 min-w-0 flex-1 text-base font-medium leading-snug text-foreground hover:text-primary"
+            >
+              {b.title}
+            </Link>
+          ) : (
+            <span className="line-clamp-2 min-w-0 flex-1 text-base font-medium leading-snug text-foreground">
+              {b.title}
+            </span>
+          )}
           <div
             className="flex shrink-0 items-center gap-0"
             role="group"
             aria-label="Bookmark actions"
           >
-            <a
-              href={b.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={iconBtn}
-              title="Open in browser"
-              aria-label="Open in browser"
-            >
-              <ExternalLink className="size-4" aria-hidden />
-            </a>
+            {safeLink ? (
+              <ExternalBrowserLink
+                href={safeLink}
+                className={iconBtn}
+                title="Open in browser"
+                aria-label="Open in browser"
+              >
+                <ExternalLink className="size-4" aria-hidden />
+              </ExternalBrowserLink>
+            ) : (
+              <span
+                className={cn(iconBtn, "pointer-events-none opacity-40")}
+                title="No safe URL for this bookmark"
+                aria-hidden
+              >
+                <ExternalLink className="size-4" aria-hidden />
+              </span>
+            )}
             <button
               type="button"
               className={iconBtn}
               title="Share"
               aria-label="Share"
+              disabled={!safeLink}
               onClick={() => setShareOpen(true)}
             >
               <Share2 className="size-4" aria-hidden />
@@ -140,7 +159,7 @@ function BookmarkRow({
       <ShareModal
         open={shareOpen}
         onOpenChange={setShareOpen}
-        url={b.link}
+        url={safeLink ?? ""}
         title={b.title}
       />
     </li>

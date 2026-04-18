@@ -19,7 +19,8 @@ type AppShellProps = {
 export function AppShell({ grid, bookmarks, readHistory }: AppShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const feed = useFeedItems(grid.columns);
+  /** All feed columns app-wide — cache key is stable when switching pages (unlike `grid.columns`). */
+  const feed = useFeedItems(grid.allColumns);
   const [searchQuery, setSearchQuery] = useState("");
   const [addSourceOpen, setAddSourceOpen] = useState(false);
   const pendingInsertFeedAfterIdRef = useRef<string | null>(null);

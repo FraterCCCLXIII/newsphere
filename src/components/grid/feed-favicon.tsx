@@ -1,6 +1,7 @@
 import { Rss } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { cn } from "@/lib/utils";
 
 type FeedFaviconProps = {
@@ -23,6 +24,7 @@ function hostnameFromFeedUrl(feedUrl: string | undefined): string | null {
  * Rounded square frame; image is clipped to the same shape.
  */
 export function FeedFavicon({ feedUrl, className }: FeedFaviconProps) {
+  const { loadNetworkFavicons } = useDisplayPreferences();
   const [failed, setFailed] = useState(false);
   const [srcIndex, setSrcIndex] = useState(0);
   const host = useMemo(() => hostnameFromFeedUrl(feedUrl), [feedUrl]);
@@ -46,7 +48,7 @@ export function FeedFavicon({ feedUrl, className }: FeedFaviconProps) {
     className,
   );
 
-  if (!host || failed) {
+  if (!loadNetworkFavicons || !host || failed) {
     return (
       <span className={shell} aria-hidden>
         <Rss className="h-[62%] w-[62%]" aria-hidden />

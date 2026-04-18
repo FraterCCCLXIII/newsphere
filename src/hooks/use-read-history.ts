@@ -9,13 +9,30 @@ const STORE_KEY = "read_history_data";
 const LS_KEY = "newsphere-read-history-v1";
 const MAX_ITEMS = 500;
 
+const TAURI_HISTORY_OPTIONS = { defaults: {}, autoSave: true } as const;
+
+let readHistoryStorePromise: ReturnType<
+  typeof import("@tauri-apps/plugin-store").load
+> | null = null;
+
+let historySaveTail: Promise<void> = Promise.resolve();
+
+function enqueueHistoryPersist(task: () => Promise<void>): Promise<void> {
+  historySaveTail = historySaveTail.then(task);
+  return historySaveTail;
+}
+
+async function getReadHistoryStore() {
+  if (!readHistoryStorePromise) {
+    const { load } = await import("@tauri-apps/plugin-store");
+    readHistoryStorePromise = load(STORE_FILE, TAURI_HISTORY_OPTIONS);
+  }
+  return readHistoryStorePromise;
+}
+
 async function loadReadHistory(): Promise<ReadHistoryEntry[]> {
   if (isTauriRuntime()) {
-    const { load } = await import("@tauri-apps/plugin-store");
-    const store = await load(STORE_FILE, {
-      defaults: {},
-      autoSave: true,
-    });
+    const store = await getReadHistoryStore();
     const value = await store.get<ReadHistoryStore>(STORE_KEY);
     if (value && Array.isArray(value.items)) {
       return value.items;
@@ -40,13 +57,11 @@ async function loadReadHistory(): Promise<ReadHistoryEntry[]> {
 async function saveReadHistory(items: ReadHistoryEntry[]): Promise<void> {
   const payload: ReadHistoryStore = { items };
   if (isTauriRuntime()) {
-    const { load } = await import("@tauri-apps/plugin-store");
-    const store = await load(STORE_FILE, {
-      defaults: {},
-      autoSave: true,
+    await enqueueHistoryPersist(async () => {
+      const store = await getReadHistoryStore();
+      await store.set(STORE_KEY, payload);
+      await store.save();
     });
-    await store.set(STORE_KEY, payload);
-    await store.save();
     return;
   }
   localStorage.setItem(LS_KEY, JSON.stringify(payload));

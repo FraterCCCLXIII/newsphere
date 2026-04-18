@@ -2,10 +2,12 @@ import { useMemo, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useOutletContext } from "react-router-dom";
 
+import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { TimelineFeedEntrySkeleton } from "@/components/feed/feed-skeleton";
 import { TimelineFeedRow } from "@/components/feed/timeline-feed-row";
 import { GRID_EMPTY_RSS_NOTE } from "@/lib/feed-messages";
 import { publishedSortKey } from "@/lib/feed-time";
+import { shouldShowFeedColumn } from "@/lib/grid-feed-visibility";
 import { matchesArticleSearch } from "@/lib/search-utils";
 import { isTauriRuntime } from "@/lib/tauri-env";
 import type { AppOutletContext } from "@/types/app-outlet";
@@ -79,14 +81,38 @@ export function TimelineView() {
     searchQuery,
     feedItemsByColumnId,
     feedLoadingByColumnId,
+    feedErrorByColumnId,
   } = useOutletContext<AppOutletContext>();
+
+  const { hideBrokenFeeds } = useDisplayPreferences();
+
+  const visibleColumns = useMemo(() => {
+    return columns.filter((col) => {
+      const items = feedItemsByColumnId[col.id] ?? [];
+      const loading = feedLoadingByColumnId[col.id] ?? false;
+      const error = feedErrorByColumnId[col.id];
+      return shouldShowFeedColumn(
+        col,
+        items,
+        loading,
+        error,
+        hideBrokenFeeds,
+      );
+    });
+  }, [
+    columns,
+    feedItemsByColumnId,
+    feedLoadingByColumnId,
+    feedErrorByColumnId,
+    hideBrokenFeeds,
+  ]);
 
   const query = searchQuery.trim();
   const isSearch = query.length > 0;
 
   const mergedRows = useMemo(() => {
     const rows: MergedRow[] = [];
-    for (const col of columns) {
+    for (const col of visibleColumns) {
       const items = feedItemsByColumnId[col.id] ?? [];
       for (const item of items) {
         rows.push({
@@ -110,7 +136,7 @@ export function TimelineView() {
       );
     });
     return rows;
-  }, [columns, feedItemsByColumnId]);
+  }, [visibleColumns, feedItemsByColumnId]);
 
   const filteredRows = useMemo(() => {
     if (!isSearch) return mergedRows;

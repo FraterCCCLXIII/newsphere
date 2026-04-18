@@ -9,13 +9,30 @@ const STORE_KEY = "bookmarks_data";
 const LS_KEY = "newsphere-bookmarks-v1";
 const LS_KEY_LEGACY = "newsfeed-bookmarks-v1";
 
+const TAURI_BOOKMARK_OPTIONS = { defaults: {}, autoSave: true } as const;
+
+let bookmarksStorePromise: ReturnType<
+  typeof import("@tauri-apps/plugin-store").load
+> | null = null;
+
+let bookmarkSaveTail: Promise<void> = Promise.resolve();
+
+function enqueueBookmarkPersist(task: () => Promise<void>): Promise<void> {
+  bookmarkSaveTail = bookmarkSaveTail.then(task);
+  return bookmarkSaveTail;
+}
+
+async function getBookmarksStore() {
+  if (!bookmarksStorePromise) {
+    const { load } = await import("@tauri-apps/plugin-store");
+    bookmarksStorePromise = load(STORE_FILE, TAURI_BOOKMARK_OPTIONS);
+  }
+  return bookmarksStorePromise;
+}
+
 async function loadBookmarks(): Promise<BookmarkEntry[]> {
   if (isTauriRuntime()) {
-    const { load } = await import("@tauri-apps/plugin-store");
-    const store = await load(STORE_FILE, {
-      defaults: {},
-      autoSave: true,
-    });
+    const store = await getBookmarksStore();
     const value = await store.get<BookmarksStore>(STORE_KEY);
     if (value && Array.isArray(value.items)) {
       return value.items;
@@ -41,13 +58,11 @@ async function loadBookmarks(): Promise<BookmarkEntry[]> {
 async function saveBookmarks(items: BookmarkEntry[]): Promise<void> {
   const payload: BookmarksStore = { items };
   if (isTauriRuntime()) {
-    const { load } = await import("@tauri-apps/plugin-store");
-    const store = await load(STORE_FILE, {
-      defaults: {},
-      autoSave: true,
+    await enqueueBookmarkPersist(async () => {
+      const store = await getBookmarksStore();
+      await store.set(STORE_KEY, payload);
+      await store.save();
     });
-    await store.set(STORE_KEY, payload);
-    await store.save();
     return;
   }
   localStorage.setItem(LS_KEY, JSON.stringify(payload));

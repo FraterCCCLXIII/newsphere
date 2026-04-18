@@ -16,12 +16,14 @@ import {
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { FeedArticleHoverCard } from "@/components/feed/feed-article-hover-card";
 import { FeedItemHoverPreviewPanel } from "@/components/feed/feed-item-hover-preview-panel";
+import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 import { ShareModal } from "@/components/share/share-modal";
 import { COLUMN_RSS_PLACEHOLDER } from "@/lib/feed-messages";
 import { getFeedPreviewParts } from "@/lib/feed-preview";
 import { formatPublishedForPreference } from "@/lib/feed-time";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { buildReaderUrl } from "@/lib/reader-url";
+import { safeHttpHref } from "@/lib/safe-url";
 import { isTauriRuntime } from "@/lib/tauri-env";
 import { cn } from "@/lib/utils";
 import type { AppOutletContext } from "@/types/app-outlet";
@@ -93,6 +95,11 @@ export function FeedEntryRow({
   const showInlineTimestamp =
     showTimestampsInline && Boolean(publishedLabel);
 
+  const safeLink = useMemo(
+    () => (item.link ? safeHttpHref(item.link) : null),
+    [item.link],
+  );
+
   const linkClassName = cn(
     "block min-w-0 w-full px-2 py-2 text-left transition-colors",
     hasBeenRead
@@ -118,7 +125,7 @@ export function FeedEntryRow({
     </span>
   );
 
-  if (!item.link) {
+  if (!safeLink) {
     return (
       <li>
         <button
@@ -164,7 +171,7 @@ export function FeedEntryRow({
               panelClassName="border-border"
               trigger={
                 <Link
-                  to={buildReaderUrl(item.link!, columnId)}
+                  to={buildReaderUrl(safeLink, columnId)}
                   className={linkClassName}
                 >
                   {linkInner}
@@ -179,7 +186,7 @@ export function FeedEntryRow({
             </FeedArticleHoverCard>
           ) : (
             <Link
-              to={buildReaderUrl(item.link!, columnId)}
+              to={buildReaderUrl(safeLink, columnId)}
               className={linkClassName}
             >
               {linkInner}
@@ -187,17 +194,16 @@ export function FeedEntryRow({
           )}
         </div>
         <div className="flex shrink-0 items-center gap-0 self-stretch pr-2">
-          <a
-            href={item.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="app-no-drag inline-flex size-8 shrink-0 items-center justify-center text-muted-foreground opacity-0 transition-colors duration-150 ease-out hover:text-foreground group-hover/row:opacity-100"
-            title="Open in browser"
-            aria-label="Open in browser"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ExternalLink className="size-4" aria-hidden />
-          </a>
+          <span onClick={(e) => e.stopPropagation()} className="inline-flex">
+            <ExternalBrowserLink
+              href={safeLink}
+              className="app-no-drag inline-flex size-8 shrink-0 items-center justify-center text-muted-foreground opacity-0 transition-colors duration-150 ease-out hover:text-foreground group-hover/row:opacity-100"
+              title="Open in browser"
+              aria-label="Open in browser"
+            >
+              <ExternalLink className="size-4" aria-hidden />
+            </ExternalBrowserLink>
+          </span>
           <button
             type="button"
             className="app-no-drag inline-flex size-8 shrink-0 items-center justify-center text-muted-foreground opacity-0 transition-colors duration-150 ease-out hover:bg-accent hover:text-foreground group-hover/row:opacity-100"
@@ -222,7 +228,7 @@ export function FeedEntryRow({
               e.preventDefault();
               void toggleBookmark({
                 title: item.title,
-                link: item.link!,
+                link: safeLink,
                 published: item.published,
                 sourceFeedTitle: columnTitle,
                 sourceColumnId: columnId,
@@ -246,7 +252,7 @@ export function FeedEntryRow({
       <ShareModal
         open={shareOpen}
         onOpenChange={setShareOpen}
-        url={item.link}
+        url={safeLink}
         title={item.title}
       />
     </li>

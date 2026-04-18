@@ -14,10 +14,12 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
+import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 import { ShareModal } from "@/components/share/share-modal";
 import { Button } from "@/components/ui/button";
 import { useReaderArticle } from "@/hooks/use-reader-article";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
+import { safeHttpHref } from "@/lib/safe-url";
 import { cn } from "@/lib/utils";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
@@ -48,8 +50,16 @@ export function ReaderPage() {
   const linkParam = searchParams.get("l");
   const columnId = searchParams.get("c") ?? undefined;
 
+  const safeArticleUrl = useMemo(
+    () => (linkParam ? safeHttpHref(linkParam) : null),
+    [linkParam],
+  );
+
+  const bodyState = useReaderArticle(
+    linkParam && safeArticleUrl ? safeArticleUrl : null,
+  );
+
   const [shareOpen, setShareOpen] = useState(false);
-  const bodyState = useReaderArticle(linkParam);
 
   const items = useMemo(() => {
     if (!columnId) return [];
@@ -57,15 +67,15 @@ export function ReaderPage() {
   }, [columnId, feedItemsByColumnId]);
 
   const currentIndex = useMemo(() => {
-    if (!linkParam) return -1;
+    if (!linkParam || !safeArticleUrl) return -1;
     return findItemIndex(items, linkParam);
-  }, [items, linkParam]);
+  }, [items, linkParam, safeArticleUrl]);
 
   const currentItem: FeedItem | null = useMemo(() => {
-    if (!linkParam) return null;
+    if (!safeArticleUrl) return null;
     if (currentIndex >= 0) return items[currentIndex] ?? null;
-    return { title: "Article", link: linkParam };
-  }, [currentIndex, items, linkParam]);
+    return { title: "Article", link: safeArticleUrl };
+  }, [currentIndex, items, safeArticleUrl]);
 
   const prevItem = useMemo(() => {
     if (currentIndex <= 0) return null;
@@ -84,11 +94,10 @@ export function ReaderPage() {
 
   const goToItem = useCallback(
     (item: FeedItem) => {
-      if (!columnId) return;
-      setSearchParams(
-        { l: item.link, c: columnId },
-        { replace: true },
-      );
+      if (!columnId || !item.link) return;
+      const safe = safeHttpHref(item.link);
+      if (!safe) return;
+      setSearchParams({ l: safe, c: columnId }, { replace: true });
     },
     [columnId, setSearchParams],
   );
@@ -123,26 +132,26 @@ export function ReaderPage() {
   }, [bodyState]);
 
   const showNav = Boolean(columnId) && items.length > 0;
-  const iframeSrc = currentItem?.link ?? linkParam ?? "";
+  const iframeSrc = safeArticleUrl ?? "";
 
   const bookmarked = useMemo(() => {
-    if (!linkParam) return false;
-    const n = normalizeBookmarkLink(linkParam);
+    if (!safeArticleUrl) return false;
+    const n = normalizeBookmarkLink(safeArticleUrl);
     return bookmarks.some((b) => normalizeBookmarkLink(b.link) === n);
-  }, [bookmarks, linkParam]);
+  }, [bookmarks, safeArticleUrl]);
 
   const handleBookmark = useCallback(() => {
-    if (!linkParam) return;
+    if (!safeArticleUrl) return;
     void toggleBookmark({
       title: displayTitle,
-      link: linkParam,
+      link: safeArticleUrl,
       published: currentItem?.published,
       sourceFeedTitle: columnTitle ?? undefined,
       sourceColumnId: columnId,
     });
   }, [
     toggleBookmark,
-    linkParam,
+    safeArticleUrl,
     displayTitle,
     currentItem?.published,
     columnTitle,
@@ -150,16 +159,19 @@ export function ReaderPage() {
   ]);
 
   useEffect(() => {
-    if (!linkParam) return;
-    void recordArticleView({
-      title: displayTitle,
-      link: linkParam,
-      published: currentItem?.published,
-      sourceFeedTitle: columnTitle ?? undefined,
-      sourceColumnId: columnId,
-    });
+    if (!safeArticleUrl) return;
+    const t = window.setTimeout(() => {
+      void recordArticleView({
+        title: displayTitle,
+        link: safeArticleUrl,
+        published: currentItem?.published,
+        sourceFeedTitle: columnTitle ?? undefined,
+        sourceColumnId: columnId,
+      });
+    }, 450);
+    return () => window.clearTimeout(t);
   }, [
-    linkParam,
+    safeArticleUrl,
     columnId,
     displayTitle,
     currentItem?.published,
@@ -171,6 +183,20 @@ export function ReaderPage() {
     return (
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 px-6">
         <p className="text-sm text-muted-foreground">No article selected.</p>
+        <Button type="button" variant="outline" onClick={() => navigate("/")}>
+          Back to grid
+        </Button>
+      </div>
+    );
+  }
+
+  if (!safeArticleUrl) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 px-6">
+        <p className="text-center text-sm text-muted-foreground">
+          This link cannot be opened in the reader (only http/https URLs are
+          allowed).
+        </p>
         <Button type="button" variant="outline" onClick={() => navigate("/")}>
           Back to grid
         </Button>
@@ -243,23 +269,17 @@ export function ReaderPage() {
               aria-hidden
             />
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-9 text-muted-foreground hover:text-foreground"
+          <ExternalBrowserLink
+            href={iframeSrc}
+            className={cn(
+              "app-no-drag inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+            )}
             title="Open in browser"
             aria-label="Open in browser"
-            asChild
           >
-            <a
-              href={iframeSrc}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <ExternalLink className="size-4" aria-hidden />
-            </a>
-          </Button>
+            <ExternalLink className="size-4" aria-hidden />
+          </ExternalBrowserLink>
           <Button
             type="button"
             variant="ghost"
@@ -346,8 +366,8 @@ export function ReaderPage() {
               title={displayTitle}
               src={iframeSrc}
               className="min-h-0 w-full flex-1 border-0 bg-background"
-              referrerPolicy="no-referrer-when-downgrade"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox allow-downloads"
+              referrerPolicy="no-referrer"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
             />
           </div>
         ) : null}

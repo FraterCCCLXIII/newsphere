@@ -1,4 +1,5 @@
 import { AppMark } from "@/components/icons/app-mark";
+import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 
 export function SettingsAboutPage() {
   const repoUrl = "https://github.com/FraterCCCLXIII/newsphere";
@@ -54,14 +55,12 @@ export function SettingsAboutPage() {
           Report issues, suggest features, or build from source on GitHub.
         </p>
         <p className="mt-4">
-          <a
+          <ExternalBrowserLink
             href={repoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
             className="inline-flex break-all text-sm font-medium text-primary underline-offset-4 hover:underline"
           >
             {repoUrl}
-          </a>
+          </ExternalBrowserLink>
         </p>
       </section>
     </div>

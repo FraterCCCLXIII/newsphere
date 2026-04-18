@@ -6,7 +6,7 @@
   "app": {
     "macOSPrivateApi": true,
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: asset: https: http:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost https://ipc.tauri.app http://127.0.0.1:* http://localhost:* https://127.0.0.1:* https://localhost:* ws://127.0.0.1:* ws://localhost:* wss://127.0.0.1:* wss://localhost:*; frame-src https: http:; media-src 'self' https: http: blob:;"
     },
     "windows": [
       {

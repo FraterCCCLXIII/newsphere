@@ -13,6 +13,8 @@ const SHOW_TS_KEY = "newsphere-show-timestamps-inline";
 const DATE_FMT_KEY = "newsphere-date-format";
 const GRID_INSERTION_LINES_KEY = "newsphere-show-grid-insertion-lines";
 const GRID_REORDER_KEY = "newsphere-allow-grid-reorder";
+const HIDE_BROKEN_FEEDS_KEY = "newsphere-hide-broken-feeds";
+const LOAD_NETWORK_FAVICONS_KEY = "newsphere-load-network-favicons";
 
 function readShowInline(): boolean | null {
   if (typeof window === "undefined") return null;
@@ -64,6 +66,34 @@ function readAllowGridReorder(): boolean | null {
   return null;
 }
 
+/** When true, feed column icons load from third-party favicon services (privacy trade-off). Default off. */
+function readLoadNetworkFavicons(): boolean | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const v = localStorage.getItem(LOAD_NETWORK_FAVICONS_KEY);
+    if (v === null) return null;
+    if (v === "1" || v === "true") return true;
+    if (v === "0" || v === "false") return false;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+/** When true (default), feeds that failed to load are hidden on the home grid. */
+function readHideBrokenFeeds(): boolean | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const v = localStorage.getItem(HIDE_BROKEN_FEEDS_KEY);
+    if (v === null) return null;
+    if (v === "1" || v === "true") return true;
+    if (v === "0" || v === "false") return false;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
 type DisplayPreferencesContextValue = {
   showTimestampsInline: boolean;
   setShowTimestampsInline: (value: boolean) => void;
@@ -75,6 +105,15 @@ type DisplayPreferencesContextValue = {
   /** Drag feed columns and section headers on the home grid. */
   allowGridReorder: boolean;
   setAllowGridReorder: (value: boolean) => void;
+  /** When true, columns whose feed fetch failed are hidden (default on). */
+  hideBrokenFeeds: boolean;
+  setHideBrokenFeeds: (value: boolean) => void;
+  /**
+   * When true, load site icons via external favicon CDNs (leaks hostnames to
+   * those providers). When false, show the RSS placeholder only.
+   */
+  loadNetworkFavicons: boolean;
+  setLoadNetworkFavicons: (value: boolean) => void;
 };
 
 const DisplayPreferencesContext =
@@ -96,6 +135,12 @@ export function DisplayPreferencesProvider({
   );
   const [allowGridReorder, setAllowGridReorderState] = useState(
     () => readAllowGridReorder() ?? true,
+  );
+  const [hideBrokenFeeds, setHideBrokenFeedsState] = useState(
+    () => readHideBrokenFeeds() ?? true,
+  );
+  const [loadNetworkFavicons, setLoadNetworkFaviconsState] = useState(
+    () => readLoadNetworkFavicons() ?? false,
   );
 
   const setShowTimestampsInline = useCallback((value: boolean) => {
@@ -137,6 +182,24 @@ export function DisplayPreferencesProvider({
     }
   }, []);
 
+  const setHideBrokenFeeds = useCallback((value: boolean) => {
+    setHideBrokenFeedsState(value);
+    try {
+      localStorage.setItem(HIDE_BROKEN_FEEDS_KEY, value ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setLoadNetworkFavicons = useCallback((value: boolean) => {
+    setLoadNetworkFaviconsState(value);
+    try {
+      localStorage.setItem(LOAD_NETWORK_FAVICONS_KEY, value ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const value = useMemo(
     () => ({
       showTimestampsInline,
@@ -147,6 +210,10 @@ export function DisplayPreferencesProvider({
       setShowGridInsertionLines,
       allowGridReorder,
       setAllowGridReorder,
+      hideBrokenFeeds,
+      setHideBrokenFeeds,
+      loadNetworkFavicons,
+      setLoadNetworkFavicons,
     }),
     [
       showTimestampsInline,
@@ -157,6 +224,10 @@ export function DisplayPreferencesProvider({
       setShowGridInsertionLines,
       allowGridReorder,
       setAllowGridReorder,
+      hideBrokenFeeds,
+      setHideBrokenFeeds,
+      loadNetworkFavicons,
+      setLoadNetworkFavicons,
     ],
   );
 

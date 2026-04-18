@@ -1,7 +1,5 @@
+import { normalizeArticleUrl } from "@/lib/safe-url";
+
 export function normalizeBookmarkLink(url: string): string {
-  try {
-    return new URL(url.trim()).href;
-  } catch {
-    return url.trim();
-  }
+  return normalizeArticleUrl(url);
 }

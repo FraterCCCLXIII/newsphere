@@ -1,7 +1,11 @@
-/** In-app reader URL: `l` = article URL, `c` = optional feed column id for prev/next within source. */
+import { safeHttpHref } from "@/lib/safe-url";
+
+/** In-app reader URL: `l` = article URL, `c` = optional feed column id for prev/next within source. Omits `l` when the link is not a safe http(s) URL. */
 export function buildReaderUrl(link: string, columnId?: string): string {
+  const safe = safeHttpHref(link);
   const p = new URLSearchParams();
-  p.set("l", link);
+  if (safe) p.set("l", safe);
   if (columnId) p.set("c", columnId);
-  return `/reader?${p.toString()}`;
+  const q = p.toString();
+  return q ? `/reader?${q}` : "/reader";
 }
