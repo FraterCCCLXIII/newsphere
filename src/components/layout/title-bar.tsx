@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Search,
   Settings,
+  Sparkle,
 } from "lucide-react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 
@@ -38,7 +39,12 @@ import { controlsOnLeft, isMac } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 import type { GridPage } from "@/types/grid";
 
-type TitleBarProps = {
+export type AiAssistantTitleBarProps = {
+  drawerOpen: boolean;
+  onToggle: () => void;
+};
+
+export type TitleBarProps = {
   onRefresh: () => void;
   refreshing: boolean;
   searchValue: string;
@@ -48,6 +54,8 @@ type TitleBarProps = {
   onSelectPage: (pageId: string) => void;
   onAddPage: (name: string) => Promise<void>;
   onAddSourceClick: () => void;
+  /** When set, shows the AI assistant toggle next to the app mark. */
+  aiAssistant?: AiAssistantTitleBarProps;
 };
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -125,6 +133,7 @@ export function TitleBar({
   onSelectPage,
   onAddPage,
   onAddSourceClick,
+  aiAssistant,
 }: TitleBarProps) {
   const showControls = isTauriRuntime();
   const mac = controlsOnLeft();
@@ -213,6 +222,25 @@ export function TitleBar({
         <History className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">History</span>
       </NavLink>
+      {aiAssistant ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className={cn(
+            "app-no-drag size-9 text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+            aiAssistant.drawerOpen && "text-foreground",
+          )}
+          aria-pressed={aiAssistant.drawerOpen}
+          aria-label="AI assistant"
+          title="AI assistant"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={aiAssistant.onToggle}
+        >
+          <Sparkle className="size-4 shrink-0" aria-hidden />
+          <span className="sr-only">AI assistant</span>
+        </Button>
+      ) : null}
       <Button
         type="button"
         variant="ghost"
@@ -328,6 +356,24 @@ export function TitleBar({
             History
           </NavLink>
         </DropdownMenuItem>
+        {aiAssistant ? (
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onSelect={(e) => {
+              e.preventDefault();
+              aiAssistant.onToggle();
+            }}
+          >
+            <Sparkle
+              className={cn(
+                "mr-2 size-4 shrink-0 text-muted-foreground",
+                aiAssistant.drawerOpen && "text-foreground",
+              )}
+              aria-hidden
+            />
+            AI assistant
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem
           className="cursor-pointer"
           onSelect={(e) => {

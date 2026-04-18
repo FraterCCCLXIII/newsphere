@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
 import { AppSettingsSection } from "@/components/settings/app-settings-section";
+import { AiToolsSettingsSection } from "@/components/settings/ai-tools-settings-section";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -39,6 +40,8 @@ export function SettingsAppPage() {
       <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
         <AppSettingsSection className="p-0" />
       </div>
+
+      <AiToolsSettingsSection />
 
       <section
         className="rounded-lg border border-border bg-card p-4 shadow-sm"

@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
+import { AiChatDrawer } from "@/components/ai/ai-chat-drawer";
+import { AiToolsProvider, useAiTools } from "@/components/ai/ai-tools-provider";
 import { AddSourceModal } from "@/components/layout/add-source-modal";
-import { TitleBar } from "@/components/layout/title-bar";
+import { TitleBar, type TitleBarProps } from "@/components/layout/title-bar";
 import { useFeedItems } from "@/hooks/use-feed-items";
 import type { BookmarksController } from "@/hooks/use-bookmarks";
 import type { ReadHistoryController } from "@/hooks/use-read-history";
@@ -15,6 +17,20 @@ type AppShellProps = {
   bookmarks: BookmarksController;
   readHistory: ReadHistoryController;
 };
+
+function AppShellTitleBarWithAi(props: Omit<TitleBarProps, "aiAssistant">) {
+  const ai = useAiTools();
+  return (
+    <TitleBar
+      {...props}
+      aiAssistant={
+        ai.ready && ai.aiToolsEnabled
+          ? { drawerOpen: ai.drawerOpen, onToggle: ai.toggleDrawer }
+          : undefined
+      }
+    />
+  );
+}
 
 export function AppShell({ grid, bookmarks, readHistory }: AppShellProps) {
   const navigate = useNavigate();
@@ -119,32 +135,40 @@ export function AppShell({ grid, bookmarks, readHistory }: AppShellProps) {
   );
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
-      <TitleBar
-        onRefresh={() => {
-          void grid.refresh();
-          void feed.refetchFeeds();
-        }}
-        refreshing={grid.refreshing || feed.feedsRefreshing}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        pages={grid.pages}
-        activePageId={grid.activePageId}
-        onSelectPage={handleSelectPage}
-        onAddPage={handleAddPage}
-        onAddSourceClick={openAddFeedModalAppend}
-      />
-      <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <Outlet context={outletContext} />
-      </main>
-      <AddSourceModal
-        open={addSourceOpen}
-        onOpenChange={handleAddSourceModalOpenChange}
-        catalogColumns={grid.allColumns}
-        onAddSource={handleAddCatalogSource}
-        onAddCustomColumn={handleAddCustomColumn}
-        onRemoveByFeedUrl={handleRemoveByFeedUrl}
-      />
-    </div>
+    <AiToolsProvider
+      feedItemsByColumnId={feed.feedItemsByColumnId}
+      columns={grid.allColumns}
+    >
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
+        <AppShellTitleBarWithAi
+          onRefresh={() => {
+            void grid.refresh();
+            void feed.refetchFeeds();
+          }}
+          refreshing={grid.refreshing || feed.feedsRefreshing}
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          pages={grid.pages}
+          activePageId={grid.activePageId}
+          onSelectPage={handleSelectPage}
+          onAddPage={handleAddPage}
+          onAddSourceClick={openAddFeedModalAppend}
+        />
+        <div className="flex min-h-0 min-w-0 flex-1 flex-row overflow-hidden rounded-b-[var(--radius-xl)]">
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            <Outlet context={outletContext} />
+          </main>
+          <AiChatDrawer />
+        </div>
+        <AddSourceModal
+          open={addSourceOpen}
+          onOpenChange={handleAddSourceModalOpenChange}
+          catalogColumns={grid.allColumns}
+          onAddSource={handleAddCatalogSource}
+          onAddCustomColumn={handleAddCustomColumn}
+          onRemoveByFeedUrl={handleRemoveByFeedUrl}
+        />
+      </div>
+    </AiToolsProvider>
   );
 }

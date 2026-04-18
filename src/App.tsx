@@ -61,13 +61,14 @@ function App() {
 
   if (!grid.ready || !bookmarks.ready || !readHistory.ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-muted-foreground">
+      <div className="flex min-h-0 min-h-[min(100%,100dvh)] flex-1 items-center justify-center text-muted-foreground">
         Loading…
       </div>
     );
   }
 
   return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route
@@ -93,6 +94,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
+    </div>
   );
 }
 

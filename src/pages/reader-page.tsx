@@ -14,10 +14,12 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
+import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 import { ShareModal } from "@/components/share/share-modal";
 import { Button } from "@/components/ui/button";
 import { useReaderArticle } from "@/hooks/use-reader-article";
+import { formatPublishedForPreference } from "@/lib/feed-time";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { safeHttpHref } from "@/lib/safe-url";
 import { cn } from "@/lib/utils";
@@ -36,6 +38,13 @@ function findItemIndex(items: FeedItem[], link: string): number {
   return items.findIndex((it) => linksMatch(it.link, link));
 }
 
+const readerTitleLinkClassName = cn(
+  "inline max-w-none border-0 bg-transparent p-0 text-left font-inherit",
+  "text-inherit no-underline underline-offset-4 transition-colors",
+  "hover:text-primary hover:underline hover:decoration-primary",
+  "focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+);
+
 export function ReaderPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -46,6 +55,7 @@ export function ReaderPage() {
     toggleBookmark,
     recordArticleView,
   } = useOutletContext<AppOutletContext>();
+  const { dateFormatStyle } = useDisplayPreferences();
 
   const linkParam = searchParams.get("l");
   const columnId = searchParams.get("c") ?? undefined;
@@ -130,6 +140,11 @@ export function ReaderPage() {
     if (bodyState.kind !== "article") return null;
     return bodyState.byline?.trim() || null;
   }, [bodyState]);
+
+  const publishedLabel = useMemo(
+    () => formatPublishedForPreference(currentItem?.published, dateFormatStyle),
+    [currentItem?.published, dateFormatStyle],
+  );
 
   const showNav = Boolean(columnId) && items.length > 0;
   const iframeSrc = safeArticleUrl ?? "";
@@ -324,11 +339,30 @@ export function ReaderPage() {
                   articleSourceLabel ? "mt-4" : "mt-0",
                 )}
               >
-                {displayTitle}
+                <ExternalBrowserLink
+                  href={iframeSrc}
+                  className={readerTitleLinkClassName}
+                  title="View original article"
+                  aria-label={`Open original article: ${displayTitle}`}
+                >
+                  {displayTitle}
+                </ExternalBrowserLink>
               </h1>
               {articleAuthorLabel ? (
                 <p className="mt-2 text-sm text-muted-foreground">
                   {articleAuthorLabel}
+                </p>
+              ) : null}
+              {publishedLabel ? (
+                <p
+                  className={cn(
+                    "text-xs tabular-nums text-muted-foreground",
+                    articleAuthorLabel ? "mt-1" : "mt-2",
+                  )}
+                >
+                  <time dateTime={currentItem?.published}>
+                    {publishedLabel}
+                  </time>
                 </p>
               ) : null}
             </header>
@@ -358,8 +392,22 @@ export function ReaderPage() {
                   columnTitle ? "mt-4" : "mt-0",
                 )}
               >
-                {displayTitle}
+                <ExternalBrowserLink
+                  href={iframeSrc}
+                  className={readerTitleLinkClassName}
+                  title="View original article"
+                  aria-label={`Open original article: ${displayTitle}`}
+                >
+                  {displayTitle}
+                </ExternalBrowserLink>
               </h1>
+              {publishedLabel ? (
+                <p className="mt-2 text-xs tabular-nums text-muted-foreground">
+                  <time dateTime={currentItem?.published}>
+                    {publishedLabel}
+                  </time>
+                </p>
+              ) : null}
             </header>
             <iframe
               key={iframeSrc}

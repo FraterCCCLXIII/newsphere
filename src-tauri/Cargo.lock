@@ -4033,6 +4033,7 @@ dependencies = [
  "feed-rs",
  "lru",
  "parking_lot",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",

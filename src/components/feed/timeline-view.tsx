@@ -1,19 +1,36 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { ChevronDown, ArrowUpDown } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
+import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
 import { TimelineFeedEntrySkeleton } from "@/components/feed/feed-skeleton";
 import { TimelineFeedRow } from "@/components/feed/timeline-feed-row";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { GRID_EMPTY_RSS_NOTE } from "@/lib/feed-messages";
 import { getFeedPreviewParts } from "@/lib/feed-preview";
-import { publishedSortKey } from "@/lib/feed-time";
+import {
+  FEED_STREAM_SORT_DESCRIPTIONS,
+  FEED_STREAM_SORT_LABELS,
+  FEED_STREAM_SORT_MODES,
+  sortFeedStreamRows,
+} from "@/lib/feed-stream-sort";
 import { shouldShowFeedColumn } from "@/lib/grid-feed-visibility";
 import { matchesArticleSearch } from "@/lib/search-utils";
 import { safeHttpHref } from "@/lib/safe-url";
+import { cn } from "@/lib/utils";
 import { isTauriRuntime } from "@/lib/tauri-env";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
+import type { FeedStreamSortMode } from "@/types/feed-stream-sort";
 
 type MergedRow = {
   item: FeedItem;
@@ -31,14 +48,20 @@ function matchesStreamSearch(query: string, row: MergedRow): boolean {
 }
 
 /** Heuristic height so the virtualizer’s total size is closer to measured rows (less jumpiness). */
-function estimateTimelineRowHeight(row: MergedRow): number {
+function estimateTimelineRowHeight(
+  row: MergedRow,
+  showFeedPreviewImages: boolean,
+): number {
   const safe =
     row.item.link != null && row.item.link !== ""
       ? safeHttpHref(row.item.link)
       : null;
   if (!safe) return 112;
   const { excerpt, imageUrl } = getFeedPreviewParts(row.item);
-  if (!excerpt && !imageUrl) return 142;
+  const hasImage = showFeedPreviewImages && Boolean(imageUrl);
+  if (!excerpt && !hasImage) return 142;
+  if (hasImage && excerpt) return 320;
+  if (hasImage) return 280;
   return 232;
 }
 
@@ -46,14 +69,86 @@ function stableRowKey(row: MergedRow): string {
   return `${row.columnId}\0${row.item.link ?? ""}\0${row.item.title}`;
 }
 
-function VirtualizedTimelineList({ rows }: { rows: MergedRow[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+function FeedStreamSortHeader({
+  title,
+  subtitle,
+  sortMode,
+  onSortChange,
+  className,
+}: {
+  title: string;
+  subtitle: string;
+  sortMode: FeedStreamSortMode;
+  onSortChange: (mode: FeedStreamSortMode) => void;
+  className?: string;
+}) {
+  return (
+    <header
+      className={cn(
+        "shrink-0 border-b border-border bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+        className,
+      )}
+    >
+      <div className="flex flex-row items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
+        </div>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="app-no-drag h-8 shrink-0 gap-1.5 px-2 text-xs font-normal"
+              aria-label="Sort feed"
+            >
+              <ArrowUpDown className="size-3.5 shrink-0 opacity-70" aria-hidden />
+              <span className="max-w-[9rem] truncate">
+                {FEED_STREAM_SORT_LABELS[sortMode]}
+              </span>
+              <ChevronDown className="size-3.5 shrink-0 opacity-60" aria-hidden />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[12rem]">
+            <DropdownMenuRadioGroup
+              value={sortMode}
+              onValueChange={(v) => {
+                const next = v as FeedStreamSortMode;
+                if (FEED_STREAM_SORT_MODES.includes(next)) onSortChange(next);
+              }}
+            >
+              {FEED_STREAM_SORT_MODES.map((mode) => (
+                <DropdownMenuRadioItem key={mode} value={mode}>
+                  <span className="min-w-0 flex-1">{FEED_STREAM_SORT_LABELS[mode]}</span>
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}
+
+function VirtualizedTimelineList({
+  rows,
+  showFeedPreviewImages,
+  scrollStorageKey,
+}: {
+  rows: MergedRow[];
+  showFeedPreviewImages: boolean;
+  scrollStorageKey: string;
+}) {
+  const scrollRef = useScrollRestoration(scrollStorageKey);
   const estimateSize = useCallback(
     (index: number) => {
       const row = rows[index];
-      return row ? estimateTimelineRowHeight(row) : 152;
+      return row
+        ? estimateTimelineRowHeight(row, showFeedPreviewImages)
+        : 152;
     },
-    [rows],
+    [rows, showFeedPreviewImages],
   );
   const getItemKey = useCallback(
     (index: number) => {
@@ -120,7 +215,12 @@ export function TimelineView() {
     feedErrorByColumnId,
   } = useOutletContext<AppOutletContext>();
 
-  const { hideBrokenFeeds } = useDisplayPreferences();
+  const {
+    hideBrokenFeeds,
+    feedStreamSort,
+    setFeedStreamSort,
+    showFeedPreviewImages,
+  } = useDisplayPreferences();
 
   const visibleColumns = useMemo(() => {
     return columns.filter((col) => {
@@ -159,25 +259,24 @@ export function TimelineView() {
         });
       }
     }
-    rows.sort((a, b) => {
-      const t =
-        publishedSortKey(b.item.published) -
-        publishedSortKey(a.item.published);
-      if (t !== 0) return t;
-      return (
-        a.columnId.localeCompare(b.columnId) ||
-        (a.item.link || a.item.title).localeCompare(
-          b.item.link || b.item.title,
-        )
-      );
-    });
     return rows;
   }, [visibleColumns, feedItemsByColumnId]);
 
+  const columnIdsInOrder = useMemo(
+    () => visibleColumns.map((c) => c.id),
+    [visibleColumns],
+  );
+
+  const sortedRows = useMemo(
+    () =>
+      sortFeedStreamRows(mergedRows, feedStreamSort, columnIdsInOrder),
+    [mergedRows, feedStreamSort, columnIdsInOrder],
+  );
+
   const filteredRows = useMemo(() => {
-    if (!isSearch) return mergedRows;
-    return mergedRows.filter((row) => matchesStreamSearch(query, row));
-  }, [isSearch, mergedRows, query]);
+    if (!isSearch) return sortedRows;
+    return sortedRows.filter((row) => matchesStreamSearch(query, row));
+  }, [isSearch, sortedRows, query]);
 
   const feedsRefreshing = useMemo(
     () => Object.values(feedLoadingByColumnId).some(Boolean),
@@ -234,15 +333,20 @@ export function TimelineView() {
     }
     return (
       <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col px-2 py-4">
-        <div className="mb-3 shrink-0 px-2">
-          <p className="text-sm font-medium text-foreground">Search results</p>
-          <p className="text-xs text-muted-foreground">
-            {filteredRows.length}{" "}
-            {filteredRows.length === 1 ? "article" : "articles"} in latest
-            order
-          </p>
-        </div>
-        <VirtualizedTimelineList rows={filteredRows} />
+        <FeedStreamSortHeader
+          title="Search results"
+          subtitle={`${filteredRows.length} ${
+            filteredRows.length === 1 ? "article" : "articles"
+          } · ${FEED_STREAM_SORT_DESCRIPTIONS[feedStreamSort]}`}
+          sortMode={feedStreamSort}
+          onSortChange={setFeedStreamSort}
+          className="mb-2 rounded-lg border border-border"
+        />
+        <VirtualizedTimelineList
+          rows={filteredRows}
+          showFeedPreviewImages={showFeedPreviewImages}
+          scrollStorageKey="feed-stream-search"
+        />
       </div>
     );
   }
@@ -289,13 +393,17 @@ export function TimelineView() {
 
   return (
     <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col px-2 py-4">
-      <header className="shrink-0 border-b border-border bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        <h1 className="text-sm font-semibold text-foreground">Latest</h1>
-        <p className="text-xs text-muted-foreground">
-          All sources, newest first
-        </p>
-      </header>
-      <VirtualizedTimelineList rows={filteredRows} />
+      <FeedStreamSortHeader
+        title="Latest"
+        subtitle={FEED_STREAM_SORT_DESCRIPTIONS[feedStreamSort]}
+        sortMode={feedStreamSort}
+        onSortChange={setFeedStreamSort}
+      />
+      <VirtualizedTimelineList
+        rows={filteredRows}
+        showFeedPreviewImages={showFeedPreviewImages}
+        scrollStorageKey={`feed-stream-${feedStreamSort}`}
+      />
     </div>
   );
 }

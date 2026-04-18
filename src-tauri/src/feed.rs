@@ -2,9 +2,11 @@ use feed_rs::model;
 use feed_rs::parser;
 use lru::LruCache;
 use parking_lot::Mutex;
+use regex::Regex;
 use serde::Serialize;
 use std::num::NonZeroUsize;
 use std::sync::OnceLock;
+use url::Url;
 
 use crate::url_policy::{
     parse_allowed_http_url, validate_url_resolved_ips, validate_url_resolved_ips_sync,
@@ -87,9 +89,9 @@ async fn read_body_capped(
     Ok(out)
 }
 
-/// Summary / description / content body for timeline previews (bounded length).
-fn pick_snippet(entry: &feed_rs::model::Entry) -> Option<String> {
-    let raw = entry
+/// Full summary or HTML content (before truncation) for image extraction.
+fn raw_snippet_source(entry: &feed_rs::model::Entry) -> Option<String> {
+    entry
         .summary
         .as_ref()
         .map(|t| t.content.clone())
@@ -100,7 +102,12 @@ fn pick_snippet(entry: &feed_rs::model::Entry) -> Option<String> {
                 .as_ref()
                 .and_then(|c| c.body.clone())
                 .filter(|s| !s.trim().is_empty())
-        })?;
+        })
+}
+
+/// Summary / description / content body for timeline previews (bounded length).
+fn pick_snippet(entry: &feed_rs::model::Entry) -> Option<String> {
+    let raw = raw_snippet_source(entry)?;
     Some(truncate_snippet(raw, 1400))
 }
 
@@ -122,22 +129,166 @@ fn is_probably_image_url(url: &str) -> bool {
         || base.ends_with(".avif")
 }
 
-fn pick_image_url(entry: &model::Entry) -> Option<String> {
+fn resolve_with_base(href: &str, base: Option<&str>) -> String {
+    let t = href.trim();
+    if t.is_empty() || t.starts_with("data:") {
+        return t.to_string();
+    }
+    if t.starts_with("http://") || t.starts_with("https://") {
+        return t.to_string();
+    }
+    if let Some(b) = base {
+        if let Ok(bu) = Url::parse(b) {
+            if let Ok(joined) = bu.join(t) {
+                return joined.to_string();
+            }
+        }
+    }
+    t.to_string()
+}
+
+/// Pull `value` from `name="value"` / `name='value'` inside one tag fragment (case-insensitive name).
+fn html_attr_value<'a>(tag: &'a str, name: &str) -> Option<&'a str> {
+    let needle = format!("{name}=");
+    let lower = tag.to_ascii_lowercase();
+    let needle_lower = needle.to_ascii_lowercase();
+    let mut search_from = 0usize;
+    while let Some(idx) = lower[search_from..].find(&needle_lower) {
+        let start = search_from + idx + needle.len();
+        let rest = tag.get(start..)?;
+        let rest_trim = rest.trim_start();
+        let q = rest_trim.chars().next()?;
+        if q != '"' && q != '\'' {
+            search_from = start + 1;
+            continue;
+        }
+        let end = rest_trim[1..].find(q)?;
+        return Some(rest_trim[1..1 + end].trim());
+    }
+    None
+}
+
+/// First useful image URL from HTML description / content:encoded (full string, not truncated).
+fn first_img_from_html(html: &str, base: Option<&str>) -> Option<String> {
+    static IMG_TAG: OnceLock<Regex> = OnceLock::new();
+    let re = IMG_TAG.get_or_init(|| Regex::new(r"(?i)<img\b[^>]*>").unwrap());
+    for m in re.find_iter(html) {
+        let tag = m.as_str();
+        let data_src = html_attr_value(tag, "data-src")
+            .or_else(|| html_attr_value(tag, "data-lazy-src"))
+            .or_else(|| html_attr_value(tag, "data-original"))
+            .or_else(|| html_attr_value(tag, "data-lazy-original"));
+        if let Some(ds) = data_src {
+            let ds = ds.trim();
+            if ds.starts_with("http://") || ds.starts_with("https://") {
+                return Some(resolve_with_base(ds, base));
+            }
+        }
+        if let Some(src) = html_attr_value(tag, "src") {
+            let src = src.trim();
+            if !src.is_empty() && !src.starts_with("data:") {
+                let resolved = resolve_with_base(src, base);
+                if resolved.starts_with("http://") || resolved.starts_with("https://") {
+                    return Some(resolved);
+                }
+            }
+        }
+        if let Some(ss) = html_attr_value(tag, "srcset") {
+            let first = ss.split(',').next()?.trim().split_whitespace().next()?;
+            if !first.is_empty() && !first.starts_with("data:") {
+                let resolved = resolve_with_base(first, base);
+                if resolved.starts_with("http://") || resolved.starts_with("https://") {
+                    return Some(resolved);
+                }
+            }
+        }
+    }
+    None
+}
+
+fn pick_image_url(entry: &model::Entry, article_link: &str) -> Option<String> {
+    let base = entry
+        .base
+        .as_deref()
+        .filter(|s| !s.trim().is_empty())
+        .or(Some(article_link).filter(|s| !s.trim().is_empty()));
+
     for m in &entry.media {
         for th in &m.thumbnails {
             let u = th.image.uri.trim();
             if !u.is_empty() {
-                return Some(u.to_string());
+                return Some(resolve_with_base(u, base));
+            }
+        }
+        for mc in &m.content {
+            if let Some(ref u) = mc.url {
+                let s = u.as_str().trim();
+                if s.is_empty() {
+                    continue;
+                }
+                let mime_img = mc
+                    .content_type
+                    .as_ref()
+                    .map(|t| t.as_str().starts_with("image/"))
+                    .unwrap_or(false);
+                if mime_img || is_probably_image_url(s) {
+                    return Some(resolve_with_base(s, base));
+                }
             }
         }
     }
+
+    for link in &entry.links {
+        let href = link.href.trim();
+        if href.is_empty() {
+            continue;
+        }
+        let rel = link.rel.as_deref().unwrap_or("");
+        let mt = link.media_type.as_deref().unwrap_or("");
+        let enc = rel.eq_ignore_ascii_case("enclosure");
+        if mt.starts_with("image/") || (enc && is_probably_image_url(href)) {
+            return Some(resolve_with_base(href, base));
+        }
+    }
+
     if let Some(c) = &entry.content {
         if let Some(ref link) = c.src {
             let url = link.href.as_str();
             let mime = c.content_type.as_str();
             if mime.starts_with("image/") || is_probably_image_url(url) {
-                return Some(url.to_string());
+                return Some(resolve_with_base(url.trim(), base));
             }
+        }
+    }
+
+    None
+}
+
+/// Try summary, then full content body — many feeds put images only in `content:encoded`.
+fn image_from_entry_html(entry: &model::Entry, article_link: &str) -> Option<String> {
+    let base = entry
+        .base
+        .as_deref()
+        .filter(|s| !s.trim().is_empty())
+        .or(Some(article_link).filter(|s| !s.trim().is_empty()));
+    if let Some(s) = entry
+        .summary
+        .as_ref()
+        .map(|t| t.content.as_str())
+        .filter(|s| !s.trim().is_empty())
+    {
+        if let Some(u) = first_img_from_html(s, base) {
+            return Some(u);
+        }
+    }
+    if let Some(b) = entry
+        .content
+        .as_ref()
+        .and_then(|c| c.body.as_deref())
+        .filter(|s| !s.trim().is_empty())
+    {
+        if let Some(u) = first_img_from_html(b, base) {
+            return Some(u);
         }
     }
     None
@@ -161,18 +312,19 @@ fn parse_feed_bytes(bytes: &[u8]) -> Result<Vec<FeedItemDto>, String> {
         .into_iter()
         .take(40)
         .map(|entry| {
+            let link = pick_link(&entry.links);
             let snippet = pick_snippet(&entry);
-            let image_url = pick_image_url(&entry);
+            let image_url = pick_image_url(&entry, link.as_str())
+                .or_else(|| image_from_entry_html(&entry, link.as_str()));
+            let published = entry
+                .published
+                .or(entry.updated)
+                .map(|d| d.to_rfc3339());
             let title = entry
                 .title
                 .map(|t| t.content)
                 .filter(|s| !s.trim().is_empty())
                 .unwrap_or_else(|| "(No title)".to_string());
-            let link = pick_link(&entry.links);
-            let published = entry
-                .published
-                .or(entry.updated)
-                .map(|d| d.to_rfc3339());
             FeedItemDto {
                 title,
                 link,

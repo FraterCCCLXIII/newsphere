@@ -7,7 +7,9 @@ import {
   type ReactNode,
 } from "react";
 
+import { parseFeedStreamSort } from "@/lib/feed-stream-sort";
 import type { PublishedDateFormatStyle } from "@/types/display-preferences";
+import type { FeedStreamSortMode } from "@/types/feed-stream-sort";
 
 const SHOW_TS_KEY = "newsphere-show-timestamps-inline";
 const DATE_FMT_KEY = "newsphere-date-format";
@@ -15,6 +17,8 @@ const GRID_INSERTION_LINES_KEY = "newsphere-show-grid-insertion-lines";
 const GRID_REORDER_KEY = "newsphere-allow-grid-reorder";
 const HIDE_BROKEN_FEEDS_KEY = "newsphere-hide-broken-feeds";
 const LOAD_NETWORK_FAVICONS_KEY = "newsphere-load-network-favicons";
+const FEED_STREAM_SORT_KEY = "newsphere-feed-stream-sort";
+const SHOW_FEED_PREVIEW_IMAGES_KEY = "newsphere-show-feed-preview-images";
 
 function readShowInline(): boolean | null {
   if (typeof window === "undefined") return null;
@@ -94,6 +98,30 @@ function readHideBrokenFeeds(): boolean | null {
   return null;
 }
 
+function readFeedStreamSort(): FeedStreamSortMode | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const v = localStorage.getItem(FEED_STREAM_SORT_KEY);
+    return parseFeedStreamSort(v);
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+function readShowFeedPreviewImages(): boolean | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const v = localStorage.getItem(SHOW_FEED_PREVIEW_IMAGES_KEY);
+    if (v === null) return null;
+    if (v === "1" || v === "true") return true;
+    if (v === "0" || v === "false") return false;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
 type DisplayPreferencesContextValue = {
   showTimestampsInline: boolean;
   setShowTimestampsInline: (value: boolean) => void;
@@ -114,6 +142,12 @@ type DisplayPreferencesContextValue = {
    */
   loadNetworkFavicons: boolean;
   setLoadNetworkFavicons: (value: boolean) => void;
+  /** Unified Latest feed (/feed) ordering. */
+  feedStreamSort: FeedStreamSortMode;
+  setFeedStreamSort: (value: FeedStreamSortMode) => void;
+  /** Article preview thumbnails in feed lists and hover cards (default on). */
+  showFeedPreviewImages: boolean;
+  setShowFeedPreviewImages: (value: boolean) => void;
 };
 
 const DisplayPreferencesContext =
@@ -141,6 +175,12 @@ export function DisplayPreferencesProvider({
   );
   const [loadNetworkFavicons, setLoadNetworkFaviconsState] = useState(
     () => readLoadNetworkFavicons() ?? false,
+  );
+  const [feedStreamSort, setFeedStreamSortState] = useState<FeedStreamSortMode>(
+    () => readFeedStreamSort() ?? "newest_first",
+  );
+  const [showFeedPreviewImages, setFeedPreviewImagesState] = useState(
+    () => readShowFeedPreviewImages() ?? true,
   );
 
   const setShowTimestampsInline = useCallback((value: boolean) => {
@@ -200,6 +240,24 @@ export function DisplayPreferencesProvider({
     }
   }, []);
 
+  const setFeedStreamSort = useCallback((value: FeedStreamSortMode) => {
+    setFeedStreamSortState(value);
+    try {
+      localStorage.setItem(FEED_STREAM_SORT_KEY, value);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setShowFeedPreviewImages = useCallback((value: boolean) => {
+    setFeedPreviewImagesState(value);
+    try {
+      localStorage.setItem(SHOW_FEED_PREVIEW_IMAGES_KEY, value ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const value = useMemo(
     () => ({
       showTimestampsInline,
@@ -214,6 +272,10 @@ export function DisplayPreferencesProvider({
       setHideBrokenFeeds,
       loadNetworkFavicons,
       setLoadNetworkFavicons,
+      feedStreamSort,
+      setFeedStreamSort,
+      showFeedPreviewImages,
+      setShowFeedPreviewImages,
     }),
     [
       showTimestampsInline,
@@ -228,6 +290,10 @@ export function DisplayPreferencesProvider({
       setHideBrokenFeeds,
       loadNetworkFavicons,
       setLoadNetworkFavicons,
+      feedStreamSort,
+      setFeedStreamSort,
+      showFeedPreviewImages,
+      setShowFeedPreviewImages,
     ],
   );
 

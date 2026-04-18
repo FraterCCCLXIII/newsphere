@@ -1,10 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { Bookmark, ExternalLink, Share2 } from "lucide-react";
 
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
-import { FeedArticleHoverCard } from "@/components/feed/feed-article-hover-card";
-import { FeedItemHoverPreviewPanel } from "@/components/feed/feed-item-hover-preview-panel";
 import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 import { FeedFavicon } from "@/components/grid/feed-favicon";
 import { ShareModal } from "@/components/share/share-modal";
@@ -16,6 +14,24 @@ import { safeHttpHref } from "@/lib/safe-url";
 import { cn } from "@/lib/utils";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
+
+function FeedInlinePreviewImage({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+  if (failed) return null;
+  return (
+    <img
+      src={src}
+      alt=""
+      className="mt-2 max-h-44 w-full rounded-md border border-border object-cover"
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 type TimelineFeedRowProps = {
   item: FeedItem;
@@ -39,7 +55,7 @@ export function TimelineFeedRow({
   const rowRole = rowElement === "div" ? { role: "listitem" as const } : {};
   const [shareOpen, setShareOpen] = useState(false);
   const { bookmarks, toggleBookmark } = useOutletContext<AppOutletContext>();
-  const { showTimestampsInline, dateFormatStyle } = useDisplayPreferences();
+  const { dateFormatStyle, showFeedPreviewImages } = useDisplayPreferences();
 
   const bookmarked = useMemo(() => {
     if (!item.link) return false;
@@ -56,12 +72,12 @@ export function TimelineFeedRow({
     item.published,
     dateFormatStyle,
   );
-  const showInlineTimestamp =
-    showTimestampsInline && Boolean(publishedLabel);
+  const showInlineTimestamp = Boolean(publishedLabel);
   const rowBorder = !isLast ? "border-b border-border" : "";
 
   const preview = useMemo(() => getFeedPreviewParts(item), [item]);
-  const showPreview = Boolean(preview.excerpt || preview.imageUrl);
+  const previewImageUrl =
+    showFeedPreviewImages && preview.imageUrl ? preview.imageUrl : null;
 
   if (!safeLink) {
     return (
@@ -76,6 +92,9 @@ export function TimelineFeedRow({
               <p className="mt-1 line-clamp-4 text-sm leading-relaxed text-muted-foreground">
                 {preview.excerpt}
               </p>
+            ) : null}
+            {previewImageUrl ? (
+              <FeedInlinePreviewImage src={previewImageUrl} />
             ) : null}
             <p className="mt-1 text-xs text-muted-foreground">{columnTitle}</p>
             {showInlineTimestamp ? (
@@ -109,48 +128,22 @@ export function TimelineFeedRow({
               </span>
             ) : null}
           </div>
-          {showPreview ? (
-            <FeedArticleHoverCard
-              openDelay={200}
-              closeDelay={80}
-              panelClassName="border-border"
-              trigger={
-                <Link
-                  to={readerUrl}
-                  className="group/art mt-1 block min-w-0 text-left"
-                >
-                  <span className="line-clamp-3 text-[0.9375rem] font-medium leading-snug text-foreground">
-                    {item.title}
-                  </span>
-                  {preview.excerpt ? (
-                    <p className="mt-1 line-clamp-4 text-sm font-normal leading-relaxed text-muted-foreground">
-                      {preview.excerpt}
-                    </p>
-                  ) : null}
-                </Link>
-              }
-            >
-              <FeedItemHoverPreviewPanel
-                excerpt={preview.excerpt}
-                imageUrl={preview.imageUrl}
-                dateLabel={publishedLabel}
-              />
-            </FeedArticleHoverCard>
-          ) : (
-            <Link
-              to={readerUrl}
-              className="group/art mt-1 block min-w-0 text-left"
-            >
-              <span className="line-clamp-3 text-[0.9375rem] font-medium leading-snug text-foreground">
-                {item.title}
-              </span>
-              {preview.excerpt ? (
-                <p className="mt-1 line-clamp-4 text-sm font-normal leading-relaxed text-muted-foreground">
-                  {preview.excerpt}
-                </p>
-              ) : null}
-            </Link>
-          )}
+          <Link
+            to={readerUrl}
+            className="group/art mt-1 block min-w-0 text-left"
+          >
+            <span className="line-clamp-3 text-[0.9375rem] font-medium leading-snug text-foreground">
+              {item.title}
+            </span>
+            {preview.excerpt ? (
+              <p className="mt-1 line-clamp-4 text-sm font-normal leading-relaxed text-muted-foreground">
+                {preview.excerpt}
+              </p>
+            ) : null}
+            {previewImageUrl ? (
+              <FeedInlinePreviewImage src={previewImageUrl} />
+            ) : null}
+          </Link>
           <div className="mt-2 flex items-center gap-0.5 text-muted-foreground">
             <span onClick={(e) => e.stopPropagation()} className="inline-flex">
               <ExternalBrowserLink

@@ -4,6 +4,7 @@ import {
   Clock,
   GripVertical,
   ImageIcon,
+  Images,
   LayoutGrid,
   Unplug,
 } from "lucide-react";
@@ -56,6 +57,8 @@ export function AppSettingsSection({ className }: { className?: string }) {
     setHideBrokenFeeds,
     loadNetworkFavicons,
     setLoadNetworkFavicons,
+    showFeedPreviewImages,
+    setShowFeedPreviewImages,
   } = useDisplayPreferences();
 
   const dateFormatLabel =
@@ -92,8 +95,9 @@ export function AppSettingsSection({ className }: { className?: string }) {
               />
             </div>
             <p className="text-[11px] leading-snug text-muted-foreground">
-              When off, the time appears in the hover preview (with preview)
-              or in a tooltip when you rest on the row.
+              The unified feed stream always shows timestamps (using Timestamp
+              style below). When off, grid columns hide inline times; they still
+              appear in the hover preview when available.
             </p>
           </div>
         </div>
@@ -146,6 +150,35 @@ export function AppSettingsSection({ className }: { className?: string }) {
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+
+        <div className="flex items-start gap-2 pt-1">
+          <Images
+            className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex items-center gap-2">
+              <Label
+                htmlFor="settings-feed-preview-images"
+                className="flex-1 cursor-pointer text-sm font-normal text-foreground"
+              >
+                Show preview images
+              </Label>
+              <Switch
+                id="settings-feed-preview-images"
+                className="app-no-drag shrink-0"
+                checked={showFeedPreviewImages}
+                onCheckedChange={setShowFeedPreviewImages}
+                aria-label="Show article preview images in Latest and on the grid"
+              />
+            </div>
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              When on, the Latest stream shows thumbnails under each article;
+              the home grid still uses hover previews. Turn off to save space or
+              avoid loading images.
+            </p>
+          </div>
         </div>
 
         <div className="flex items-start gap-2 border-t border-border pt-3">

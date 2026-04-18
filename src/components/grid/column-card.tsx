@@ -69,7 +69,11 @@ export function FeedEntryRow({
   const [shareOpen, setShareOpen] = useState(false);
   const { bookmarks, toggleBookmark, readHistory } =
     useOutletContext<AppOutletContext>();
-  const { showTimestampsInline, dateFormatStyle } = useDisplayPreferences();
+  const {
+    showTimestampsInline,
+    dateFormatStyle,
+    showFeedPreviewImages,
+  } = useDisplayPreferences();
 
   const bookmarked = useMemo(() => {
     if (!item.link) return false;
@@ -91,7 +95,8 @@ export function FeedEntryRow({
   const rowBorder = !isLast ? "border-b border-border" : "";
 
   const preview = useMemo(() => getFeedPreviewParts(item), [item]);
-  const showPreview = Boolean(preview.excerpt || preview.imageUrl);
+  const previewImageUrl = showFeedPreviewImages ? preview.imageUrl : null;
+  const showPreview = Boolean(preview.excerpt || previewImageUrl);
   const showInlineTimestamp =
     showTimestampsInline && Boolean(publishedLabel);
 
@@ -180,7 +185,7 @@ export function FeedEntryRow({
             >
               <FeedItemHoverPreviewPanel
                 excerpt={preview.excerpt}
-                imageUrl={preview.imageUrl}
+                imageUrl={previewImageUrl}
                 dateLabel={publishedLabel}
               />
             </FeedArticleHoverCard>

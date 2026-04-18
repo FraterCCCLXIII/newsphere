@@ -136,7 +136,12 @@
   }
 
   html.tauri-app body {
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
     margin: 0;
     overflow: hidden;
     overscroll-behavior: none;
@@ -170,20 +175,36 @@ html.tauri-app:not(.tauri-macos) #root {
   max-height: 100%;
 }
 
+/* Browser: establish height so #root and nested flex layouts (App shell) don’t collapse. */
+html:not(.tauri-app) {
+  height: 100%;
+}
+
+html:not(.tauri-app) body {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  margin: 0;
+}
+
 html:not(.tauri-app) #root {
   display: flex;
-  min-height: 100vh;
-  min-height: 100dvh;
+  flex: 1;
   flex-direction: column;
+  min-height: 0;
   min-width: 0;
+  width: 100%;
   overflow-x: hidden;
 }
 
 html.tauri-app #root {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+  /* Fallback when html/body % height fails in embedded webviews */
+  min-height: 100dvh;
   overflow: hidden;
 }
 
