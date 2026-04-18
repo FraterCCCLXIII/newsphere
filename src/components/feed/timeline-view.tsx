@@ -10,6 +10,7 @@ import { publishedSortKey } from "@/lib/feed-time";
 import { shouldShowFeedColumn } from "@/lib/grid-feed-visibility";
 import { matchesArticleSearch } from "@/lib/search-utils";
 import { isTauriRuntime } from "@/lib/tauri-env";
+import { AGGREGATE_PAGE_ID } from "@/types/grid";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
 
@@ -78,11 +79,22 @@ function VirtualizedTimelineList({ rows }: { rows: MergedRow[] }) {
 export function TimelineView() {
   const {
     columns,
+    pages,
+    activePageId,
     searchQuery,
     feedItemsByColumnId,
     feedLoadingByColumnId,
     feedErrorByColumnId,
   } = useOutletContext<AppOutletContext>();
+
+  const streamSubtitle = useMemo(() => {
+    if (pages.length > 1 && activePageId === AGGREGATE_PAGE_ID) {
+      return "All sources, newest first";
+    }
+    const p = pages.find((x) => x.id === activePageId);
+    if (p) return `${p.name} — newest first`;
+    return "All sources, newest first";
+  }, [pages, activePageId]);
 
   const { hideBrokenFeeds } = useDisplayPreferences();
 
@@ -255,9 +267,7 @@ export function TimelineView() {
     <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col px-2 py-4">
       <header className="shrink-0 border-b border-border bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <h1 className="text-sm font-semibold text-foreground">Latest</h1>
-        <p className="text-xs text-muted-foreground">
-          All sources, newest first
-        </p>
+        <p className="text-xs text-muted-foreground">{streamSubtitle}</p>
       </header>
       <VirtualizedTimelineList rows={filteredRows} />
     </div>
