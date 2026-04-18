@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useOutletContext } from "react-router-dom";
 
@@ -6,9 +6,11 @@ import { useDisplayPreferences } from "@/components/display-preferences-provider
 import { TimelineFeedEntrySkeleton } from "@/components/feed/feed-skeleton";
 import { TimelineFeedRow } from "@/components/feed/timeline-feed-row";
 import { GRID_EMPTY_RSS_NOTE } from "@/lib/feed-messages";
+import { getFeedPreviewParts } from "@/lib/feed-preview";
 import { publishedSortKey } from "@/lib/feed-time";
 import { shouldShowFeedColumn } from "@/lib/grid-feed-visibility";
 import { matchesArticleSearch } from "@/lib/search-utils";
+import { safeHttpHref } from "@/lib/safe-url";
 import { isTauriRuntime } from "@/lib/tauri-env";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
@@ -28,19 +30,50 @@ function matchesStreamSearch(query: string, row: MergedRow): boolean {
   return false;
 }
 
+/** Heuristic height so the virtualizer’s total size is closer to measured rows (less jumpiness). */
+function estimateTimelineRowHeight(row: MergedRow): number {
+  const safe =
+    row.item.link != null && row.item.link !== ""
+      ? safeHttpHref(row.item.link)
+      : null;
+  if (!safe) return 112;
+  const { excerpt, imageUrl } = getFeedPreviewParts(row.item);
+  if (!excerpt && !imageUrl) return 142;
+  return 232;
+}
+
+function stableRowKey(row: MergedRow): string {
+  return `${row.columnId}\0${row.item.link ?? ""}\0${row.item.title}`;
+}
+
 function VirtualizedTimelineList({ rows }: { rows: MergedRow[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const estimateSize = useCallback(
+    (index: number) => {
+      const row = rows[index];
+      return row ? estimateTimelineRowHeight(row) : 152;
+    },
+    [rows],
+  );
+  const getItemKey = useCallback(
+    (index: number) => {
+      const row = rows[index];
+      return row != null ? stableRowKey(row) : String(index);
+    },
+    [rows],
+  );
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 132,
-    overscan: 8,
+    estimateSize,
+    overscan: 14,
+    getItemKey,
   });
 
   return (
     <div
       ref={scrollRef}
-      className="mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-xl border border-border bg-card"
+      className="mt-2 min-h-0 flex-1 overflow-y-auto overflow-x-hidden rounded-xl border border-border bg-card [overflow-anchor:none]"
       role="list"
     >
       <div
@@ -53,11 +86,14 @@ function VirtualizedTimelineList({ rows }: { rows: MergedRow[] }) {
           const isLast = v.index === rows.length - 1;
           return (
             <div
-              key={`${row.columnId}-${row.item.link ?? row.item.title}-${v.index}`}
+              key={stableRowKey(row)}
               data-index={v.index}
               ref={virtualizer.measureElement}
               className="absolute left-0 top-0 w-full"
-              style={{ transform: `translateY(${v.start}px)` }}
+              style={{
+                transform: `translate3d(0, ${v.start}px, 0)`,
+                backfaceVisibility: "hidden",
+              }}
             >
               <TimelineFeedRow
                 rowElement="div"
