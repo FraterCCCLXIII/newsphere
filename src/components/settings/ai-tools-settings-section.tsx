@@ -30,6 +30,8 @@ export function AiToolsSettingsSection({ className }: { className?: string }) {
     ready,
     aiToolsEnabled,
     setAiToolsEnabled,
+    webSearchEnabled,
+    setWebSearchEnabled,
     llm,
     setLlm,
     setProvider,
@@ -94,6 +96,37 @@ export function AiToolsSettingsSection({ className }: { className?: string }) {
           >
             Enable AI tools (beta)
           </Label>
+        </div>
+
+        <div
+          className={cn(
+            "flex flex-col gap-1.5 rounded-md border border-border/80 bg-muted/10 p-3",
+            ghosted && "pointer-events-none opacity-50",
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Switch
+              id="settings-ai-web-search"
+              className="app-no-drag shrink-0"
+              checked={webSearchEnabled}
+              onCheckedChange={setWebSearchEnabled}
+              disabled={ghosted}
+              aria-label="Allow assistant web search"
+            />
+            <Label
+              htmlFor="settings-ai-web-search"
+              className={cn(
+                "cursor-pointer text-sm font-normal text-foreground",
+                ghosted && "cursor-not-allowed",
+              )}
+            >
+              Web search (DuckDuckGo instant answers)
+            </Label>
+          </div>
+          <p className="text-[11px] leading-snug text-muted-foreground pl-9">
+            Off by default. Feeds, bookmarks, and history stay local; web search
+            only runs when the assistant calls it and this is on.
+          </p>
         </div>
 
         <div

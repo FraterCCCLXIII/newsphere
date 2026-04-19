@@ -106,13 +106,22 @@ export function useBookmarks(): BookmarksController {
 
   useEffect(() => {
     let cancelled = false;
-    void loadBookmarks().then((items) => {
-      if (!cancelled) {
-        bookmarksRef.current = items;
-        setBookmarks(items);
-        setReady(true);
-      }
-    });
+    void loadBookmarks()
+      .then((items) => {
+        if (!cancelled) {
+          bookmarksRef.current = items;
+          setBookmarks(items);
+          setReady(true);
+        }
+      })
+      .catch((e) => {
+        console.error("Failed to load bookmarks", e);
+        if (!cancelled) {
+          bookmarksRef.current = [];
+          setBookmarks([]);
+          setReady(true);
+        }
+      });
     return () => {
       cancelled = true;
     };

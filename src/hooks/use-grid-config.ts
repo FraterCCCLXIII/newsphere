@@ -215,15 +215,26 @@ export function useGridConfig(): GridController {
 
   useEffect(() => {
     let cancelled = false;
-    void loadConfig().then((config) => {
-      if (!cancelled) {
-        pagesRef.current = config.pages;
-        activePageIdRef.current = config.activePageId;
-        setPages(config.pages);
-        setActivePageId(config.activePageId);
+    void loadConfig()
+      .then((config) => {
+        if (!cancelled) {
+          pagesRef.current = config.pages;
+          activePageIdRef.current = config.activePageId;
+          setPages(config.pages);
+          setActivePageId(config.activePageId);
+          setReady(true);
+        }
+      })
+      .catch((e) => {
+        console.error("Failed to load grid config", e);
+        if (cancelled) return;
+        const fallback = getBundledDefaultGridConfig();
+        pagesRef.current = fallback.pages;
+        activePageIdRef.current = fallback.activePageId;
+        setPages(fallback.pages);
+        setActivePageId(fallback.activePageId);
         setReady(true);
-      }
-    });
+      });
     return () => {
       cancelled = true;
     };

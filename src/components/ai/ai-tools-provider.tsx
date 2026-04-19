@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -14,16 +15,15 @@ import {
   retrieveArticles,
   type FeedSearchBundle,
 } from "@/lib/ai/feed-index";
-import {
-  completeChat,
-  type ChatMessage as LlmChatMessage,
-} from "@/lib/ai/llm-client";
+import { executeAgentTool, type AgentToolContext } from "@/lib/ai/agent-tool-executor";
+import { completeChatWithAgentTools } from "@/lib/ai/chat-with-tools";
+import type { ChatMessage as LlmChatMessage } from "@/lib/ai/llm-client";
 import { buildFullSystemPrompt } from "@/lib/ai/rag-prompt";
+import type { BookmarkEntry } from "@/types/bookmark";
 import type { FeedItem } from "@/types/feed";
-import type { GridColumn } from "@/types/grid";
+import type { GridColumn, GridPage } from "@/types/grid";
+import type { ReadHistoryEntry } from "@/types/read-history";
 import type { AiLlmConfig, LlmProviderKind } from "@/types/ai-tools";
-
-import { AiFloatingComposer } from "@/components/ai/ai-floating-composer";
 
 export type UiChatMessage = {
   id: string;
@@ -35,6 +35,8 @@ type AiToolsContextValue = {
   ready: boolean;
   aiToolsEnabled: boolean;
   setAiToolsEnabled: (v: boolean) => void;
+  webSearchEnabled: boolean;
+  setWebSearchEnabled: (v: boolean) => void;
   llm: AiLlmConfig;
   setLlm: (v: AiLlmConfig | ((prev: AiLlmConfig) => AiLlmConfig)) => void;
   setProvider: (p: LlmProviderKind) => void;
@@ -63,16 +65,30 @@ type AiToolsProviderProps = {
   children: ReactNode;
   feedItemsByColumnId: Record<string, FeedItem[]>;
   columns: GridColumn[];
+  pages: GridPage[];
+  bookmarks: BookmarkEntry[];
+  readHistory: ReadHistoryEntry[];
+  navigation: {
+    pathname: string;
+    search: string;
+    navigate: (path: string) => void;
+  };
 };
 
 export function AiToolsProvider({
   children,
   feedItemsByColumnId,
   columns,
+  pages,
+  bookmarks,
+  readHistory,
+  navigation,
 }: AiToolsProviderProps) {
   const persistence = useAiToolsPersistence();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [messages, setMessages] = useState<UiChatMessage[]>([]);
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,6 +101,38 @@ export function AiToolsProvider({
     }
   }, [feedItemsByColumnId, columns]);
 
+  const toolContext = useMemo<AgentToolContext>(
+    () => ({
+      feedItemsByColumnId,
+      columns,
+      pages,
+      bookmarks,
+      readHistory,
+      pathname: navigation.pathname,
+      search: navigation.search,
+      navigate: navigation.navigate,
+      webSearchEnabled: persistence.webSearchEnabled,
+    }),
+    [
+      feedItemsByColumnId,
+      columns,
+      pages,
+      bookmarks,
+      readHistory,
+      navigation.pathname,
+      navigation.search,
+      navigation.navigate,
+      persistence.webSearchEnabled,
+    ],
+  );
+
+  const executeTool = useCallback(
+    async (name: string, args: string) => {
+      return executeAgentTool(name, args, toolContext);
+    },
+    [toolContext],
+  );
+
   const runAssistant = useCallback(
     async (fullHistory: UiChatMessage[]) => {
       const chat: LlmChatMessage[] = fullHistory.map((m) => ({
@@ -95,9 +143,14 @@ export function AiToolsProvider({
       const q = lastUser?.content ?? "";
       const articles = retrieveArticles(searchBundle, q, 8);
       const systemPrompt = buildFullSystemPrompt(articles);
-      return completeChat(persistence.llm, systemPrompt, chat);
+      return completeChatWithAgentTools(
+        persistence.llm,
+        systemPrompt,
+        chat,
+        executeTool,
+      );
     },
-    [searchBundle, persistence.llm],
+    [searchBundle, persistence.llm, executeTool],
   );
 
   const sendUserMessage = useCallback(
@@ -111,30 +164,29 @@ export function AiToolsProvider({
         content: trimmed,
       };
 
-      setMessages((prev) => {
-        const nextHistory = [...prev, userMsg];
-        void (async () => {
-          setError(null);
-          setPending(true);
-          try {
-            const reply = await runAssistant(nextHistory);
-            setMessages((p) => [
-              ...p,
-              {
-                id: crypto.randomUUID(),
-                role: "assistant",
-                content: reply,
-              },
-            ]);
-          } catch (e) {
-            const msg = e instanceof Error ? e.message : String(e);
-            setError(msg);
-          } finally {
-            setPending(false);
-          }
-        })();
-        return nextHistory;
-      });
+      // Never start async work inside setMessages: React Strict Mode double-invokes
+      // updater functions in development, which would run the assistant twice.
+      const nextHistory = [...messagesRef.current, userMsg];
+      setMessages(nextHistory);
+
+      setError(null);
+      setPending(true);
+      try {
+        const reply = await runAssistant(nextHistory);
+        setMessages((p) => [
+          ...p,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: reply,
+          },
+        ]);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        setError(msg);
+      } finally {
+        setPending(false);
+      }
     },
     [persistence.enabled, runAssistant],
   );
@@ -160,6 +212,8 @@ export function AiToolsProvider({
       ready: persistence.ready,
       aiToolsEnabled: persistence.enabled,
       setAiToolsEnabled: persistence.setEnabled,
+      webSearchEnabled: persistence.webSearchEnabled,
+      setWebSearchEnabled: persistence.setWebSearchEnabled,
       llm: persistence.llm,
       setLlm: persistence.setLlm,
       setProvider: persistence.setProvider,
@@ -177,6 +231,8 @@ export function AiToolsProvider({
       persistence.ready,
       persistence.enabled,
       persistence.setEnabled,
+      persistence.webSearchEnabled,
+      persistence.setWebSearchEnabled,
       persistence.llm,
       persistence.setLlm,
       persistence.setProvider,
@@ -192,9 +248,6 @@ export function AiToolsProvider({
   );
 
   return (
-    <AiToolsContext.Provider value={value}>
-      {children}
-      <AiFloatingComposer />
-    </AiToolsContext.Provider>
+    <AiToolsContext.Provider value={value}>{children}</AiToolsContext.Provider>
   );
 }

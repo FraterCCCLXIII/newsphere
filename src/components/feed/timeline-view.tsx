@@ -4,7 +4,10 @@ import { ChevronDown, ArrowUpDown } from "lucide-react";
 import { useOutletContext } from "react-router-dom";
 
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
-import { useScrollRestoration } from "@/hooks/use-scroll-restoration";
+import {
+  readStoredScrollTop,
+  useScrollRestoration,
+} from "@/hooks/use-scroll-restoration";
 import { TimelineFeedEntrySkeleton } from "@/components/feed/feed-skeleton";
 import { TimelineFeedRow } from "@/components/feed/timeline-feed-row";
 import { Button } from "@/components/ui/button";
@@ -157,12 +160,18 @@ function VirtualizedTimelineList({
     },
     [rows],
   );
+  /** Virtualizer calls `scrollTo` on mount before offset observers run; without this, `top` can be NaN and wipe restored scroll. */
+  const initialOffset = useCallback(
+    () => readStoredScrollTop(scrollStorageKey),
+    [scrollStorageKey],
+  );
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
     estimateSize,
     overscan: 14,
     getItemKey,
+    initialOffset,
   });
 
   return (

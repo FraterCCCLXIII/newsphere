@@ -100,13 +100,22 @@ export function useReadHistory(): ReadHistoryController {
 
   useEffect(() => {
     let cancelled = false;
-    void loadReadHistory().then((items) => {
-      if (!cancelled) {
-        itemsRef.current = items;
-        setReadHistory(items);
-        setReady(true);
-      }
-    });
+    void loadReadHistory()
+      .then((items) => {
+        if (!cancelled) {
+          itemsRef.current = items;
+          setReadHistory(items);
+          setReady(true);
+        }
+      })
+      .catch((e) => {
+        console.error("Failed to load read history", e);
+        if (!cancelled) {
+          itemsRef.current = [];
+          setReadHistory([]);
+          setReady(true);
+        }
+      });
     return () => {
       cancelled = true;
     };

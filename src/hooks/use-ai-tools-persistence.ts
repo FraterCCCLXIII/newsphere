@@ -37,6 +37,7 @@ function defaultPersisted(): AiToolsPersisted {
   return {
     enabled: false,
     llm: defaultLlmForProvider("openaiCompatible"),
+    webSearchEnabled: false,
   };
 }
 
@@ -88,7 +89,8 @@ function parsePersisted(raw: unknown): AiToolsPersisted {
   const o = raw as Record<string, unknown>;
   const enabled = parseEnabledFlag(o.enabled);
   const llm = parseLlm(o.llm);
-  return { enabled, llm };
+  const webSearchEnabled = parseEnabledFlag(o.webSearchEnabled);
+  return { enabled, llm, webSearchEnabled };
 }
 
 async function loadPersisted(): Promise<AiToolsPersisted> {
@@ -129,6 +131,8 @@ export type AiToolsPersistence = {
   ready: boolean;
   enabled: boolean;
   setEnabled: (v: boolean) => void;
+  webSearchEnabled: boolean;
+  setWebSearchEnabled: (v: boolean) => void;
   llm: AiLlmConfig;
   setLlm: (v: AiLlmConfig | ((prev: AiLlmConfig) => AiLlmConfig)) => void;
   setProvider: (provider: LlmProviderKind) => void;
@@ -137,6 +141,7 @@ export type AiToolsPersistence = {
 export function useAiToolsPersistence(): AiToolsPersistence {
   const [ready, setReady] = useState(false);
   const [enabled, setEnabled] = useState(false);
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [llm, setLlmState] = useState<AiLlmConfig>(() =>
     defaultLlmForProvider("openaiCompatible"),
   );
@@ -148,6 +153,7 @@ export function useAiToolsPersistence(): AiToolsPersistence {
         const data = await loadPersisted();
         if (cancelled) return;
         setEnabled(data.enabled);
+        setWebSearchEnabled(data.webSearchEnabled ?? false);
         setLlmState(data.llm);
       } finally {
         if (!cancelled) setReady(true);
@@ -160,8 +166,8 @@ export function useAiToolsPersistence(): AiToolsPersistence {
 
   useEffect(() => {
     if (!ready) return;
-    void savePersisted({ enabled, llm });
-  }, [ready, enabled, llm]);
+    void savePersisted({ enabled, llm, webSearchEnabled });
+  }, [ready, enabled, llm, webSearchEnabled]);
 
   const setLlm = useCallback(
     (v: AiLlmConfig | ((prev: AiLlmConfig) => AiLlmConfig)) => {
@@ -182,10 +188,12 @@ export function useAiToolsPersistence(): AiToolsPersistence {
       ready,
       enabled,
       setEnabled,
+      webSearchEnabled,
+      setWebSearchEnabled,
       llm,
       setLlm,
       setProvider,
     }),
-    [ready, enabled, setEnabled, llm, setLlm, setProvider],
+    [ready, enabled, setEnabled, webSearchEnabled, llm, setLlm, setProvider],
   );
 }

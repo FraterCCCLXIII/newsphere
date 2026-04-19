@@ -21,6 +21,8 @@ export default defineConfig(async () => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    /** Avoid duplicate React / context identity issues from odd dependency graphs. */
+    dedupe: ["react", "react-dom"],
   },
   clearScreen: false,
   server: {

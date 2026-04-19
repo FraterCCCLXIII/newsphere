@@ -1,8 +1,17 @@
 import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
+import { AiFloatingComposer } from "@/components/ai/ai-floating-composer";
+import { AiToolsProvider } from "@/components/ai/ai-tools-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useFeedItems } from "@/hooks/use-feed-items";
 import { useGridConfig } from "@/hooks/use-grid-config";
 import { useReadHistory } from "@/hooks/use-read-history";
 
@@ -58,6 +67,9 @@ function App() {
   const grid = useGridConfig();
   const bookmarks = useBookmarks();
   const readHistory = useReadHistory();
+  const feed = useFeedItems(grid.allColumns);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   if (!grid.ready || !bookmarks.ready || !readHistory.ready) {
     return (
@@ -68,33 +80,50 @@ function App() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-    <Suspense fallback={<RouteFallback />}>
-      <Routes>
-        <Route
-          element={
-            <AppShell
-              grid={grid}
-              bookmarks={bookmarks}
-              readHistory={readHistory}
-            />
-          }
-        >
-          <Route index element={<HomePage />} />
-          <Route path="feed" element={<FeedStreamPage />} />
-          <Route path="bookmarks" element={<BookmarksPage />} />
-          <Route path="history" element={<HistoryPage />} />
-          <Route path="reader" element={<ReaderPage />} />
-          <Route path="settings" element={<SettingsLayout />}>
-            <Route index element={<SettingsGridPage />} />
-            <Route path="app" element={<SettingsAppPage />} />
-            <Route path="about" element={<SettingsAboutPage />} />
-          </Route>
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
-    </div>
+    <AiToolsProvider
+      feedItemsByColumnId={feed.feedItemsByColumnId}
+      columns={grid.allColumns}
+      pages={grid.pages}
+      bookmarks={bookmarks.bookmarks}
+      readHistory={readHistory.readHistory}
+      navigation={{
+        pathname: location.pathname,
+        search: location.search,
+        navigate: (path: string) => {
+          void navigate(path);
+        },
+      }}
+    >
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route
+              element={
+                <AppShell
+                  grid={grid}
+                  feed={feed}
+                  bookmarks={bookmarks}
+                  readHistory={readHistory}
+                />
+              }
+            >
+              <Route index element={<HomePage />} />
+              <Route path="feed" element={<FeedStreamPage />} />
+              <Route path="bookmarks" element={<BookmarksPage />} />
+              <Route path="history" element={<HistoryPage />} />
+              <Route path="reader" element={<ReaderPage />} />
+              <Route path="settings" element={<SettingsLayout />}>
+                <Route index element={<SettingsGridPage />} />
+                <Route path="app" element={<SettingsAppPage />} />
+                <Route path="about" element={<SettingsAboutPage />} />
+              </Route>
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+        <AiFloatingComposer />
+      </div>
+    </AiToolsProvider>
   );
 }
 

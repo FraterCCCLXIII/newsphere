@@ -16,6 +16,11 @@ export type AiLlmConfig = {
 export type AiToolsPersisted = {
   enabled: boolean;
   llm: AiLlmConfig;
+  /**
+   * When true, the assistant may call `web_search` (DuckDuckGo instant answers).
+   * Default off — feeds and local data are preferred.
+   */
+  webSearchEnabled?: boolean;
 };
 
 export const DEFAULT_LLM_BY_PROVIDER: Record<LlmProviderKind, AiLlmConfig> = {

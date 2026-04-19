@@ -180,7 +180,10 @@ export function TitleBar({
   );
 
   const desktopNav = (
-    <nav className="hidden h-full items-center gap-0.5 bg-muted/20 px-1 py-0 dark:bg-muted/10 lg:flex">
+    <nav
+      data-tauri-drag-region="false"
+      className="app-no-drag hidden h-full items-center gap-0.5 bg-muted/20 px-1 py-0 dark:bg-muted/10 lg:flex"
+    >
       <NavLink
         to="/"
         end
@@ -227,6 +230,7 @@ export function TitleBar({
           type="button"
           variant="ghost"
           size="icon"
+          data-tauri-drag-region="false"
           className={cn(
             "app-no-drag size-9 text-muted-foreground hover:bg-accent hover:text-accent-foreground",
             aiAssistant.drawerOpen && "text-foreground",
@@ -235,7 +239,11 @@ export function TitleBar({
           aria-label="AI assistant"
           title="AI assistant"
           onPointerDown={(e) => e.stopPropagation()}
-          onClick={aiAssistant.onToggle}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            aiAssistant.onToggle();
+          }}
         >
           <Sparkle className="size-4 shrink-0" aria-hidden />
           <span className="sr-only">AI assistant</span>

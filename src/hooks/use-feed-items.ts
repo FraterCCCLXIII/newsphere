@@ -304,3 +304,5 @@ export function useFeedItems(allFeedColumns: GridColumn[]) {
     [itemsByColumnId, loadingByColumnId, errorByColumnId, refetchFeeds],
   );
 }
+
+export type FeedItemsController = ReturnType<typeof useFeedItems>;
