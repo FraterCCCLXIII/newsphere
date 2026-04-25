@@ -1,12 +1,17 @@
 mod url_policy;
 mod feed;
+mod icons;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_store::Builder::default().build())
-        .invoke_handler(tauri::generate_handler![feed::fetch_feed, feed::fetch_article_html])
+        .invoke_handler(tauri::generate_handler![
+            feed::fetch_feed,
+            feed::fetch_article_html,
+            icons::save_app_icon_svg
+        ])
         .setup(|app| {
             #[cfg(target_os = "macos")]
             schedule_shadow_invalidation(app);

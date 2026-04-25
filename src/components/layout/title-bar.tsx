@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
 import { isTauriRuntime } from "@/lib/tauri-env";
 import { controlsOnLeft, isMac } from "@/lib/platform";
 import { cn } from "@/lib/utils";
@@ -426,7 +427,7 @@ export function TitleBar({
                 "[-webkit-tap-highlight-color:transparent]",
                 "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
               )}
-              aria-label="Newsphere — go to grid"
+              aria-label={`${APP_DISPLAY_NAME} — go to grid`}
               title="Grid"
             >
               <AppMark className="size-7 shrink-0" />

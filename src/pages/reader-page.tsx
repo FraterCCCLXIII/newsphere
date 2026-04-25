@@ -7,7 +7,7 @@ import {
   Share2,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
   useNavigate,
   useOutletContext,
@@ -22,6 +22,7 @@ import { useReaderArticle } from "@/hooks/use-reader-article";
 import { formatPublishedForPreference } from "@/lib/feed-time";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { safeHttpHref } from "@/lib/safe-url";
+import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
 import { cn } from "@/lib/utils";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
@@ -126,6 +127,17 @@ export function ReaderPage() {
     }
     return currentItem?.title ?? "Article";
   }, [bodyState, currentItem?.title]);
+
+  useLayoutEffect(() => {
+    if (!linkParam) {
+      document.title = `Reader — ${APP_DISPLAY_NAME}`;
+    } else {
+      document.title = `${displayTitle} — ${APP_DISPLAY_NAME}`;
+    }
+    return () => {
+      document.title = APP_DISPLAY_NAME;
+    };
+  }, [linkParam, displayTitle]);
 
   const articleSourceLabel = useMemo(() => {
     if (bodyState.kind !== "article") return null;

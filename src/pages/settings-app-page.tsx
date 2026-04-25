@@ -2,6 +2,7 @@ import { RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
+import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
 import { AppSettingsSection } from "@/components/settings/app-settings-section";
 import { AiToolsSettingsSection } from "@/components/settings/ai-tools-settings-section";
 import { Button } from "@/components/ui/button";
@@ -54,9 +55,9 @@ export function SettingsAppPage() {
           Grid layout
         </h2>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          Restore the built-in default pages, section headers, and feeds (from
-          the app bundle). This replaces your current layout and cannot be
-          undone.
+          Restore the built-in default pages, section headers, and feeds that
+          ship with {APP_DISPLAY_NAME}. This replaces your current layout and
+          cannot be undone.
         </p>
         <Button
           type="button"
@@ -75,9 +76,9 @@ export function SettingsAppPage() {
           <DialogHeader>
             <DialogTitle>Reset to default layout?</DialogTitle>
             <DialogDescription>
-              This replaces all pages, section headers, and feeds with the
-              app&apos;s built-in default (News, Tech, Business, Science, and
-              Culture). Your current layout cannot be recovered.
+              This replaces all pages, section headers, and feeds with{" "}
+              {APP_DISPLAY_NAME}&apos;s built-in default (News, Tech, Business,
+              Science, and Culture). Your current layout cannot be recovered.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">

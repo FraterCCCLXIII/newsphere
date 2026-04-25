@@ -1,0 +1,4 @@
+[[permission]]
+identifier = "allow-save-app-icon"
+description = "Save app-icon.svg from Icon Studio to the project public folder."
+commands.allow = ["save_app_icon_svg"]

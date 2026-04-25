@@ -1,0 +1,4 @@
+[[permission]]
+identifier = "allow-feed-commands"
+description = "Fetch RSS/Atom feeds and article HTML for the reader (network access)."
+commands.allow = ["fetch_feed", "fetch_article_html"]

@@ -1,4 +1,6 @@
 import { lazy, Suspense } from "react";
+
+import { DocumentTitle } from "@/components/document-title";
 import {
   Navigate,
   Route,
@@ -54,6 +56,11 @@ const SettingsAboutPage = lazy(() =>
     default: m.SettingsAboutPage,
   })),
 );
+const IconStudioPage = lazy(() =>
+  import("@/pages/icon-studio-page").then((m) => ({
+    default: m.IconStudioPage,
+  })),
+);
 
 function RouteFallback() {
   return (
@@ -95,6 +102,7 @@ function App() {
       }}
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <DocumentTitle />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route
@@ -115,6 +123,7 @@ function App() {
               <Route path="settings" element={<SettingsLayout />}>
                 <Route index element={<SettingsGridPage />} />
                 <Route path="app" element={<SettingsAppPage />} />
+                <Route path="icons" element={<IconStudioPage />} />
                 <Route path="about" element={<SettingsAboutPage />} />
               </Route>
             </Route>

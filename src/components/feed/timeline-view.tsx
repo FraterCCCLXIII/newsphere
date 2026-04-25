@@ -18,6 +18,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
 import { GRID_EMPTY_RSS_NOTE } from "@/lib/feed-messages";
 import { getFeedPreviewParts } from "@/lib/feed-preview";
 import {
@@ -318,11 +319,11 @@ export function TimelineView() {
     return (
       <div className="flex min-h-[35vh] flex-col items-center justify-center gap-2 px-6 text-center">
         <p className="text-sm font-medium text-foreground">
-          RSS in the desktop app
+          RSS in {APP_DISPLAY_NAME}
         </p>
         <p className="max-w-sm text-sm text-muted-foreground">
-          The unified feed loads when you run the Tauri build. In the browser,
-          add columns in Settings to prepare your layout.
+          The unified feed loads in the {APP_DISPLAY_NAME} desktop app. In the
+          browser, add columns in Settings to prepare your layout.
         </p>
       </div>
     );

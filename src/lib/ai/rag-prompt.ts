@@ -1,4 +1,5 @@
 import type { IndexedArticle } from "@/lib/ai/feed-index";
+import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
 
 /**
  * Routes and link patterns the assistant may include in markdown so users can
@@ -11,7 +12,7 @@ You have function tools: **get_current_reader_article** (text open in /reader), 
 ## Links and navigation (markdown)
 - **Articles from feeds**: cite with \`[title](exact-reader-url-from-list)\` — reader URLs look like \`/reader?l=...\` and may include \`&c=columnId\` for prev/next in that source.
 - **App screens** (relative paths): [Grid](/), [Latest feed](/feed), [Bookmarks](/bookmarks), [History](/history), [Settings → App](/settings/app).
-- **External websites**: use absolute URLs, e.g. [Publisher](https://example.com/article) — opens in the system browser in the desktop app.
+- **External websites**: use absolute URLs, e.g. [Publisher](https://example.com/article) — in ${APP_DISPLAY_NAME}, absolute links open in the system browser.
 Prefer feed-backed reader links when the topic is in the user’s articles; use external links for general web references.`;
 }
 
@@ -24,7 +25,7 @@ export function buildRagSystemPrompt(articles: IndexedArticle[]): string {
       ? lines.join("\n\n")
       : "(No matching articles were found in the user’s feeds. Say so clearly.)";
 
-  return `You are a helpful assistant inside a news reader app. The list below is a quick retrieval pass over feed snippets — use tools when you need the open reader article, full article text, broader cache search, bookmarks, or history. When these excerpts are enough, prefer them and cite accurately.
+  return `You are a helpful assistant in ${APP_DISPLAY_NAME}. The list below is a quick retrieval pass over feed snippets — use tools when you need the open reader article, full article text, broader cache search, bookmarks, or history. When these excerpts are enough, prefer them and cite accurately.
 
 When you cite an article, use a markdown link: \`[short title](/reader?l=...&c=...)\` where the URL is copied **exactly** from the "Link" line for that article above. Do not invent URLs, placeholders, or the string "reader-url".
 

@@ -13,7 +13,7 @@ const catalogPath = join(root, "public", "catalog-sources.json");
 
 const TIMEOUT_MS = 20_000;
 const CONCURRENCY = 10;
-const UA = "NewsfeedRSSCheck/1.0 (+https://github.com/)";
+const UA = "NewsphereRSSCheck/1.0 (+https://github.com/)";
 
 function looksLikeFeed(text) {
   const s = text.slice(0, 8000).toLowerCase();

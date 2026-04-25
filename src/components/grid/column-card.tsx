@@ -23,6 +23,7 @@ import { getFeedPreviewParts } from "@/lib/feed-preview";
 import { formatPublishedForPreference } from "@/lib/feed-time";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
 import { buildReaderUrl } from "@/lib/reader-url";
+import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
 import { safeHttpHref } from "@/lib/safe-url";
 import { isTauriRuntime } from "@/lib/tauri-env";
 import { cn } from "@/lib/utils";
@@ -367,10 +368,10 @@ export function ColumnCard({
             )}
           >
             <Grid3x3 className="size-10 opacity-40" aria-hidden />
-            <p className="text-sm">RSS loads in the desktop app</p>
+            <p className="text-sm">RSS loads in {APP_DISPLAY_NAME}</p>
             <p className="max-w-[240px] text-xs leading-relaxed">
               Run <span className="font-mono text-foreground">npm run tauri dev</span>{" "}
-              to fetch this feed.
+              to run {APP_DISPLAY_NAME} and fetch this feed.
             </p>
           </div>
         ) : !hasUrl ? (

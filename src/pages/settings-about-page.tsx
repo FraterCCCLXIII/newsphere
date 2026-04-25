@@ -1,4 +1,5 @@
 import { AppMark } from "@/components/icons/app-mark";
+import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
 import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 
 export function SettingsAboutPage() {
@@ -26,7 +27,7 @@ export function SettingsAboutPage() {
               id="about-app-heading"
               className="text-lg font-semibold text-foreground"
             >
-              Newsphere
+              {APP_DISPLAY_NAME}
             </h2>
             <p className="text-sm leading-relaxed text-muted-foreground">
               A desktop news reader for RSS and Atom feeds. Organize sources in
