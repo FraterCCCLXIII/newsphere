@@ -535,7 +535,7 @@ export function TitleBar({
               <ChevronRight className="size-4 shrink-0" aria-hidden />
             </Button>
           </div>
-          <div className="relative min-w-0 w-full max-w-full md:max-w-[min(42rem,calc(100%-10rem))] lg:max-w-3xl">
+          <div className="relative min-w-0 w-full max-w-full md:max-w-[min(56rem,calc(100%-8rem))] lg:max-w-5xl">
             <Search
               className="pointer-events-none absolute left-2.5 top-1/2 z-[1] size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
