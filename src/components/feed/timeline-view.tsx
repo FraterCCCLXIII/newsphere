@@ -32,6 +32,7 @@ import { matchesArticleSearch } from "@/lib/search-utils";
 import { safeHttpHref } from "@/lib/safe-url";
 import { cn } from "@/lib/utils";
 import { isTauriRuntime } from "@/lib/tauri-env";
+import { AGGREGATE_PAGE_ID } from "@/types/grid";
 import type { AppOutletContext } from "@/types/app-outlet";
 import type { FeedItem } from "@/types/feed";
 import type { FeedStreamSortMode } from "@/types/feed-stream-sort";
@@ -224,12 +225,22 @@ function VirtualizedTimelineList({
 export function TimelineView() {
   const {
     columns,
+    pages,
     activePageId,
     searchQuery,
     feedItemsByColumnId,
     feedLoadingByColumnId,
     feedErrorByColumnId,
   } = useOutletContext<AppOutletContext>();
+
+  const streamSubtitle = useMemo(() => {
+    if (pages.length > 1 && activePageId === AGGREGATE_PAGE_ID) {
+      return "All sources, newest first";
+    }
+    const p = pages.find((x) => x.id === activePageId);
+    if (p) return `${p.name} — newest first`;
+    return "All sources, newest first";
+  }, [pages, activePageId]);
 
   const {
     hideBrokenFeeds,
@@ -411,6 +422,7 @@ export function TimelineView() {
     <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col px-2 py-4">
       <FeedStreamSortHeader
         title="Latest"
+        subtitle={streamSubtitle}
         sortMode={feedStreamSort}
         onSortChange={setFeedStreamSort}
       />
