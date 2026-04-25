@@ -1,6 +1,14 @@
 import { AGGREGATE_PAGE_ID, type GridPage } from "@/types/grid";
 import { cn } from "@/lib/utils";
 
+/** Matches `w-[5.75rem] sm:w-36` — half is used to re-center the feed column in the viewport. */
+export const FEED_PAGE_NAV_CENTERING_SHIFT_CLASS =
+  "-translate-x-[2.875rem] sm:-translate-x-[4.5rem]";
+
+/** Nav width + `max-w-xl` (36rem); caps the row on small viewports. */
+export const FEED_PAGE_NAV_ROW_MAX_CLASS =
+  "max-w-[min(100%,41.75rem)] sm:max-w-[min(100%,45rem)]";
+
 type FeedPageNavProps = {
   pages: GridPage[];
   activePageId: string;
@@ -24,9 +32,10 @@ export function FeedPageNav({
 }: FeedPageNavProps) {
   if (pages.length <= 1) return null;
 
+  // pt-6 = TimelineView column `py-4` + FeedStreamSortHeader `py-2` so tops align with the title.
   return (
     <aside
-      className="w-[5.75rem] shrink-0 border-r border-border/70 bg-background/80 px-2 py-4 sm:w-36"
+      className="w-[5.75rem] shrink-0 bg-background/80 px-2 pb-4 pt-6 sm:w-36"
       aria-label="Feed pages"
     >
       <nav className="flex flex-col gap-0.5">
