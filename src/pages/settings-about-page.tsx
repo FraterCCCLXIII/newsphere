@@ -1,10 +1,12 @@
 import { AppMark } from "@/components/icons/app-mark";
-import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
+import {
+  APP_DISPLAY_NAME,
+  APP_REPOSITORY_URL,
+  APP_VERSION,
+} from "@/lib/app-metadata";
 import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
 
 export function SettingsAboutPage() {
-  const repoUrl = "https://github.com/FraterCCCLXIII/newsphere";
-
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 pb-16">
       <h1 className="text-2xl font-semibold tracking-tight text-foreground">
@@ -29,6 +31,10 @@ export function SettingsAboutPage() {
             >
               {APP_DISPLAY_NAME}
             </h2>
+            <p className="text-sm text-muted-foreground">
+              Version <span className="font-medium text-foreground">{APP_VERSION}</span>
+              <span className="text-muted-foreground"> · First beta</span>
+            </p>
             <p className="text-sm leading-relaxed text-muted-foreground">
               A desktop news reader for RSS and Atom feeds. Organize sources in
               a multi-column grid, switch between pages of topics, and read
@@ -57,10 +63,10 @@ export function SettingsAboutPage() {
         </p>
         <p className="mt-4">
           <ExternalBrowserLink
-            href={repoUrl}
+            href={APP_REPOSITORY_URL}
             className="inline-flex break-all text-sm font-medium text-primary underline-offset-4 hover:underline"
           >
-            {repoUrl}
+            {APP_REPOSITORY_URL}
           </ExternalBrowserLink>
         </p>
       </section>
