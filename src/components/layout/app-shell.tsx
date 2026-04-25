@@ -21,11 +21,12 @@ type AppShellProps = {
 
 function AppShellTitleBarWithAi(props: Omit<TitleBarProps, "aiAssistant">) {
   const ai = useAiTools();
+  const showAiChrome = ai.ready && ai.aiToolsEnabled;
   return (
     <TitleBar
       {...props}
       aiAssistant={
-        ai.ready
+        showAiChrome
           ? { drawerOpen: ai.drawerOpen, onToggle: ai.toggleDrawer }
           : undefined
       }

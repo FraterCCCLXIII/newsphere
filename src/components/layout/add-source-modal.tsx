@@ -277,7 +277,11 @@ export function AddSourceModal({
 
         <div className="flex min-h-0 flex-1 flex-col px-4 pb-3 pt-2">
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border bg-card">
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <div
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+            >
               {loading ? (
                 <p className="px-3 py-10 text-center text-sm text-muted-foreground">
                   Loading catalog…

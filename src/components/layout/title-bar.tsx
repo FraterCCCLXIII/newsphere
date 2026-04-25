@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   Bookmark,
   History,
@@ -31,6 +30,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -72,16 +74,6 @@ const mobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
     "focus:bg-accent focus:text-accent-foreground",
     isActive ? "bg-accent text-accent-foreground" : "",
   );
-
-function shouldStartWindowDrag(target: EventTarget | null): boolean {
-  if (!target || !isTauriRuntime()) return false;
-  const el = target as HTMLElement;
-  if (el.closest(".app-no-drag")) return false;
-  if (el.closest("button, a[href], [role='button'], input, select, textarea")) {
-    return false;
-  }
-  return true;
-}
 
 type SettingsThemeExtrasProps = {
   theme: ReturnType<typeof useTheme>["theme"];
@@ -143,6 +135,10 @@ export function TitleBar({
   const settingsActive =
     location.pathname === "/settings" ||
     location.pathname.startsWith("/settings/");
+  const moreMenuPageActive =
+    settingsActive ||
+    location.pathname === "/bookmarks" ||
+    location.pathname === "/history";
   const { theme, setTheme } = useTheme();
   const { textScale, setTextScale } = useTextScale();
   const { goBack, goForward, canGoBack, canGoForward } =
@@ -183,7 +179,8 @@ export function TitleBar({
   const desktopNav = (
     <nav
       data-tauri-drag-region="false"
-      className="app-no-drag hidden h-full items-center gap-0.5 bg-muted/20 px-1 py-0 dark:bg-muted/10 lg:flex"
+      className="app-no-drag hidden h-full items-center gap-0.5 px-1 py-0 lg:flex"
+      onPointerDown={(e) => e.stopPropagation()}
     >
       <NavLink
         to="/"
@@ -206,26 +203,6 @@ export function TitleBar({
         <Rows3 className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">Latest feed</span>
       </NavLink>
-      <NavLink
-        to="/bookmarks"
-        className={navClass}
-        title="Bookmarks"
-        aria-label="Bookmarks"
-        onClick={linkFromReader("/bookmarks")}
-      >
-        <Bookmark className="size-4 shrink-0" aria-hidden />
-        <span className="sr-only">Bookmarks</span>
-      </NavLink>
-      <NavLink
-        to="/history"
-        className={navClass}
-        title="Reading history"
-        aria-label="Reading history"
-        onClick={linkFromReader("/history")}
-      >
-        <History className="size-4 shrink-0" aria-hidden />
-        <span className="sr-only">History</span>
-      </NavLink>
       {aiAssistant ? (
         <Button
           type="button"
@@ -239,12 +216,7 @@ export function TitleBar({
           aria-pressed={aiAssistant.drawerOpen}
           aria-label="AI assistant"
           title="AI assistant"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            aiAssistant.onToggle();
-          }}
+          onClick={() => aiAssistant.onToggle()}
         >
           <Sparkle className="size-4 shrink-0" aria-hidden />
           <span className="sr-only">AI assistant</span>
@@ -284,7 +256,7 @@ export function TitleBar({
             size="icon"
             className={cn(
               "app-no-drag size-9 text-muted-foreground hover:bg-accent/80 hover:text-accent-foreground",
-              settingsActive && "text-foreground",
+              moreMenuPageActive && "text-foreground",
             )}
             title="More options"
             aria-label="More options"
@@ -299,6 +271,43 @@ export function TitleBar({
           className="app-no-drag w-64"
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
+          <DropdownMenuItem asChild>
+            <NavLink
+              to="/bookmarks"
+              onClick={linkFromReader("/bookmarks")}
+              className={({ isActive }) =>
+                cn(
+                  "flex w-full cursor-pointer items-center gap-2",
+                  isActive && "font-medium text-foreground",
+                )
+              }
+            >
+              <Bookmark
+                className="size-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
+              Bookmarks
+            </NavLink>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <NavLink
+              to="/history"
+              onClick={linkFromReader("/history")}
+              className={({ isActive }) =>
+                cn(
+                  "flex w-full cursor-pointer items-center gap-2",
+                  isActive && "font-medium text-foreground",
+                )
+              }
+            >
+              <History
+                className="size-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
+              Reading history
+            </NavLink>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           {extras}
         </DropdownMenuContent>
       </DropdownMenu>
@@ -345,31 +354,45 @@ export function TitleBar({
             Latest feed
           </NavLink>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <NavLink
-            to="/bookmarks"
-            className={mobileNavLinkClass}
-            onClick={linkFromReader("/bookmarks")}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger className="app-no-drag">
+            <Bookmark
+              className="size-4 shrink-0 text-muted-foreground"
+              aria-hidden
+            />
+            Library
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent
+            className="app-no-drag w-48"
+            sideOffset={4}
+            alignOffset={-4}
           >
-            <Bookmark className="size-4 shrink-0 text-muted-foreground" />
-            Bookmarks
-          </NavLink>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <NavLink
-            to="/history"
-            className={mobileNavLinkClass}
-            onClick={linkFromReader("/history")}
-          >
-            <History className="size-4 shrink-0 text-muted-foreground" />
-            History
-          </NavLink>
-        </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <NavLink
+                to="/bookmarks"
+                className={mobileNavLinkClass}
+                onClick={linkFromReader("/bookmarks")}
+              >
+                <Bookmark className="size-4 shrink-0 text-muted-foreground" />
+                Bookmarks
+              </NavLink>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <NavLink
+                to="/history"
+                className={mobileNavLinkClass}
+                onClick={linkFromReader("/history")}
+              >
+                <History className="size-4 shrink-0 text-muted-foreground" />
+                Reading history
+              </NavLink>
+            </DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         {aiAssistant ? (
           <DropdownMenuItem
             className="cursor-pointer"
-            onSelect={(e) => {
-              e.preventDefault();
+            onSelect={() => {
               aiAssistant.onToggle();
             }}
           >
@@ -409,15 +432,13 @@ export function TitleBar({
     <header
       data-tauri-drag-region
       className="titlebar app-drag-region flex min-h-11 h-auto shrink-0 cursor-default items-stretch border-b border-border bg-background/95 md:h-11"
-      onPointerDown={(e) => {
-        if (e.button !== 0) return;
-        if (!shouldStartWindowDrag(e.target)) return;
-        void getCurrentWindow().startDragging();
-      }}
     >
       <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 px-2 py-2 md:h-full md:flex-row md:items-center md:gap-3 md:py-0 md:pl-2 md:pr-3">
-        <div className="flex min-w-0 items-center justify-between gap-2 md:contents">
-          <div className="flex min-w-0 flex-1 cursor-default items-center gap-2 md:order-1 md:shrink-0 md:flex-none">
+        <div className="flex min-w-0 w-full items-center gap-2 md:contents">
+          <div
+            className="app-no-drag flex min-w-0 shrink-0 cursor-default items-center gap-2 md:order-1 md:flex-none"
+            data-tauri-drag-region="false"
+          >
             {showControls && mac ? <WindowControls /> : null}
             <Link
               to="/"
@@ -440,7 +461,16 @@ export function TitleBar({
             />
           </div>
 
-          <div className="flex min-w-0 shrink-0 items-center justify-end gap-0.5 md:order-3">
+          <div
+            className="app-drag-region min-h-9 min-w-6 flex-1 md:hidden"
+            data-tauri-drag-region
+            aria-hidden
+          />
+
+          <div
+            className="app-no-drag relative z-20 flex min-w-0 shrink-0 items-center justify-end gap-0.5 md:order-5"
+            data-tauri-drag-region="false"
+          >
             <Button
               type="button"
               variant="ghost"
@@ -459,7 +489,16 @@ export function TitleBar({
           </div>
         </div>
 
-        <div className="flex min-w-0 w-full items-center gap-0.5 md:order-2 md:flex-1 md:justify-center">
+        <div
+          className="app-drag-region hidden min-h-9 min-w-4 shrink-0 md:order-2 md:block md:flex-1"
+          data-tauri-drag-region
+          aria-hidden
+        />
+
+        <div
+          className="app-no-drag relative z-0 flex min-w-0 flex-1 items-center gap-0.5 md:order-3 md:justify-center"
+          data-tauri-drag-region="false"
+        >
           <div className="flex shrink-0 items-center gap-0">
             <Button
               type="button"
@@ -496,7 +535,7 @@ export function TitleBar({
               <ChevronRight className="size-4 shrink-0" aria-hidden />
             </Button>
           </div>
-          <div className="relative min-w-0 w-full max-w-full md:max-w-[min(28rem,calc(100%-14rem))] lg:max-w-xl">
+          <div className="relative min-w-0 w-full max-w-full md:max-w-[min(42rem,calc(100%-10rem))] lg:max-w-3xl">
             <Search
               className="pointer-events-none absolute left-2.5 top-1/2 z-[1] size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
@@ -512,6 +551,12 @@ export function TitleBar({
             />
           </div>
         </div>
+
+        <div
+          className="app-drag-region hidden min-h-9 min-w-4 shrink-0 md:order-4 md:block md:flex-1"
+          data-tauri-drag-region
+          aria-hidden
+        />
       </div>
 
     </header>

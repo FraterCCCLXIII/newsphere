@@ -7,12 +7,23 @@ import {
   type FormEvent,
 } from "react";
 import { Link } from "react-router-dom";
-import { SendHorizontal, X } from "lucide-react";
+import { Plus, SendHorizontal, X } from "lucide-react";
 
-import { useAiTools } from "@/components/ai/ai-tools-provider";
+import {
+  useAiTools,
+  type UiChatMessage,
+} from "@/components/ai/ai-tools-provider";
 import { AiChatMessageBody } from "@/components/ai/ai-chat-message-body";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+function labelForSession(messages: UiChatMessage[]) {
+  const first = messages.find((m) => m.role === "user");
+  if (!first) return "New chat";
+  const line = (first.content.trim().split("\n")[0] ?? "").trim();
+  if (!line) return "New chat";
+  return line.length > 32 ? `${line.slice(0, 31)}…` : line;
+}
 
 export function AiChatDrawer() {
   const {
@@ -22,6 +33,11 @@ export function AiChatDrawer() {
     setDrawerOpen,
     setAiToolsEnabled,
     messages,
+    chatSessions,
+    activeChatSessionId,
+    setActiveChatSession,
+    addChatSession,
+    closeChatSession,
     sendUserMessage,
     pending,
     error,
@@ -54,7 +70,11 @@ export function AiChatDrawer() {
   useEffect(() => {
     if (!drawerOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeDrawer();
+      if (e.key !== "Escape") return;
+      // DropdownMenuContent dispatches a synthetic Escape on document scroll to
+      // close menus; that bubbles to window and must not close the assistant.
+      if (!e.isTrusted) return;
+      closeDrawer();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -75,10 +95,12 @@ export function AiChatDrawer() {
     <aside
       ref={asideRef}
       data-tauri-drag-region="false"
+      onWheel={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
       className={cn(
         // Fixed width + max-w-full avoids min(100%,…) resolving to 0 when the flex
         // percentage base is indefinite (drawer looked “closed” while state was open).
-        "app-no-drag flex h-full min-h-0 shrink-0 flex-col border-border bg-background transition-[width,max-width] duration-200 ease-out",
+        "app-no-drag flex h-full min-h-0 shrink-0 flex-col overscroll-contain border-border bg-background transition-[width,max-width] duration-200 ease-out",
         drawerOpen
           ? "min-w-0 w-[28rem] max-w-full border-l border-border"
           : "pointer-events-none w-0 max-w-0 overflow-hidden border-l-0",
@@ -88,18 +110,89 @@ export function AiChatDrawer() {
     >
       {drawerOpen ? (
         <>
-          <div className="relative flex min-h-12 shrink-0 items-center border-b border-border px-4 py-2 pr-12">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-3 top-1/2 shrink-0 -translate-y-1/2 app-no-drag"
-              aria-label="Close assistant"
-              onClick={closeDrawer}
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
+          {aiToolsEnabled ? (
+            <div className="flex min-h-12 shrink-0 items-center gap-0.5 border-b border-border py-1.5 pl-2 pr-1.5">
+              <div
+                className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto overflow-y-hidden pr-0.5 touch-pan-x [scrollbar-width:thin] [-webkit-overflow-scrolling:touch]"
+                role="tablist"
+                aria-label="Assistant conversations"
+              >
+                {chatSessions.map((s) => {
+                  const selected = s.id === activeChatSessionId;
+                  return (
+                    <div
+                      key={s.id}
+                      className={cn(
+                        "inline-flex h-8 min-w-0 max-w-[9.5rem] shrink-0 items-stretch overflow-hidden rounded-full border text-xs",
+                        selected
+                          ? "border-border bg-accent/90 text-accent-foreground"
+                          : "border-transparent bg-muted/60 text-muted-foreground hover:border-border/80 hover:bg-muted",
+                      )}
+                    >
+                      <button
+                        type="button"
+                        role="tab"
+                        id={`ai-chat-tab-${s.id}`}
+                        aria-selected={selected}
+                        className="app-no-drag min-w-0 flex-1 px-2.5 py-1.5 text-left text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                        onClick={() => setActiveChatSession(s.id)}
+                      >
+                        <span className="block truncate">
+                          {labelForSession(s.messages)}
+                        </span>
+                      </button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="app-no-drag h-8 w-7 shrink-0 rounded-none rounded-r-full px-0 text-muted-foreground hover:bg-background/30 hover:text-foreground"
+                        aria-label="Close conversation"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          closeChatSession(s.id);
+                        }}
+                      >
+                        <X className="size-3.5" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="app-no-drag h-8 w-8 shrink-0"
+                aria-label="New conversation"
+                onClick={() => addChatSession()}
+              >
+                <Plus className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="app-no-drag h-8 w-8 shrink-0"
+                aria-label="Close assistant"
+                onClick={closeDrawer}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="relative flex min-h-12 shrink-0 items-center border-b border-border px-4 py-2 pr-12">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-3 top-1/2 shrink-0 -translate-y-1/2 app-no-drag"
+                aria-label="Close assistant"
+                onClick={closeDrawer}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          )}
 
           {!aiToolsEnabled ? (
             <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">

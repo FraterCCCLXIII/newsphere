@@ -1,0 +1,87 @@
+# Build Tauri .dmg artifacts for Apple Silicon and Intel, commit them to
+# `public/downloads/` on the default branch. Skips the slow rebuild when the
+# only changes are the installers (paths-ignore) or when the commit message
+# contains [skip ci] (e.g. the bot’s own push).
+#
+# Prerequisite: the default branch (main) is writable by GitHub Actions. If
+# branch protection blocks the bot, add an exception or use a release workflow instead.
+
+name: macOS desktop installers (DMG)
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "public/downloads/**"
+  workflow_dispatch:
+
+concurrency:
+  group: macos-dmg-main
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & commit DMGs
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (Apple Silicon)
+        run: npm run tauri build -- --target aarch64-apple-darwin
+
+      - name: Build (Intel)
+        run: npm run tauri build -- --target x86_64-apple-darwin
+
+      - name: Stage fixed filenames under public/downloads
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          copy_dmg() {
+            local target_triple=$1
+            local dest_subdir=$2
+            local dmgs=(src-tauri/target/${target_triple}/release/bundle/dmg/*.dmg)
+            if [ ${#dmgs[@]} -eq 0 ]; then
+              echo "No .dmg in src-tauri/target/${target_triple}/release/bundle/dmg" >&2
+              exit 1
+            fi
+            mkdir -p "public/downloads/${dest_subdir}"
+            cp -f "${dmgs[0]}" "public/downloads/${dest_subdir}/Newsphere.dmg"
+            echo "Staged: public/downloads/${dest_subdir}/Newsphere.dmg"
+          }
+          copy_dmg aarch64-apple-darwin macos-arm64
+          copy_dmg x86_64-apple-darwin macos-x64
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/downloads/macos-arm64/Newsphere.dmg public/downloads/macos-x64/Newsphere.dmg
+          if git diff --staged --quiet; then
+            echo "No installer changes; skipping commit."
+            exit 0
+          fi
+          git commit -m "chore: refresh macOS DMGs in public/downloads [skip ci]"
+          git push

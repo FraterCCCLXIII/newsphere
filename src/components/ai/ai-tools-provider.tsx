@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -31,6 +32,16 @@ export type UiChatMessage = {
   content: string;
 };
 
+export type AiChatSession = {
+  id: string;
+  messages: UiChatMessage[];
+};
+
+type AiChatState = {
+  sessions: AiChatSession[];
+  activeId: string;
+};
+
 type AiToolsContextValue = {
   ready: boolean;
   aiToolsEnabled: boolean;
@@ -43,7 +54,13 @@ type AiToolsContextValue = {
   drawerOpen: boolean;
   setDrawerOpen: (v: boolean) => void;
   toggleDrawer: () => void;
+  /** Messages for the active session only. */
   messages: UiChatMessage[];
+  chatSessions: AiChatSession[];
+  activeChatSessionId: string;
+  setActiveChatSession: (id: string) => void;
+  addChatSession: () => void;
+  closeChatSession: (id: string) => void;
   sendUserMessage: (text: string) => Promise<void>;
   pending: boolean;
   error: string | null;
@@ -86,11 +103,34 @@ export function AiToolsProvider({
 }: AiToolsProviderProps) {
   const persistence = useAiToolsPersistence();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [messages, setMessages] = useState<UiChatMessage[]>([]);
-  const messagesRef = useRef(messages);
-  messagesRef.current = messages;
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!persistence.ready || persistence.enabled) return;
+    setDrawerOpen(false);
+  }, [persistence.ready, persistence.enabled]);
+  const [chat, setChat] = useState<AiChatState>(() => {
+    const id = crypto.randomUUID();
+    return { sessions: [{ id, messages: [] }], activeId: id };
+  });
+  const chatRef = useRef(chat);
+  chatRef.current = chat;
+  const [pendingForSessionId, setPendingForSessionId] = useState<string | null>(null);
+  const [sessionError, setSessionError] = useState<{
+    sessionId: string;
+    message: string;
+  } | null>(null);
+
+  const { sessions, activeId } = chat;
+  const messages = useMemo(
+    () => sessions.find((s) => s.id === activeId)?.messages ?? [],
+    [sessions, activeId],
+  );
+  const activeSessionIdRef = useRef(activeId);
+  activeSessionIdRef.current = activeId;
+
+  const pending = pendingForSessionId === activeId;
+  const error =
+    sessionError?.sessionId === activeId ? sessionError.message : null;
 
   const searchBundle = useMemo<FeedSearchBundle>(() => {
     try {
@@ -153,39 +193,86 @@ export function AiToolsProvider({
     [searchBundle, persistence.llm, executeTool],
   );
 
+  const setActiveChatSession = useCallback((id: string) => {
+    setChat((c) => (c.sessions.some((s) => s.id === id) ? { ...c, activeId: id } : c));
+  }, []);
+
+  const addChatSession = useCallback(() => {
+    setChat((c) => {
+      const newId = crypto.randomUUID();
+      return {
+        sessions: [...c.sessions, { id: newId, messages: [] }],
+        activeId: newId,
+      };
+    });
+  }, []);
+
+  const closeChatSession = useCallback((id: string) => {
+    setPendingForSessionId((cur) => (cur === id ? null : cur));
+    setSessionError((e) => (e?.sessionId === id ? null : e));
+    setChat((c) => {
+      if (c.sessions.length <= 1) {
+        const newId = crypto.randomUUID();
+        return { sessions: [{ id: newId, messages: [] }], activeId: newId };
+      }
+      const nextSessions = c.sessions.filter((s) => s.id !== id);
+      let nextActive = c.activeId;
+      if (c.activeId === id) {
+        const removedIndex = c.sessions.findIndex((s) => s.id === id);
+        nextActive = nextSessions[Math.min(removedIndex, nextSessions.length - 1)]!.id;
+      }
+      return { sessions: nextSessions, activeId: nextActive };
+    });
+  }, []);
+
   const sendUserMessage = useCallback(
     async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed || !persistence.enabled) return;
 
+      const targetSessionId = activeSessionIdRef.current;
       const userMsg: UiChatMessage = {
         id: crypto.randomUUID(),
         role: "user",
         content: trimmed,
       };
 
-      // Never start async work inside setMessages: React Strict Mode double-invokes
-      // updater functions in development, which would run the assistant twice.
-      const nextHistory = [...messagesRef.current, userMsg];
-      setMessages(nextHistory);
+      // Never start async work inside a React state updater: Strict Mode can double-run it.
+      const current = chatRef.current.sessions.find((s) => s.id === targetSessionId);
+      if (!current) return;
+      const nextHistory = [...current.messages, userMsg];
+      setChat((c) => ({
+        ...c,
+        sessions: c.sessions.map((s) =>
+          s.id === targetSessionId ? { ...s, messages: nextHistory } : s,
+        ),
+      }));
 
-      setError(null);
-      setPending(true);
+      setSessionError((e) => (e?.sessionId === targetSessionId ? null : e));
+      setPendingForSessionId(targetSessionId);
       try {
         const reply = await runAssistant(nextHistory);
-        setMessages((p) => [
-          ...p,
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: reply,
-          },
-        ]);
+        const assistantMsg: UiChatMessage = {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: reply,
+        };
+        setChat((c) => {
+          if (!c.sessions.some((s) => s.id === targetSessionId)) return c;
+          return {
+            ...c,
+            sessions: c.sessions.map((s) =>
+              s.id === targetSessionId
+                ? { ...s, messages: [...nextHistory, assistantMsg] }
+                : s,
+            ),
+          };
+        });
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        setError(msg);
+        setSessionError({ sessionId: targetSessionId, message: msg });
       } finally {
-        setPending(false);
+        setPendingForSessionId((cur) => (cur === targetSessionId ? null : cur));
       }
     },
     [persistence.enabled, runAssistant],
@@ -205,7 +292,7 @@ export function AiToolsProvider({
     [persistence.enabled, sendUserMessage],
   );
 
-  const clearError = useCallback(() => setError(null), []);
+  const clearError = useCallback(() => setSessionError(null), []);
 
   const value = useMemo<AiToolsContextValue>(
     () => ({
@@ -221,6 +308,11 @@ export function AiToolsProvider({
       setDrawerOpen,
       toggleDrawer,
       messages,
+      chatSessions: sessions,
+      activeChatSessionId: activeId,
+      setActiveChatSession,
+      addChatSession,
+      closeChatSession,
       sendUserMessage,
       pending,
       error,
@@ -239,6 +331,11 @@ export function AiToolsProvider({
       drawerOpen,
       toggleDrawer,
       messages,
+      sessions,
+      activeId,
+      setActiveChatSession,
+      addChatSession,
+      closeChatSession,
       sendUserMessage,
       pending,
       error,

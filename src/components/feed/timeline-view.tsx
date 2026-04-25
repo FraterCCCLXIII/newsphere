@@ -81,7 +81,7 @@ function FeedStreamSortHeader({
   className,
 }: {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   sortMode: FeedStreamSortMode;
   onSortChange: (mode: FeedStreamSortMode) => void;
   className?: string;
@@ -89,14 +89,17 @@ function FeedStreamSortHeader({
   return (
     <header
       className={cn(
-        "shrink-0 border-b border-border bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+        "shrink-0 bg-background/95 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+        subtitle != null && subtitle !== "" && "border-b border-border",
         className,
       )}
     >
       <div className="flex flex-row items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-          <p className="text-xs text-muted-foreground">{subtitle}</p>
+          {subtitle != null && subtitle !== "" && (
+            <p className="text-xs text-muted-foreground">{subtitle}</p>
+          )}
         </div>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
@@ -405,7 +408,6 @@ export function TimelineView() {
     <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col px-2 py-4">
       <FeedStreamSortHeader
         title="Latest"
-        subtitle={FEED_STREAM_SORT_DESCRIPTIONS[feedStreamSort]}
         sortMode={feedStreamSort}
         onSortChange={setFeedStreamSort}
       />

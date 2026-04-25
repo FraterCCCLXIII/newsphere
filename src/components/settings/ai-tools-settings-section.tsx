@@ -1,4 +1,4 @@
-import { Bot, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 import { useAiTools } from "@/components/ai/ai-tools-provider";
 import { Button } from "@/components/ui/button";
@@ -57,28 +57,22 @@ export function AiToolsSettingsSection({ className }: { className?: string }) {
       className={cn("rounded-lg border border-border bg-card p-4 shadow-sm", className)}
       aria-labelledby="settings-ai-tools-heading"
     >
-      <div className="flex items-start gap-2">
-        <Bot
-          className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-          aria-hidden
-        />
-        <div className="min-w-0 flex-1 space-y-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2
-              id="settings-ai-tools-heading"
-              className="text-sm font-medium text-foreground"
-            >
-              AI tools
-            </h2>
-            <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-              Beta
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Enable the in-app assistant and floating prompt. API keys are stored
-            only on this device (same as other local settings).
-          </p>
+      <div className="space-y-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2
+            id="settings-ai-tools-heading"
+            className="text-sm font-medium text-foreground"
+          >
+            AI tools
+          </h2>
+          <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            Beta
+          </span>
         </div>
+        <p className="text-sm text-muted-foreground">
+          Enable the in-app assistant and floating prompt. API keys are stored
+          only on this device (same as other local settings).
+        </p>
       </div>
 
       <div className="mt-4 space-y-4">
