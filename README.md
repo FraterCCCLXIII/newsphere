@@ -2,6 +2,12 @@
 
 The **Newsphere** desktop app: a Tauri 2 + React + Vite reader built around a **column grid of feeds** on topic pages, with a **frameless, rounded window** and platform-native window controls (macOS: traffic lights on the left; Windows: controls on the right). This repository is the **application**; the public marketing page (downloads, product copy) usually lives in a separate repo, e.g. **`newsphere-site`**, under the same GitHub owner.
 
+## Beta status
+
+This app is **early / beta**. Expect **bugs**, rough edges, and **UI changes** that still need design and polish. Day-to-day development has focused on **Apple Silicon macOS**; the project **has not been meaningfully tested on Windows** or on **Intel-based Macs**. Behavior there may differ or fail in ways we have not seen.
+
+**Contributors welcome:** if you can run the app on **Windows**, **Intel Mac**, or other setups, please **test**, **file issues**, and **submit pull requests** (fixes, UX improvements, docs, CI). Small, focused PRs are easiest to review.
+
 ## Features
 
 - **Grid home** — Multiple pages, each with rows of feed columns; drag-and-drop order, section labels, and a searchable **feed catalog** plus optional custom feed URLs.
@@ -10,6 +16,16 @@ The **Newsphere** desktop app: a Tauri 2 + React + Vite reader built around a **
 - **Latest** — A single “newest first” stream of articles across the feeds on a page.
 - **Persistence** — Layout and settings stored with the Tauri Store plugin; `npm run dev` without Tauri uses `localStorage` and hides window controls.
 - **Window chrome** — Transparent window with CSS clipping for rounded corners on macOS; `macos-private-api` is enabled in Rust for that (not App Store–compatible for that build).
+
+## AI assistant (beta)
+
+The in-app assistant is **optional** and **off by default**. Turn it on under **Settings → App → AI tools (beta)**. You supply your own **API credentials** (nothing is sent to a Newsphere-hosted backend): choose **OpenAI**, **Anthropic**, **Google Gemini**, or an **OpenAI-compatible** endpoint (e.g. **Ollama**, **LM Studio**). Keys and config are stored **only on the device** (Tauri Store in the desktop app; `localStorage` if you run Vite without Tauri).
+
+**UI:** With AI enabled, a control in the **title bar** opens a **side drawer** for multi-session chat. When the drawer is closed, a **floating prompt** at the bottom of the window sends the first message and opens the drawer. Markdown in replies can link to in-app routes, reader URLs, and external sites (external links open in the system browser).
+
+**How it works (high level):** Each user message builds a **system prompt** that includes a **retrieval pass** over locally cached feed snippets (headlines/excerpts) so the model sees relevant articles without you pasting them. The model can also call **tools** in a loop (OpenAI-style function calling, with adapters for Anthropic and Gemini in code): it can read the **current reader article**, **search the feed cache**, list **columns** and **grid pages**, read **bookmarks** and **reading history**, **fetch full article text** from a URL (Readability-style extraction), **open** an article in the reader, **navigate** inside the app, and—if you explicitly enable it—**web search** via **DuckDuckGo instant answers** (off by default so feeds and local data stay the default).
+
+**Limitations and room for improvement:** This stack is **early**. Retrieval is **snippet-based**, not a full semantic database; tool calling can **fail or mis-fire** depending on the model; **streaming**, richer citations, and **cost / token controls** are minimal; **errors and timeouts** are not as polished as a production product; behavior varies by **provider and model**. **Web search** is best-effort and should not be treated as authoritative. Contributions are welcome for **prompting**, **tools**, **UX**, **new providers**, and **tests**.
 
 ## Prerequisites
 

@@ -4,7 +4,9 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AiChatDrawer } from "@/components/ai/ai-chat-drawer";
 import { useAiTools } from "@/components/ai/ai-tools-provider";
 import { AddSourceModal } from "@/components/layout/add-source-modal";
+import { KeyboardShortcutsDialog } from "@/components/layout/keyboard-shortcuts-dialog";
 import { TitleBar, type TitleBarProps } from "@/components/layout/title-bar";
+import { useAppKeyboardShortcuts } from "@/hooks/use-app-keyboard-shortcuts";
 import type { FeedItemsController } from "@/hooks/use-feed-items";
 import type { BookmarksController } from "@/hooks/use-bookmarks";
 import type { ReadHistoryController } from "@/hooks/use-read-history";
@@ -37,9 +39,17 @@ function AppShellTitleBarWithAi(props: Omit<TitleBarProps, "aiAssistant">) {
 export function AppShell({ grid, feed, bookmarks, readHistory }: AppShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const ai = useAiTools();
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [addSourceOpen, setAddSourceOpen] = useState(false);
+  const [keyboardShortcutsOpen, setKeyboardShortcutsOpen] = useState(false);
   const pendingInsertFeedAfterIdRef = useRef<string | null>(null);
+
+  const refreshAll = useCallback(() => {
+    void grid.refresh();
+    void feed.refetchFeeds();
+  }, [grid, feed]);
 
   const closeReaderForGridShell = useCallback(() => {
     if (location.pathname === "/reader") {
@@ -74,6 +84,18 @@ export function AppShell({ grid, feed, bookmarks, readHistory }: AppShellProps) 
       cols.length > 0 ? cols[cols.length - 1]!.id : null;
     setAddSourceOpen(true);
   }, [grid.settingsColumns]);
+
+  useAppKeyboardShortcuts({
+    openShortcutsDialog: () => setKeyboardShortcutsOpen(true),
+    focusSearch: () => {
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    },
+    onRefresh: refreshAll,
+    onAddSource: openAddFeedModalAppend,
+    toggleAi:
+      ai.ready && ai.aiToolsEnabled ? ai.toggleDrawer : undefined,
+  });
 
   const handleAddCatalogSource = useCallback(
     async (source: CatalogSource) => {
@@ -137,10 +159,9 @@ export function AppShell({ grid, feed, bookmarks, readHistory }: AppShellProps) 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
       <AppShellTitleBarWithAi
-        onRefresh={() => {
-          void grid.refresh();
-          void feed.refetchFeeds();
-        }}
+        searchInputRef={searchInputRef}
+        onOpenKeyboardShortcuts={() => setKeyboardShortcutsOpen(true)}
+        onRefresh={refreshAll}
         refreshing={grid.refreshing || feed.feedsRefreshing}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
@@ -163,6 +184,10 @@ export function AppShell({ grid, feed, bookmarks, readHistory }: AppShellProps) 
         onAddSource={handleAddCatalogSource}
         onAddCustomColumn={handleAddCustomColumn}
         onRemoveByFeedUrl={handleRemoveByFeedUrl}
+      />
+      <KeyboardShortcutsDialog
+        open={keyboardShortcutsOpen}
+        onOpenChange={setKeyboardShortcutsOpen}
       />
     </div>
   );

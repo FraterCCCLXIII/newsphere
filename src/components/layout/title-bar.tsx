@@ -1,10 +1,11 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, type RefObject } from "react";
 import {
   Bookmark,
   History,
   ChevronLeft,
   ChevronRight,
   Grid3x3,
+  Keyboard,
   Menu,
   MoreVertical,
   Plus,
@@ -48,6 +49,8 @@ export type AiAssistantTitleBarProps = {
 };
 
 export type TitleBarProps = {
+  searchInputRef: RefObject<HTMLInputElement | null>;
+  onOpenKeyboardShortcuts: () => void;
   onRefresh: () => void;
   refreshing: boolean;
   searchValue: string;
@@ -81,6 +84,7 @@ type SettingsThemeExtrasProps = {
   textScale: number;
   setTextScale: (n: number) => void;
   linkFromReader: (to: string) => (e: React.MouseEvent<HTMLAnchorElement>) => void;
+  onOpenKeyboardShortcuts: () => void;
 };
 
 function SettingsThemeExtras({
@@ -89,9 +93,30 @@ function SettingsThemeExtras({
   textScale,
   setTextScale,
   linkFromReader,
+  onOpenKeyboardShortcuts,
 }: SettingsThemeExtrasProps) {
+  const shortcutsHint = isMac() ? "⌘/" : "Ctrl+/";
+
   return (
     <>
+      <DropdownMenuItem
+        className="flex cursor-pointer items-center gap-2"
+        onSelect={() => onOpenKeyboardShortcuts()}
+      >
+        <Keyboard
+          className="size-4 shrink-0 text-muted-foreground"
+          aria-hidden
+        />
+        <span className="min-w-0 flex-1">Keyboard shortcuts</span>
+        <kbd
+          className={cn(
+            "pointer-events-none hidden shrink-0 rounded border border-border bg-muted/80 px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground sm:inline",
+          )}
+        >
+          {shortcutsHint}
+        </kbd>
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
       <DropdownMenuItem asChild>
         <Link
           to="/settings"
@@ -117,6 +142,8 @@ function SettingsThemeExtras({
 }
 
 export function TitleBar({
+  searchInputRef,
+  onOpenKeyboardShortcuts,
   onRefresh,
   refreshing,
   searchValue,
@@ -173,6 +200,7 @@ export function TitleBar({
       textScale={textScale}
       setTextScale={setTextScale}
       linkFromReader={linkFromReader}
+      onOpenKeyboardShortcuts={onOpenKeyboardShortcuts}
     />
   );
 
@@ -490,13 +518,13 @@ export function TitleBar({
         </div>
 
         <div
-          className="app-drag-region hidden min-h-9 min-w-4 shrink-0 md:order-2 md:block md:flex-1"
+          className="app-drag-region hidden min-h-9 min-w-4 shrink-0 md:order-2 md:block md:flex-[0.7]"
           data-tauri-drag-region
           aria-hidden
         />
 
         <div
-          className="app-no-drag relative z-0 flex min-w-0 flex-1 items-center gap-0.5 md:order-3 md:justify-center"
+          className="app-no-drag relative z-0 flex min-w-0 flex-1 items-center gap-0.5 md:order-3 md:flex-[1.6]"
           data-tauri-drag-region="false"
         >
           <div className="flex shrink-0 items-center gap-0">
@@ -535,12 +563,13 @@ export function TitleBar({
               <ChevronRight className="size-4 shrink-0" aria-hidden />
             </Button>
           </div>
-          <div className="relative min-w-0 w-full max-w-full md:max-w-[min(56rem,calc(100%-8rem))] lg:max-w-5xl">
+          <div className="relative min-w-0 flex-1 md:min-w-[12rem]">
             <Search
               className="pointer-events-none absolute left-2.5 top-1/2 z-[1] size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
             />
             <Input
+              ref={searchInputRef}
               type="search"
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -553,7 +582,7 @@ export function TitleBar({
         </div>
 
         <div
-          className="app-drag-region hidden min-h-9 min-w-4 shrink-0 md:order-4 md:block md:flex-1"
+          className="app-drag-region hidden min-h-9 min-w-4 shrink-0 md:order-4 md:block md:flex-[0.7]"
           data-tauri-drag-region
           aria-hidden
         />

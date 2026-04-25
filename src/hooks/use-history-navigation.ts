@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { shouldIgnoreShortcutTarget } from "@/lib/keyboard-shortcut-target";
 import { isMac } from "@/lib/platform";
 
 type NavCaps = {
@@ -54,15 +55,6 @@ function applyIdxCaps(
     canGoBack: idx > 0,
     canGoForward: idx < maxIdx,
   });
-}
-
-function shouldIgnoreKeyboardTarget(target: EventTarget | null): boolean {
-  const el = target as HTMLElement | null;
-  if (!el) return false;
-  const tag = el.tagName;
-  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
-  if (el.isContentEditable) return true;
-  return Boolean(el.closest("[role='textbox']"));
 }
 
 /**
@@ -165,7 +157,7 @@ export function useHistoryNavigation() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.repeat) return;
-      if (shouldIgnoreKeyboardTarget(e.target)) return;
+      if (shouldIgnoreShortcutTarget(e.target)) return;
 
       const mac = isMac();
       if (mac) {

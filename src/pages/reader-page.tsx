@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { useReaderArticle } from "@/hooks/use-reader-article";
 import { formatPublishedForPreference } from "@/lib/feed-time";
 import { normalizeBookmarkLink } from "@/lib/bookmark-utils";
+import { shouldIgnoreShortcutTarget } from "@/lib/keyboard-shortcut-target";
 import { safeHttpHref } from "@/lib/safe-url";
 import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
 import { cn } from "@/lib/utils";
@@ -158,7 +159,6 @@ export function ReaderPage() {
     [currentItem?.published, dateFormatStyle],
   );
 
-  const showNav = Boolean(columnId) && items.length > 0;
   const iframeSrc = safeArticleUrl ?? "";
 
   const bookmarked = useMemo(() => {
@@ -183,6 +183,62 @@ export function ReaderPage() {
     currentItem?.published,
     columnTitle,
     columnId,
+  ]);
+
+  const showNav = Boolean(columnId) && items.length > 0;
+
+  useEffect(() => {
+    if (!linkParam || !safeArticleUrl) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.repeat) return;
+
+      if (e.key === "Escape") {
+        if (!e.isTrusted) return;
+        if (shouldIgnoreShortcutTarget(e.target)) return;
+        e.preventDefault();
+        handleClose();
+        return;
+      }
+
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === "d") {
+        if (shouldIgnoreShortcutTarget(e.target)) return;
+        e.preventDefault();
+        handleBookmark();
+        return;
+      }
+
+      if (shouldIgnoreShortcutTarget(e.target)) return;
+      if (!showNav) return;
+
+      const key = e.key;
+      if (key === "k" || key === "K" || key === "ArrowLeft") {
+        if (prevItem) {
+          e.preventDefault();
+          goToItem(prevItem);
+        }
+        return;
+      }
+      if (key === "j" || key === "J" || key === "ArrowRight") {
+        if (nextItem) {
+          e.preventDefault();
+          goToItem(nextItem);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [
+    linkParam,
+    safeArticleUrl,
+    handleClose,
+    handleBookmark,
+    showNav,
+    prevItem,
+    nextItem,
+    goToItem,
   ]);
 
   useEffect(() => {
