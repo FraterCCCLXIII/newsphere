@@ -15,7 +15,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Pencil, Plus } from "lucide-react";
+import { DotsSixVertical, PencilSimple, Plus } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -92,7 +92,7 @@ function SortablePageRow({
         {...attributes}
         {...listeners}
       >
-        <GripVertical className="size-4 shrink-0" aria-hidden />
+        <DotsSixVertical className="size-4 shrink-0" aria-hidden />
       </button>
       <Button
         type="button"
@@ -117,7 +117,7 @@ function SortablePageRow({
         }}
         aria-label={`Rename ${page.name}`}
       >
-        <Pencil className="size-4" aria-hidden />
+        <PencilSimple className="size-4" aria-hidden />
       </Button>
     </div>
   );

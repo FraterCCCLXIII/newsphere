@@ -1,13 +1,13 @@
 import {
-  CalendarClock,
-  ChevronDown,
+  CalendarDots,
+  CaretDown,
   Clock,
-  GripVertical,
-  ImageIcon,
-  Images,
-  LayoutGrid,
-  Unplug,
-} from "lucide-react";
+  DotsSixVertical,
+  GridFour,
+  Image,
+  ImagesSquare,
+  Plugs,
+} from "@phosphor-icons/react";
 
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { TextScaleSlider } from "@/components/layout/text-scale-slider";
@@ -103,7 +103,7 @@ export function AppSettingsSection({ className }: { className?: string }) {
         </div>
 
         <div className="flex flex-nowrap items-center gap-2 pt-1">
-          <CalendarClock
+          <CalendarDots
             className="size-4 shrink-0 text-muted-foreground"
             aria-hidden
           />
@@ -126,7 +126,7 @@ export function AppSettingsSection({ className }: { className?: string }) {
                 )}
               >
                 <span className="truncate text-left text-sm">{dateFormatLabel}</span>
-                <ChevronDown
+                <CaretDown
                   className="size-4 shrink-0 opacity-50"
                   aria-hidden
                 />
@@ -153,7 +153,7 @@ export function AppSettingsSection({ className }: { className?: string }) {
         </div>
 
         <div className="flex items-start gap-2 pt-1">
-          <Images
+          <ImagesSquare
             className="mt-0.5 size-4 shrink-0 text-muted-foreground"
             aria-hidden
           />
@@ -182,7 +182,7 @@ export function AppSettingsSection({ className }: { className?: string }) {
         </div>
 
         <div className="flex items-start gap-2 border-t border-border pt-3">
-          <LayoutGrid
+          <GridFour
             className="mt-0.5 size-4 shrink-0 text-muted-foreground"
             aria-hidden
           />
@@ -211,7 +211,7 @@ export function AppSettingsSection({ className }: { className?: string }) {
         </div>
 
         <div className="flex items-start gap-2 border-t border-border pt-3">
-          <GripVertical
+          <DotsSixVertical
             className="mt-0.5 size-4 shrink-0 text-muted-foreground"
             aria-hidden
           />
@@ -240,7 +240,7 @@ export function AppSettingsSection({ className }: { className?: string }) {
         </div>
 
         <div className="flex items-start gap-2 border-t border-border pt-3">
-          <ImageIcon
+          <Image
             className="mt-0.5 size-4 shrink-0 text-muted-foreground"
             aria-hidden
           />
@@ -269,7 +269,7 @@ export function AppSettingsSection({ className }: { className?: string }) {
         </div>
 
         <div className="flex items-start gap-2 border-t border-border pt-3">
-          <Unplug
+          <Plugs
             className="mt-0.5 size-4 shrink-0 text-muted-foreground"
             aria-hidden
           />

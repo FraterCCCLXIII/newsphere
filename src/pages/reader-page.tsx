@@ -1,12 +1,12 @@
 import {
-  Bookmark,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-  Loader2,
-  Share2,
+  ArrowSquareOut,
+  BookmarkSimple,
+  CaretLeft,
+  CaretRight,
+  CircleNotch,
+  ShareNetwork,
   X,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
   useNavigate,
@@ -301,7 +301,7 @@ export function ReaderPage() {
             aria-label="Previous article in this feed"
             onClick={() => prevItem && goToItem(prevItem)}
           >
-            <ChevronLeft className="size-5" />
+            <CaretLeft className="size-5" />
           </Button>
           <Button
             type="button"
@@ -313,7 +313,7 @@ export function ReaderPage() {
             aria-label="Next article in this feed"
             onClick={() => nextItem && goToItem(nextItem)}
           >
-            <ChevronRight className="size-5" />
+            <CaretRight className="size-5" />
           </Button>
         </div>
 
@@ -331,7 +331,7 @@ export function ReaderPage() {
             aria-label="Share"
             onClick={() => setShareOpen(true)}
           >
-            <Share2 className="size-4" aria-hidden />
+            <ShareNetwork className="size-4" aria-hidden />
           </Button>
           <Button
             type="button"
@@ -342,13 +342,12 @@ export function ReaderPage() {
             aria-label={bookmarked ? "Remove bookmark" : "Bookmark"}
             onClick={handleBookmark}
           >
-            <Bookmark
+            <BookmarkSimple
+              weight={bookmarked ? "fill" : "regular"}
               className={cn(
                 "size-4",
-                bookmarked &&
-                  "fill-current text-primary/50 dark:text-primary",
+                bookmarked && "text-primary/50 dark:text-primary",
               )}
-              strokeWidth={bookmarked ? 0 : 2}
               aria-hidden
             />
           </Button>
@@ -361,7 +360,7 @@ export function ReaderPage() {
             title="Open in browser"
             aria-label="Open in browser"
           >
-            <ExternalLink className="size-4" aria-hidden />
+            <ArrowSquareOut className="size-4" aria-hidden />
           </ExternalBrowserLink>
           <Button
             type="button"
@@ -380,7 +379,7 @@ export function ReaderPage() {
       <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
         {bodyState.kind === "loading" ? (
           <div className="flex min-h-[50vh] flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="size-5 animate-spin" aria-hidden />
+            <CircleNotch className="size-5 animate-spin" aria-hidden />
             Loading article…
           </div>
         ) : null}

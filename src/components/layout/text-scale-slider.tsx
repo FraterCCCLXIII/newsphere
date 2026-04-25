@@ -1,4 +1,4 @@
-import { Type } from "lucide-react";
+import { TextT } from "@phosphor-icons/react";
 
 import {
   TEXT_SCALE_DEFAULT,
@@ -35,7 +35,7 @@ export function TextScaleSlider({
   return (
     <div className="space-y-2 px-2 py-2">
       <div className="flex items-center gap-2">
-        <Type className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+        <TextT className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         <span className="min-w-0 flex-1 text-sm text-foreground">Text size</span>
         <span className="shrink-0 tabular-nums text-xs text-muted-foreground">
           {Math.round(textScale * 100)}%

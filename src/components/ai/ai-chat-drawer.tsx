@@ -7,7 +7,7 @@ import {
   type FormEvent,
 } from "react";
 import { Link } from "react-router-dom";
-import { Plus, SendHorizontal, X } from "lucide-react";
+import { PaperPlaneRight, Plus, X } from "@phosphor-icons/react";
 
 import {
   useAiTools,
@@ -291,7 +291,7 @@ export function AiChatDrawer() {
                   aria-label="Send"
                   disabled={pending || !input.trim()}
                 >
-                  <SendHorizontal className="size-4" />
+                  <PaperPlaneRight className="size-4" />
                 </Button>
               </form>
             </>

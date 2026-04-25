@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus } from "@phosphor-icons/react";
 import {
   useCallback,
   useLayoutEffect,
@@ -147,7 +147,7 @@ function InsertionZone({
                 <span className="h-px min-w-0 flex-1 bg-border" aria-hidden />
                 <Plus
                   className="size-3 shrink-0 transition-colors group-hover:text-foreground/85"
-                  strokeWidth={2.25}
+                  strokeWidth={1.75}
                   aria-hidden
                 />
                 <span className="h-px min-w-0 flex-1 bg-border" aria-hidden />
@@ -157,7 +157,7 @@ function InsertionZone({
                 <span className="w-px min-h-0 flex-1 bg-border" aria-hidden />
                 <Plus
                   className="size-3 shrink-0 transition-colors group-hover:text-foreground/85"
-                  strokeWidth={2.25}
+                  strokeWidth={1.75}
                   aria-hidden
                 />
                 <span className="w-px min-h-0 flex-1 bg-border" aria-hidden />

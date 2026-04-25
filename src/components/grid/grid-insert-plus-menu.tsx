@@ -1,4 +1,4 @@
-import { Heading, Newspaper } from "lucide-react";
+import { Newspaper, TextH } from "@phosphor-icons/react";
 import {
   cloneElement,
   useCallback,
@@ -138,7 +138,7 @@ export function GridInsertPlusMenu({
             close();
           }}
         >
-          <Heading className="size-4 shrink-0" aria-hidden />
+          <TextH className="size-4 shrink-0" aria-hidden />
           New section header
         </button>
         <button

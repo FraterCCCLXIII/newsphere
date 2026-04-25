@@ -17,7 +17,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Pencil, Trash2 } from "lucide-react";
+import { DotsSixVertical, PencilSimple, Trash } from "@phosphor-icons/react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -100,7 +100,7 @@ function SortableFeedRow({
         {...attributes}
         {...listeners}
       >
-        <GripVertical className="size-4" />
+        <DotsSixVertical className="size-4" />
       </button>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{column.title}</p>
@@ -118,7 +118,7 @@ function SortableFeedRow({
         onClick={onEditTitle}
         aria-label={`Rename ${column.title}`}
       >
-        <Pencil className="size-4" />
+        <PencilSimple className="size-4" />
       </Button>
       <Button
         type="button"
@@ -128,7 +128,7 @@ function SortableFeedRow({
         onClick={() => onRemove(column.id)}
         aria-label={`Remove ${column.title}`}
       >
-        <Trash2 className="size-4" />
+        <Trash className="size-4" />
       </Button>
     </div>
   );
@@ -175,7 +175,7 @@ function SortableHeaderRow({
         {...attributes}
         {...listeners}
       >
-        <GripVertical className="size-4" />
+        <DotsSixVertical className="size-4" />
       </button>
       <div className="min-w-0 flex-1">
         <p className="text-base font-semibold tracking-tight text-foreground">
@@ -193,7 +193,7 @@ function SortableHeaderRow({
         onClick={onEditTitle}
         aria-label={`Rename section ${column.title}`}
       >
-        <Pencil className="size-4" />
+        <PencilSimple className="size-4" />
       </Button>
       <Button
         type="button"
@@ -203,7 +203,7 @@ function SortableHeaderRow({
         onClick={() => onRemove(column.id)}
         aria-label={`Remove section header ${column.title}`}
       >
-        <Trash2 className="size-4" />
+        <Trash className="size-4" />
       </Button>
     </div>
   );
@@ -217,7 +217,7 @@ function ColumnListFeedOverlay({ column }: { column: GridColumn }) {
         className="touch-none rounded p-1 text-muted-foreground"
         aria-hidden
       >
-        <GripVertical className="size-4" />
+        <DotsSixVertical className="size-4" />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{column.title}</p>
@@ -229,10 +229,10 @@ function ColumnListFeedOverlay({ column }: { column: GridColumn }) {
       </div>
       <div className="flex shrink-0 gap-0.5 opacity-50" aria-hidden>
         <span className="inline-flex size-9 items-center justify-center rounded-md">
-          <Pencil className="size-4" />
+          <PencilSimple className="size-4" />
         </span>
         <span className="inline-flex size-9 items-center justify-center rounded-md">
-          <Trash2 className="size-4" />
+          <Trash className="size-4" />
         </span>
       </div>
     </div>
@@ -247,7 +247,7 @@ function ColumnListHeaderCompactOverlay({ column }: { column: GridColumn }) {
         className="touch-none rounded p-1 text-muted-foreground"
         aria-hidden
       >
-        <GripVertical className="size-4" />
+        <DotsSixVertical className="size-4" />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{column.title}</p>
@@ -255,10 +255,10 @@ function ColumnListHeaderCompactOverlay({ column }: { column: GridColumn }) {
       </div>
       <div className="flex shrink-0 gap-0.5 opacity-50" aria-hidden>
         <span className="inline-flex size-9 items-center justify-center rounded-md">
-          <Pencil className="size-4" />
+          <PencilSimple className="size-4" />
         </span>
         <span className="inline-flex size-9 items-center justify-center rounded-md">
-          <Trash2 className="size-4" />
+          <Trash className="size-4" />
         </span>
       </div>
     </div>

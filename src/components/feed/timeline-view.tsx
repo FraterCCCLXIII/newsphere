@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { ChevronDown, ArrowUpDown } from "lucide-react";
+import { ArrowsDownUp, CaretDown } from "@phosphor-icons/react";
 import { useOutletContext } from "react-router-dom";
 
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
@@ -94,45 +94,47 @@ function FeedStreamSortHeader({
         className,
       )}
     >
-      <div className="flex flex-row items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-          {subtitle != null && subtitle !== "" && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
-          )}
+      <div className="flex min-w-0 flex-col gap-1">
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <h1 className="min-w-0 truncate text-sm font-semibold text-foreground">
+            {title}
+          </h1>
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="app-no-drag h-8 shrink-0 gap-1.5 px-2 text-xs font-normal"
+                aria-label="Sort feed"
+              >
+                <ArrowsDownUp className="size-3.5 shrink-0 opacity-70" aria-hidden />
+                <span className="max-w-[9rem] truncate">
+                  {FEED_STREAM_SORT_LABELS[sortMode]}
+                </span>
+                <CaretDown className="size-3.5 shrink-0 opacity-60" aria-hidden />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[12rem]">
+              <DropdownMenuRadioGroup
+                value={sortMode}
+                onValueChange={(v) => {
+                  const next = v as FeedStreamSortMode;
+                  if (FEED_STREAM_SORT_MODES.includes(next)) onSortChange(next);
+                }}
+              >
+                {FEED_STREAM_SORT_MODES.map((mode) => (
+                  <DropdownMenuRadioItem key={mode} value={mode}>
+                    <span className="min-w-0 flex-1">{FEED_STREAM_SORT_LABELS[mode]}</span>
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="app-no-drag h-8 shrink-0 gap-1.5 px-2 text-xs font-normal"
-              aria-label="Sort feed"
-            >
-              <ArrowUpDown className="size-3.5 shrink-0 opacity-70" aria-hidden />
-              <span className="max-w-[9rem] truncate">
-                {FEED_STREAM_SORT_LABELS[sortMode]}
-              </span>
-              <ChevronDown className="size-3.5 shrink-0 opacity-60" aria-hidden />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="min-w-[12rem]">
-            <DropdownMenuRadioGroup
-              value={sortMode}
-              onValueChange={(v) => {
-                const next = v as FeedStreamSortMode;
-                if (FEED_STREAM_SORT_MODES.includes(next)) onSortChange(next);
-              }}
-            >
-              {FEED_STREAM_SORT_MODES.map((mode) => (
-                <DropdownMenuRadioItem key={mode} value={mode}>
-                  <span className="min-w-0 flex-1">{FEED_STREAM_SORT_LABELS[mode]}</span>
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {subtitle != null && subtitle !== "" && (
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
+        )}
       </div>
     </header>
   );
@@ -222,6 +224,7 @@ function VirtualizedTimelineList({
 export function TimelineView() {
   const {
     columns,
+    activePageId,
     searchQuery,
     feedItemsByColumnId,
     feedLoadingByColumnId,
@@ -335,7 +338,7 @@ export function TimelineView() {
   if (isSearch) {
     if (filteredRows.length === 0) {
       return (
-        <div className="mx-auto flex max-w-xl flex-col items-center justify-center gap-2 px-4 py-16 text-center">
+        <div className="flex w-full max-w-xl flex-col items-center justify-center gap-2 px-4 py-16 text-center">
           <p className="text-sm font-medium text-foreground">No matches</p>
           <p className="max-w-sm text-sm text-muted-foreground">
             Nothing in your feeds matches this search. Try different keywords or
@@ -345,7 +348,7 @@ export function TimelineView() {
       );
     }
     return (
-      <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col px-2 py-4">
+      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col px-2 py-4">
         <FeedStreamSortHeader
           title="Search results"
           subtitle={`${filteredRows.length} ${
@@ -358,7 +361,7 @@ export function TimelineView() {
         <VirtualizedTimelineList
           rows={filteredRows}
           showFeedPreviewImages={showFeedPreviewImages}
-          scrollStorageKey="feed-stream-search"
+          scrollStorageKey={`feed-stream-search-${activePageId}`}
         />
       </div>
     );
@@ -369,7 +372,7 @@ export function TimelineView() {
       const n = 8;
       return (
         <div
-          className="mx-auto w-full max-w-xl min-w-0 px-2 py-4"
+          className="w-full min-w-0 px-2 py-4"
           aria-busy="true"
           aria-label="Loading feeds"
         >
@@ -405,7 +408,7 @@ export function TimelineView() {
   }
 
   return (
-    <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col px-2 py-4">
+    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col px-2 py-4">
       <FeedStreamSortHeader
         title="Latest"
         sortMode={feedStreamSort}
@@ -414,7 +417,7 @@ export function TimelineView() {
       <VirtualizedTimelineList
         rows={filteredRows}
         showFeedPreviewImages={showFeedPreviewImages}
-        scrollStorageKey={`feed-stream-${feedStreamSort}`}
+        scrollStorageKey={`feed-stream-${activePageId}-${feedStreamSort}`}
       />
     </div>
   );

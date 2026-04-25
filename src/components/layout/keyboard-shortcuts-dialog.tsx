@@ -5,27 +5,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { KbdBadge } from "@/components/ui/kbd-badge";
 import { KEYBOARD_SHORTCUT_HELP_ROWS } from "@/lib/keyboard-shortcut-help";
+import { MAC_CMD_GAP } from "@/lib/mac-cmd-gap";
 import { isMac } from "@/lib/platform";
-import { cn } from "@/lib/utils";
 
 type KeyboardShortcutsDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-function ShortcutKbd({ children }: { children: string }) {
-  return (
-    <kbd
-      className={cn(
-        "pointer-events-none inline-flex items-center justify-center rounded border border-border bg-muted/80 px-1.5 py-0.5",
-        "font-mono text-[11px] font-medium tabular-nums text-foreground shadow-sm",
-      )}
-    >
-      {children}
-    </kbd>
-  );
-}
+const dialogKbdClass = "text-foreground shadow-sm";
 
 function splitChord(label: string): string[] {
   return label.split(/\s*\/\s*/).map((s) => s.trim()).filter(Boolean);
@@ -34,12 +24,14 @@ function splitChord(label: string): string[] {
 function ChordRow({ label }: { label: string }) {
   const parts = splitChord(label);
   if (parts.length <= 1) {
-    return <ShortcutKbd>{label}</ShortcutKbd>;
+    return <KbdBadge className={dialogKbdClass}>{label}</KbdBadge>;
   }
   return (
     <span className="flex flex-wrap items-center gap-1.5">
       {parts.map((p) => (
-        <ShortcutKbd key={p}>{p}</ShortcutKbd>
+        <KbdBadge key={p} className={dialogKbdClass}>
+          {p}
+        </KbdBadge>
       ))}
     </span>
   );
@@ -58,8 +50,8 @@ export function KeyboardShortcutsDialog({
           <DialogTitle>Keyboard shortcuts</DialogTitle>
           <DialogDescription className="text-left">
             Shortcuts apply when a text field is not focused (except{" "}
-            <ChordRow label={mac ? "⌘/" : "Ctrl+/"} />, which always opens this
-            panel).
+            <ChordRow label={mac ? `⌘${MAC_CMD_GAP}K` : "Ctrl+K"} />, which
+            always opens this panel).
           </DialogDescription>
         </DialogHeader>
         <div
@@ -82,12 +74,14 @@ export function KeyboardShortcutsDialog({
                   key={row.action}
                   className="border-b border-border/80 last:border-0"
                 >
-                  <td className="py-2.5 pr-4 align-top text-foreground">
+                  <td className="py-2.5 pr-4 align-middle text-foreground">
                     {row.action}
                   </td>
-                  <td className="py-2.5 align-top">
+                  <td className="py-2.5 align-middle">
                     {row.plain ? (
-                      <ShortcutKbd>{mac ? row.mac : row.windowsLinux}</ShortcutKbd>
+                      <KbdBadge className={dialogKbdClass}>
+                        {mac ? row.mac : row.windowsLinux}
+                      </KbdBadge>
                     ) : (
                       <ChordRow label={mac ? row.mac : row.windowsLinux} />
                     )}

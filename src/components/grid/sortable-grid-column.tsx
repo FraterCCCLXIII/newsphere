@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2 } from "lucide-react";
+import { DotsSixVertical, Trash } from "@phosphor-icons/react";
 import type { KeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
@@ -271,7 +271,7 @@ export function SortableGridSectionHeader({ column }: { column: GridColumn }) {
                 }
               }}
             >
-              <GripVertical className="size-4 shrink-0" aria-hidden />
+              <DotsSixVertical className="size-4 shrink-0" aria-hidden />
               <span className="sr-only">Open section menu</span>
             </Button>
           </DropdownMenuTrigger>
@@ -284,7 +284,7 @@ export function SortableGridSectionHeader({ column }: { column: GridColumn }) {
               className="text-destructive focus:bg-destructive/10 focus:text-destructive"
               onSelect={() => void removeColumn(column.id)}
             >
-              <Trash2 className="size-4" aria-hidden />
+              <Trash className="size-4" aria-hidden />
               Remove
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -347,7 +347,7 @@ export function GridColumnDragOverlay({
       className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground"
       aria-hidden
     >
-      <GripVertical className="size-4 shrink-0" />
+      <DotsSixVertical className="size-4 shrink-0" />
     </div>
   );
 
@@ -533,7 +533,7 @@ export function SortableGridColumn({
             }
           }}
         >
-          <GripVertical className="size-4 shrink-0" aria-hidden />
+          <DotsSixVertical className="size-4 shrink-0" aria-hidden />
           <span className="sr-only">Open column menu</span>
         </Button>
       </DropdownMenuTrigger>
@@ -546,7 +546,7 @@ export function SortableGridColumn({
           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
           onSelect={() => void removeColumn(column.id)}
         >
-          <Trash2 className="size-4" aria-hidden />
+          <Trash className="size-4" aria-hidden />
           Remove
         </DropdownMenuItem>
       </DropdownMenuContent>

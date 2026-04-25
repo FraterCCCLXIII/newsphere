@@ -1,12 +1,12 @@
 import {
+  CaretDown,
   Check,
-  ChevronDown,
-  Link2,
+  LinkSimple,
   Minus,
   Plus,
-  Search,
+  MagnifyingGlass,
   X,
-} from "lucide-react";
+} from "@phosphor-icons/react";
 import {
   useCallback,
   useEffect,
@@ -232,7 +232,7 @@ export function AddSourceModal({
                 Search
               </Label>
               <div className="relative">
-                <Search
+                <MagnifyingGlass
                   className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
                   aria-hidden
                 />
@@ -269,7 +269,7 @@ export function AddSourceModal({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 opacity-50" />
+                <CaretDown className="pointer-events-none absolute right-2.5 top-1/2 size-4 -translate-y-1/2 opacity-50" />
               </div>
             </div>
           </div>
@@ -412,10 +412,10 @@ export function AddSourceModal({
             id="add-custom-trigger"
           >
             <span className="inline-flex min-w-0 items-center gap-2">
-              <Link2 className="size-4 shrink-0 opacity-80" aria-hidden />
+              <LinkSimple className="size-4 shrink-0 opacity-80" aria-hidden />
               <span className="truncate text-sm">Add a custom feed</span>
             </span>
-            <ChevronDown
+            <CaretDown
               className={cn(
                 "size-4 shrink-0 opacity-70 transition-transform duration-200",
                 customOpen && "rotate-180",

@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { CaretDown } from "@phosphor-icons/react";
 
 import { useAiTools } from "@/components/ai/ai-tools-provider";
 import { Button } from "@/components/ui/button";
@@ -142,7 +142,7 @@ export function AiToolsSettingsSection({ className }: { className?: string }) {
                   aria-label="LLM provider"
                 >
                   <span className="truncate">{providerLabel}</span>
-                  <ChevronDown className="ml-2 size-4 shrink-0 opacity-60" />
+                  <CaretDown className="ml-2 size-4 shrink-0 opacity-60" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent

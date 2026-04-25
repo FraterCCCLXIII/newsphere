@@ -13,7 +13,7 @@ import {
   arrayMove,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { Plus } from "lucide-react";
+import { Plus } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
@@ -117,7 +117,7 @@ function GridAddDividerRow({
             aria-label="Add section header or feed"
             aria-haspopup="menu"
           >
-            <Plus className="size-3" strokeWidth={2.25} aria-hidden />
+            <Plus className="size-3" strokeWidth={1.75} aria-hidden />
           </button>
         }
       />

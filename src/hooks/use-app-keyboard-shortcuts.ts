@@ -30,10 +30,11 @@ export function useAppKeyboardShortcuts({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
 
-      const openHelp =
+      const openShortcuts =
         (e.metaKey || e.ctrlKey) &&
-        (e.key === "/" || e.code === "Slash");
-      if (openHelp) {
+        !e.shiftKey &&
+        e.key.toLowerCase() === "k";
+      if (openShortcuts) {
         e.preventDefault();
         openShortcutsDialog();
         return;
@@ -55,7 +56,9 @@ export function useAppKeyboardShortcuts({
 
       const k = e.key.toLowerCase();
 
-      if (k === "k") {
+      const focusSearchChord =
+        (e.key === "/" || e.code === "Slash") && !e.shiftKey;
+      if (focusSearchChord) {
         e.preventDefault();
         focusSearch();
         return;
@@ -75,7 +78,7 @@ export function useAppKeyboardShortcuts({
         go("/bookmarks");
         return;
       }
-      if (k === ",") {
+      if (k === "s" && !e.shiftKey) {
         e.preventDefault();
         go("/settings");
         return;
@@ -85,7 +88,7 @@ export function useAppKeyboardShortcuts({
         onRefresh();
         return;
       }
-      if (k === "h" && e.shiftKey) {
+      if (k === "h" && !e.shiftKey) {
         e.preventDefault();
         go("/history");
         return;

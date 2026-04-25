@@ -1,4 +1,4 @@
-import { RotateCcw } from "lucide-react";
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
@@ -66,7 +66,7 @@ export function SettingsAppPage() {
           className="mt-4 gap-1.5 text-muted-foreground hover:text-destructive"
           onClick={() => setResetDialogOpen(true)}
         >
-          <RotateCcw className="size-4" aria-hidden />
+          <ArrowCounterClockwise className="size-4" aria-hidden />
           Reset to default layout
         </Button>
       </section>

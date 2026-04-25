@@ -1,4 +1,4 @@
-import { Rss } from "lucide-react";
+import { RssSimple } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
@@ -51,7 +51,7 @@ export function FeedFavicon({ feedUrl, className }: FeedFaviconProps) {
   if (!loadNetworkFavicons || !host || failed) {
     return (
       <span className={shell} aria-hidden>
-        <Rss className="h-[62%] w-[62%]" aria-hidden />
+        <RssSimple className="h-[62%] w-[62%]" aria-hidden />
       </span>
     );
   }

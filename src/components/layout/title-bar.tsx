@@ -1,20 +1,20 @@
 import { useCallback, useMemo, type RefObject } from "react";
 import {
-  Bookmark,
-  History,
-  ChevronLeft,
-  ChevronRight,
-  Grid3x3,
+  ArrowsClockwise,
+  BookmarkSimple,
+  CaretLeft,
+  CaretRight,
+  ClockCounterClockwise,
+  DotsThreeVertical,
+  Gear,
+  GridNine,
+  Hamburger,
   Keyboard,
-  Menu,
-  MoreVertical,
+  MagnifyingGlass,
   Plus,
-  Rows3,
-  RefreshCw,
-  Search,
-  Settings,
-  Sparkle,
-} from "lucide-react";
+  Rows,
+  StarFour,
+} from "@phosphor-icons/react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import { useHistoryNavigation } from "@/hooks/use-history-navigation";
@@ -37,8 +37,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { KbdBadge } from "@/components/ui/kbd-badge";
 import { APP_DISPLAY_NAME } from "@/lib/app-metadata";
+import { getMenuKeyHints } from "@/lib/menu-key-hints";
 import { isTauriRuntime } from "@/lib/tauri-env";
+import { MAC_CMD_GAP } from "@/lib/mac-cmd-gap";
 import { controlsOnLeft, isMac } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 import type { GridPage } from "@/types/grid";
@@ -73,7 +76,7 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
 
 const mobileNavLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    "app-no-drag flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors",
+    "app-no-drag flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors",
     "focus:bg-accent focus:text-accent-foreground",
     isActive ? "bg-accent text-accent-foreground" : "",
   );
@@ -83,8 +86,8 @@ type SettingsThemeExtrasProps = {
   setTheme: ReturnType<typeof useTheme>["setTheme"];
   textScale: number;
   setTextScale: (n: number) => void;
-  linkFromReader: (to: string) => (e: React.MouseEvent<HTMLAnchorElement>) => void;
   onOpenKeyboardShortcuts: () => void;
+  keyHints: ReturnType<typeof getMenuKeyHints>;
 };
 
 function SettingsThemeExtras({
@@ -92,11 +95,9 @@ function SettingsThemeExtras({
   setTheme,
   textScale,
   setTextScale,
-  linkFromReader,
   onOpenKeyboardShortcuts,
+  keyHints,
 }: SettingsThemeExtrasProps) {
-  const shortcutsHint = isMac() ? "⌘/" : "Ctrl+/";
-
   return (
     <>
       <DropdownMenuItem
@@ -108,27 +109,7 @@ function SettingsThemeExtras({
           aria-hidden
         />
         <span className="min-w-0 flex-1">Keyboard shortcuts</span>
-        <kbd
-          className={cn(
-            "pointer-events-none hidden shrink-0 rounded border border-border bg-muted/80 px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground sm:inline",
-          )}
-        >
-          {shortcutsHint}
-        </kbd>
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem asChild>
-        <Link
-          to="/settings"
-          onClick={linkFromReader("/settings")}
-          className="flex w-full cursor-pointer items-center gap-2"
-        >
-          <Settings
-            className="size-4 shrink-0 text-muted-foreground"
-            aria-hidden
-          />
-          Settings
-        </Link>
+        <KbdBadge className="text-muted-foreground">{keyHints.shortcuts}</KbdBadge>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <ThemeAppearanceSwitch theme={theme} onThemeChange={setTheme} />
@@ -171,11 +152,13 @@ export function TitleBar({
   const { goBack, goForward, canGoBack, canGoForward } =
     useHistoryNavigation();
 
+  const keyHints = useMemo(() => getMenuKeyHints(), []);
+
   const { backButtonTitle, forwardButtonTitle } = useMemo(() => {
     if (isMac()) {
       return {
-        backButtonTitle: "Back — ⌘[",
-        forwardButtonTitle: "Forward — ⌘]",
+        backButtonTitle: `Back — ⌘${MAC_CMD_GAP}[`,
+        forwardButtonTitle: `Forward — ⌘${MAC_CMD_GAP}]`,
       };
     }
     return {
@@ -199,8 +182,8 @@ export function TitleBar({
       setTheme={setTheme}
       textScale={textScale}
       setTextScale={setTextScale}
-      linkFromReader={linkFromReader}
       onOpenKeyboardShortcuts={onOpenKeyboardShortcuts}
+      keyHints={keyHints}
     />
   );
 
@@ -218,7 +201,7 @@ export function TitleBar({
         aria-label="Grid"
         onClick={linkFromReader("/")}
       >
-        <Grid3x3 className="size-4 shrink-0" aria-hidden />
+        <GridNine className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">Grid</span>
       </NavLink>
       <NavLink
@@ -228,7 +211,7 @@ export function TitleBar({
         aria-label="Latest feed"
         onClick={linkFromReader("/feed")}
       >
-        <Rows3 className="size-4 shrink-0" aria-hidden />
+        <Rows className="size-4 shrink-0" aria-hidden />
         <span className="sr-only">Latest feed</span>
       </NavLink>
       {aiAssistant ? (
@@ -246,7 +229,7 @@ export function TitleBar({
           title="AI assistant"
           onClick={() => aiAssistant.onToggle()}
         >
-          <Sparkle className="size-4 shrink-0" aria-hidden />
+          <StarFour className="size-4 shrink-0" aria-hidden />
           <span className="sr-only">AI assistant</span>
         </Button>
       ) : null}
@@ -272,7 +255,7 @@ export function TitleBar({
         title="Refresh grid and RSS feeds"
         aria-label="Refresh grid and feeds"
       >
-        <RefreshCw
+        <ArrowsClockwise
           className={cn("size-4 shrink-0", refreshing && "animate-spin")}
         />
       </Button>
@@ -290,13 +273,13 @@ export function TitleBar({
             aria-label="More options"
             aria-haspopup="menu"
           >
-            <MoreVertical className="size-4 shrink-0" aria-hidden />
+            <DotsThreeVertical className="size-4 shrink-0" aria-hidden />
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="app-no-drag w-64"
+          className="app-no-drag min-w-[16rem]"
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
           <DropdownMenuItem asChild>
@@ -310,11 +293,12 @@ export function TitleBar({
                 )
               }
             >
-              <Bookmark
+              <BookmarkSimple
                 className="size-4 shrink-0 text-muted-foreground"
                 aria-hidden
               />
-              Bookmarks
+              <span className="min-w-0 flex-1">Bookmarks</span>
+              <KbdBadge className="text-muted-foreground">{keyHints.bookmarks}</KbdBadge>
             </NavLink>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
@@ -328,11 +312,31 @@ export function TitleBar({
                 )
               }
             >
-              <History
+              <ClockCounterClockwise
                 className="size-4 shrink-0 text-muted-foreground"
                 aria-hidden
               />
-              Reading history
+              <span className="min-w-0 flex-1">Reading history</span>
+              <KbdBadge className="text-muted-foreground">{keyHints.history}</KbdBadge>
+            </NavLink>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <NavLink
+              to="/settings"
+              onClick={linkFromReader("/settings")}
+              className={({ isActive }) =>
+                cn(
+                  "flex w-full cursor-pointer items-center gap-2",
+                  isActive && "font-medium text-foreground",
+                )
+              }
+            >
+              <Gear
+                className="size-4 shrink-0 text-muted-foreground"
+                aria-hidden
+              />
+              <span className="min-w-0 flex-1">Settings</span>
+              <KbdBadge className="text-muted-foreground">{keyHints.settings}</KbdBadge>
             </NavLink>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -353,12 +357,12 @@ export function TitleBar({
           aria-label="Open navigation menu"
           aria-haspopup="menu"
         >
-          <Menu className="size-5 shrink-0" aria-hidden />
+          <Hamburger className="size-5 shrink-0" aria-hidden />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="app-no-drag w-64"
+        className="app-no-drag min-w-[16rem]"
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
         <DropdownMenuItem asChild>
@@ -368,8 +372,9 @@ export function TitleBar({
             className={mobileNavLinkClass}
             onClick={linkFromReader("/")}
           >
-            <Grid3x3 className="size-4 shrink-0 text-muted-foreground" />
-            Grid
+            <GridNine className="size-4 shrink-0 text-muted-foreground" />
+            <span className="min-w-0 flex-1">Grid</span>
+            <KbdBadge className="text-muted-foreground">{keyHints.grid}</KbdBadge>
           </NavLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -378,13 +383,14 @@ export function TitleBar({
             className={mobileNavLinkClass}
             onClick={linkFromReader("/feed")}
           >
-            <Rows3 className="size-4 shrink-0 text-muted-foreground" />
-            Latest feed
+            <Rows className="size-4 shrink-0 text-muted-foreground" />
+            <span className="min-w-0 flex-1">Latest feed</span>
+            <KbdBadge className="text-muted-foreground">{keyHints.feed}</KbdBadge>
           </NavLink>
         </DropdownMenuItem>
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className="app-no-drag">
-            <Bookmark
+            <BookmarkSimple
               className="size-4 shrink-0 text-muted-foreground"
               aria-hidden
             />
@@ -401,8 +407,9 @@ export function TitleBar({
                 className={mobileNavLinkClass}
                 onClick={linkFromReader("/bookmarks")}
               >
-                <Bookmark className="size-4 shrink-0 text-muted-foreground" />
-                Bookmarks
+                <BookmarkSimple className="size-4 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1">Bookmarks</span>
+                <KbdBadge className="text-muted-foreground">{keyHints.bookmarks}</KbdBadge>
               </NavLink>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
@@ -411,44 +418,61 @@ export function TitleBar({
                 className={mobileNavLinkClass}
                 onClick={linkFromReader("/history")}
               >
-                <History className="size-4 shrink-0 text-muted-foreground" />
-                Reading history
+                <ClockCounterClockwise className="size-4 shrink-0 text-muted-foreground" />
+                <span className="min-w-0 flex-1">Reading history</span>
+                <KbdBadge className="text-muted-foreground">{keyHints.history}</KbdBadge>
+              </NavLink>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <NavLink
+                to="/settings"
+                className={mobileNavLinkClass}
+                onClick={linkFromReader("/settings")}
+              >
+                <Gear
+                  className="size-4 shrink-0 text-muted-foreground"
+                  aria-hidden
+                />
+                <span className="min-w-0 flex-1">Settings</span>
+                <KbdBadge className="text-muted-foreground">{keyHints.settings}</KbdBadge>
               </NavLink>
             </DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         {aiAssistant ? (
           <DropdownMenuItem
-            className="cursor-pointer"
+            className="flex cursor-pointer items-center gap-2"
             onSelect={() => {
               aiAssistant.onToggle();
             }}
           >
-            <Sparkle
+            <StarFour
               className={cn(
-                "mr-2 size-4 shrink-0 text-muted-foreground",
+                "size-4 shrink-0 text-muted-foreground",
                 aiAssistant.drawerOpen && "text-foreground",
               )}
               aria-hidden
             />
-            AI assistant
+            <span className="min-w-0 flex-1">AI assistant</span>
+            <KbdBadge className="text-muted-foreground">{keyHints.ai}</KbdBadge>
           </DropdownMenuItem>
         ) : null}
         <DropdownMenuItem
-          className="cursor-pointer"
+          className="flex cursor-pointer items-center gap-2"
           onSelect={(e) => {
             e.preventDefault();
             onRefresh();
           }}
         >
-          <RefreshCw
+          <ArrowsClockwise
             className={cn(
-              "mr-2 size-4 shrink-0 text-muted-foreground",
+              "size-4 shrink-0 text-muted-foreground",
               refreshing && "animate-spin",
             )}
             aria-hidden
           />
-          Refresh feeds
+          <span className="min-w-0 flex-1">Refresh feeds</span>
+          <KbdBadge className="text-muted-foreground">{keyHints.refresh}</KbdBadge>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         {extras}
@@ -543,7 +567,7 @@ export function TitleBar({
                 void goBack();
               }}
             >
-              <ChevronLeft className="size-4 shrink-0" aria-hidden />
+              <CaretLeft className="size-4 shrink-0" aria-hidden />
             </Button>
             <Button
               type="button"
@@ -560,11 +584,11 @@ export function TitleBar({
                 void goForward();
               }}
             >
-              <ChevronRight className="size-4 shrink-0" aria-hidden />
+              <CaretRight className="size-4 shrink-0" aria-hidden />
             </Button>
           </div>
           <div className="relative min-w-0 flex-1 md:min-w-[12rem]">
-            <Search
+            <MagnifyingGlass
               className="pointer-events-none absolute left-2.5 top-1/2 z-[1] size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
             />

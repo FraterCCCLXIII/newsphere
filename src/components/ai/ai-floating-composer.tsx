@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { SendHorizontal } from "lucide-react";
+import { PaperPlaneRight } from "@phosphor-icons/react";
 
 import { useAiTools } from "@/components/ai/ai-tools-provider";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,7 @@ export function AiFloatingComposer() {
           aria-label="Send"
           disabled={!value.trim()}
         >
-          <SendHorizontal className="size-4" />
+          <PaperPlaneRight className="size-4" />
         </Button>
       </form>
     </div>

@@ -64,7 +64,7 @@ function applyIdxCaps(
  *   push so “forward” matches a normal tab after going back.
  * - Falls back to the Navigation API, then `history.length`, when `idx` is missing.
  * - Re-syncs after each route change to avoid stale button state.
- * - Keyboard: ⌘[ / ⌘] on macOS, Alt+← / Alt+→ elsewhere (only when the target can
+ * - Keyboard: ⌘ [ / ⌘ ] on macOS, Alt+← / Alt+→ elsewhere (only when the target can
  *   navigate, so we do not send the user past the SPA root).
  */
 export function useHistoryNavigation() {

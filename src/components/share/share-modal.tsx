@@ -1,11 +1,11 @@
 import {
+  ChatCircle,
   Check,
   Copy,
-  Facebook,
-  Mail,
-  MessageSquare,
-  Send,
-} from "lucide-react";
+  Envelope,
+  FacebookLogo,
+  PaperPlaneRight,
+} from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -164,7 +164,7 @@ export function ShareModal({ open, onOpenChange, url, title }: ShareModalProps) 
 
         <div className="grid grid-cols-3 gap-x-2 gap-y-4 sm:grid-cols-4">
           <CircleAction href={targets.email} label="Email" className="bg-muted text-foreground">
-            <Mail className="size-5" aria-hidden />
+            <Envelope className="size-5" aria-hidden />
           </CircleAction>
 
           <CircleAction href={targets.whatsapp} label="WhatsApp" className="bg-[#25D366]">
@@ -172,11 +172,11 @@ export function ShareModal({ open, onOpenChange, url, title }: ShareModalProps) 
           </CircleAction>
 
           <CircleAction href={targets.facebook} label="Facebook" className="bg-[#1877F2]">
-            <Facebook className="size-5" aria-hidden />
+            <FacebookLogo className="size-5" aria-hidden />
           </CircleAction>
 
           <CircleAction href={targets.telegram} label="Telegram" className="bg-[#26A5E4]">
-            <Send className="size-5" aria-hidden />
+            <PaperPlaneRight className="size-5" aria-hidden />
           </CircleAction>
 
           <CircleAction href={targets.twitter} label="X" className="bg-foreground text-background">
@@ -184,7 +184,7 @@ export function ShareModal({ open, onOpenChange, url, title }: ShareModalProps) 
           </CircleAction>
 
           <CircleAction href={targets.sms} label="Messages" className="bg-emerald-600">
-            <MessageSquare className="size-5" aria-hidden />
+            <ChatCircle className="size-5" aria-hidden />
           </CircleAction>
 
           <CircleAction href={targets.linkedin} label="LinkedIn" className="bg-[#0A66C2]">
@@ -228,7 +228,7 @@ function LinkedInGlyph({ className }: { className?: string }) {
 
 function ShareGlyph({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <circle cx="18" cy="5" r="3" />
       <circle cx="6" cy="12" r="3" />
       <circle cx="18" cy="19" r="3" />

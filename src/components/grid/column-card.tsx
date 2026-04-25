@@ -1,7 +1,13 @@
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { Bookmark, ExternalLink, Grid3x3, Loader2, Share2 } from "lucide-react";
+import {
+  ArrowSquareOut,
+  BookmarkSimple,
+  CircleNotch,
+  GridNine,
+  ShareNetwork,
+} from "@phosphor-icons/react";
 
 import { GridFeedEntrySkeleton } from "@/components/feed/feed-skeleton";
 import { FeedFavicon } from "@/components/grid/feed-favicon";
@@ -207,7 +213,7 @@ export function FeedEntryRow({
               title="Open in browser"
               aria-label="Open in browser"
             >
-              <ExternalLink className="size-4" aria-hidden />
+              <ArrowSquareOut className="size-4" aria-hidden />
             </ExternalBrowserLink>
           </span>
           <button
@@ -220,7 +226,7 @@ export function FeedEntryRow({
             aria-label="Share"
             title="Share"
           >
-            <Share2 className="size-4" aria-hidden />
+            <ShareNetwork className="size-4" aria-hidden />
           </button>
           <button
             type="button"
@@ -243,13 +249,13 @@ export function FeedEntryRow({
             aria-label={bookmarked ? "Remove bookmark" : "Bookmark"}
             title={bookmarked ? "Remove bookmark" : "Bookmark"}
           >
-            <Bookmark
+            <BookmarkSimple
+              weight={bookmarked ? "fill" : "regular"}
               className={cn(
                 "size-4",
                 bookmarked &&
-                  "fill-current text-muted-foreground/55 dark:text-muted-foreground",
+                  "text-muted-foreground/55 dark:text-muted-foreground",
               )}
-              strokeWidth={bookmarked ? 0 : 2}
               aria-hidden
             />
           </button>
@@ -326,7 +332,7 @@ export function ColumnCard({
             >
               {/* Spin the wrapper, not the SVG — avoids baseline / subpixel wobble on the arc icon */}
               <span className="inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground motion-safe:animate-spin">
-                <Loader2 className="size-4 shrink-0 block" aria-hidden />
+                <CircleNotch className="size-4 shrink-0 block" aria-hidden />
               </span>
             </div>
           ) : null}
@@ -367,7 +373,7 @@ export function ColumnCard({
               growMain,
             )}
           >
-            <Grid3x3 className="size-10 opacity-40" aria-hidden />
+            <GridNine className="size-10 opacity-40" aria-hidden />
             <p className="text-sm">RSS loads in {APP_DISPLAY_NAME}</p>
             <p className="max-w-[240px] text-xs leading-relaxed">
               Run <span className="font-mono text-foreground">npm run tauri dev</span>{" "}
@@ -381,7 +387,7 @@ export function ColumnCard({
               growMain,
             )}
           >
-            <Grid3x3 className="size-10 opacity-40" aria-hidden />
+            <GridNine className="size-10 opacity-40" aria-hidden />
             <p className="text-sm font-medium text-foreground/90">No feed URL</p>
             <p className="max-w-[260px] text-xs leading-relaxed">
               {COLUMN_RSS_PLACEHOLDER}

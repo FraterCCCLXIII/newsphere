@@ -1,4 +1,4 @@
-import { ChevronDown, Plus } from "lucide-react";
+import { CaretDown, Plus } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -76,7 +76,7 @@ export function PageSwitcher({
             aria-haspopup="menu"
           >
             <span className="truncate">{activeLabel}</span>
-            <ChevronDown className="size-4 shrink-0 opacity-70" aria-hidden />
+            <CaretDown className="size-4 shrink-0 opacity-70" aria-hidden />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

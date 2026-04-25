@@ -1,5 +1,6 @@
 import "./theme-init";
 
+import { IconContext } from "@phosphor-icons/react";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
@@ -24,17 +25,19 @@ if (isTauriRuntime()) {
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <RootErrorBoundary>
-      <ThemeProvider>
-        <TextScaleProvider>
-          <DisplayPreferencesProvider>
-            <BrowserRouter>
-              <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden [min-height:100dvh]">
-                <App />
-              </div>
-            </BrowserRouter>
-          </DisplayPreferencesProvider>
-        </TextScaleProvider>
-      </ThemeProvider>
+      <IconContext.Provider value={{ weight: "regular" }}>
+        <ThemeProvider>
+          <TextScaleProvider>
+            <DisplayPreferencesProvider>
+              <BrowserRouter>
+                <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden [min-height:100dvh]">
+                  <App />
+                </div>
+              </BrowserRouter>
+            </DisplayPreferencesProvider>
+          </TextScaleProvider>
+        </ThemeProvider>
+      </IconContext.Provider>
     </RootErrorBoundary>
   </React.StrictMode>,
 );

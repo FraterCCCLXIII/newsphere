@@ -1,5 +1,5 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { Minus, Plus, Square, X } from "lucide-react";
+import { Minus, Plus, Square, X } from "@phosphor-icons/react";
 
 import { isMac } from "@/lib/platform";
 import { cn } from "@/lib/utils";
@@ -35,7 +35,7 @@ function MacTrafficLights() {
         onClick={close}
         aria-label="Close"
       >
-        <X className={glyph} strokeWidth={2.5} />
+        <X className={glyph} strokeWidth={2} />
       </button>
       <button
         type="button"
@@ -43,7 +43,7 @@ function MacTrafficLights() {
         onClick={minimize}
         aria-label="Minimize"
       >
-        <Minus className={glyph} strokeWidth={2.5} />
+        <Minus className={glyph} strokeWidth={2} />
       </button>
       <button
         type="button"
@@ -51,7 +51,7 @@ function MacTrafficLights() {
         onClick={toggleMax}
         aria-label="Zoom"
       >
-        <Plus className={glyph} strokeWidth={2.5} />
+        <Plus className={glyph} strokeWidth={2} />
       </button>
     </div>
   );
@@ -79,10 +79,10 @@ function WinLikeControls() {
       aria-label="Window"
     >
       <button type="button" className={btn} onClick={minimize} aria-label="Minimize">
-        <Minus className={cn(icon, "size-3.5")} strokeWidth={2.25} />
+        <Minus className={cn(icon, "size-3.5")} strokeWidth={1.75} />
       </button>
       <button type="button" className={btn} onClick={toggleMax} aria-label="Maximize">
-        <Square className={cn(icon, "size-3")} strokeWidth={2.25} />
+        <Square className={cn(icon, "size-3")} strokeWidth={1.75} />
       </button>
       <button
         type="button"
@@ -93,7 +93,7 @@ function WinLikeControls() {
         onClick={close}
         aria-label="Close"
       >
-        <X className={cn(icon, "size-3.5")} strokeWidth={2.25} />
+        <X className={cn(icon, "size-3.5")} strokeWidth={1.75} />
       </button>
     </div>
   );

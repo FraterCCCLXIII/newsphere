@@ -1,4 +1,10 @@
-import { Heading, Info, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Info,
+  PencilSimple,
+  Plus,
+  TextH,
+  Trash,
+} from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
@@ -106,7 +112,7 @@ export function SettingsGridPage() {
                 aria-label={`Rename ${effectivePage.name}`}
                 title="Rename page"
               >
-                <Pencil className="size-4" aria-hidden />
+                <PencilSimple className="size-4" aria-hidden />
               </Button>
             ) : null}
           </div>
@@ -156,7 +162,7 @@ export function SettingsGridPage() {
                   className="gap-1.5"
                   onClick={() => void addSectionHeader("New section")}
                 >
-                  <Heading className="size-4" aria-hidden />
+                  <TextH className="size-4" aria-hidden />
                   Section header
                 </Button>
               </div>
@@ -267,7 +273,7 @@ export function SettingsGridPage() {
                     setDeleteDialogOpen(true);
                   }}
                 >
-                  <Trash2 className="size-4" aria-hidden />
+                  <Trash className="size-4" aria-hidden />
                   Delete page
                 </Button>
               </div>

@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
-import { Bookmark, ExternalLink, Share2 } from "lucide-react";
+import {
+  ArrowSquareOut,
+  BookmarkSimple,
+  ShareNetwork,
+} from "@phosphor-icons/react";
 
 import { useDisplayPreferences } from "@/components/display-preferences-provider";
 import { ExternalBrowserLink } from "@/components/layout/external-browser-link";
@@ -152,7 +156,7 @@ export function TimelineFeedRow({
                 title="Open in browser"
                 aria-label="Open in browser"
               >
-                <ExternalLink className="size-4" aria-hidden />
+                <ArrowSquareOut className="size-4" aria-hidden />
               </ExternalBrowserLink>
             </span>
             <button
@@ -165,7 +169,7 @@ export function TimelineFeedRow({
               aria-label="Share"
               title="Share"
             >
-              <Share2 className="size-4" aria-hidden />
+              <ShareNetwork className="size-4" aria-hidden />
             </button>
             <button
               type="button"
@@ -186,13 +190,13 @@ export function TimelineFeedRow({
               aria-label={bookmarked ? "Remove bookmark" : "Bookmark"}
               title={bookmarked ? "Remove bookmark" : "Bookmark"}
             >
-              <Bookmark
+              <BookmarkSimple
+                weight={bookmarked ? "fill" : "regular"}
                 className={cn(
                   "size-4",
                   bookmarked &&
-                    "fill-current text-muted-foreground/55 dark:text-muted-foreground",
+                    "text-muted-foreground/55 dark:text-muted-foreground",
                 )}
-                strokeWidth={bookmarked ? 0 : 2}
                 aria-hidden
               />
             </button>

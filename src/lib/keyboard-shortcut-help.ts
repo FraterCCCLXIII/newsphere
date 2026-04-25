@@ -1,3 +1,7 @@
+import { MAC_CMD_GAP } from "@/lib/mac-cmd-gap";
+
+const G = MAC_CMD_GAP;
+
 export type ShortcutHelpRow = {
   action: string;
   mac: string;
@@ -9,57 +13,57 @@ export type ShortcutHelpRow = {
 export const KEYBOARD_SHORTCUT_HELP_ROWS: ShortcutHelpRow[] = [
   {
     action: "Open keyboard shortcuts",
-    mac: "⌘/",
-    windowsLinux: "Ctrl+/",
+    mac: `⌘${G}K`,
+    windowsLinux: "Ctrl+K",
   },
   {
     action: "Go back / forward (app history)",
-    mac: "⌘[ / ⌘]",
+    mac: `⌘${G}[ / ⌘${G}]`,
     windowsLinux: "Alt+← / Alt+→",
   },
   {
     action: "Focus search",
-    mac: "⌘K",
-    windowsLinux: "Ctrl+K",
+    mac: `⌘${G}/`,
+    windowsLinux: "Ctrl+/",
   },
   {
     action: "Grid home",
-    mac: "⌘1",
+    mac: `⌘${G}1`,
     windowsLinux: "Ctrl+1",
   },
   {
     action: "Latest feed",
-    mac: "⌘2",
+    mac: `⌘${G}2`,
     windowsLinux: "Ctrl+2",
   },
   {
     action: "Bookmarks",
-    mac: "⌘B",
+    mac: `⌘${G}B`,
     windowsLinux: "Ctrl+B",
   },
   {
     action: "Reading history",
-    mac: "⌘⇧H",
-    windowsLinux: "Ctrl+Shift+H",
+    mac: `⌘${G}H`,
+    windowsLinux: "Ctrl+H",
   },
   {
     action: "Settings",
-    mac: "⌘,",
-    windowsLinux: "Ctrl+,",
+    mac: `⌘${G}S`,
+    windowsLinux: "Ctrl+S",
   },
   {
     action: "Refresh feeds",
-    mac: "⌘R",
+    mac: `⌘${G}R`,
     windowsLinux: "Ctrl+R",
   },
   {
     action: "Add source (catalog)",
-    mac: "⌘⇧N",
+    mac: `⌘${G}⇧${G}N`,
     windowsLinux: "Ctrl+Shift+N",
   },
   {
     action: "Toggle AI assistant",
-    mac: "⌘⇧A",
+    mac: `⌘${G}⇧${G}A`,
     windowsLinux: "Ctrl+Shift+A",
   },
   {
@@ -76,7 +80,7 @@ export const KEYBOARD_SHORTCUT_HELP_ROWS: ShortcutHelpRow[] = [
   },
   {
     action: "Reader: bookmark article",
-    mac: "⌘D",
+    mac: `⌘${G}D`,
     windowsLinux: "Ctrl+D",
   },
   {

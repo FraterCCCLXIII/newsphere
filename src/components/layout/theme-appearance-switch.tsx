@@ -1,5 +1,5 @@
 import * as SwitchPrimitives from "@radix-ui/react-switch";
-import { Moon, Palette, Sun } from "lucide-react";
+import { Moon, Palette, Sun } from "@phosphor-icons/react";
 
 import type { Theme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";

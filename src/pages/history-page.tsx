@@ -1,4 +1,10 @@
-import { Bookmark, ExternalLink, Search, Share2, Trash2 } from "lucide-react";
+import {
+  ArrowSquareOut,
+  BookmarkSimple,
+  MagnifyingGlass,
+  ShareNetwork,
+  Trash,
+} from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 
@@ -106,7 +112,7 @@ function HistoryRow({
                 title="Open in browser"
                 aria-label="Open in browser"
               >
-                <ExternalLink className="size-4" aria-hidden />
+                <ArrowSquareOut className="size-4" aria-hidden />
               </ExternalBrowserLink>
             ) : (
               <span
@@ -114,7 +120,7 @@ function HistoryRow({
                 title="No safe URL"
                 aria-hidden
               >
-                <ExternalLink className="size-4" aria-hidden />
+                <ArrowSquareOut className="size-4" aria-hidden />
               </span>
             )}
             <button
@@ -125,7 +131,7 @@ function HistoryRow({
               disabled={!safeLink}
               onClick={() => setShareOpen(true)}
             >
-              <Share2 className="size-4" aria-hidden />
+              <ShareNetwork className="size-4" aria-hidden />
             </button>
             <button
               type="button"
@@ -145,13 +151,13 @@ function HistoryRow({
                 })
               }
             >
-              <Bookmark
+              <BookmarkSimple
+                weight={bookmarked ? "fill" : "regular"}
                 className={cn(
                   "size-4",
                   bookmarked &&
-                    "fill-current text-muted-foreground/55 dark:text-muted-foreground",
+                    "text-muted-foreground/55 dark:text-muted-foreground",
                 )}
-                strokeWidth={bookmarked ? 0 : 2}
                 aria-hidden
               />
             </button>
@@ -162,7 +168,7 @@ function HistoryRow({
               aria-label="Remove from history"
               onClick={onRemove}
             >
-              <Trash2 className="size-4" aria-hidden />
+              <Trash className="size-4" aria-hidden />
             </button>
           </div>
         </div>
@@ -258,7 +264,7 @@ export function HistoryPage() {
               : `${visible.length} of ${sorted.length} articles`}
           </p>
           <div className="relative mt-4 max-w-md">
-            <Search
+            <MagnifyingGlass
               className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
             />

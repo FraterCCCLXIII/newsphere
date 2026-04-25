@@ -1,4 +1,9 @@
-import { ExternalLink, Search, Share2, Trash2 } from "lucide-react";
+import {
+  ArrowSquareOut,
+  MagnifyingGlass,
+  ShareNetwork,
+  Trash,
+} from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 
@@ -100,7 +105,7 @@ function BookmarkRow({
                 title="Open in browser"
                 aria-label="Open in browser"
               >
-                <ExternalLink className="size-4" aria-hidden />
+                <ArrowSquareOut className="size-4" aria-hidden />
               </ExternalBrowserLink>
             ) : (
               <span
@@ -108,7 +113,7 @@ function BookmarkRow({
                 title="No safe URL for this bookmark"
                 aria-hidden
               >
-                <ExternalLink className="size-4" aria-hidden />
+                <ArrowSquareOut className="size-4" aria-hidden />
               </span>
             )}
             <button
@@ -119,7 +124,7 @@ function BookmarkRow({
               disabled={!safeLink}
               onClick={() => setShareOpen(true)}
             >
-              <Share2 className="size-4" aria-hidden />
+              <ShareNetwork className="size-4" aria-hidden />
             </button>
             <button
               type="button"
@@ -128,7 +133,7 @@ function BookmarkRow({
               aria-label="Remove bookmark"
               onClick={onRemove}
             >
-              <Trash2 className="size-4" aria-hidden />
+              <Trash className="size-4" aria-hidden />
             </button>
           </div>
         </div>
@@ -211,7 +216,7 @@ export function BookmarksPage() {
               : `${sorted.length} saved ${sorted.length === 1 ? "link" : "links"}`}
           </p>
           <div className="relative mt-4 max-w-md">
-            <Search
+            <MagnifyingGlass
               className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden
             />
